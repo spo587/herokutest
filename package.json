@@ -1,0 +1,23 @@
+{
+  "name": "newtestapp",
+  "version": "0.0.0",
+  "description": "testing out the set app, trying to get an app to deploy!!",
+  "main": "index.js",
+  "scripts": {
+    "test": "what"
+  },
+  "repository": {
+    "type": "git",
+    "url": "github.com/spo587/herokutest"
+  },
+  "keywords": [
+    "set",
+    "node"
+  ],
+  "author": "sam post",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/spo587/herokutest/issues"
+  },
+  "homepage": "https://github.com/spo587/herokutest"
+}
