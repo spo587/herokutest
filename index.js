@@ -17,7 +17,7 @@ io.on('connection', function(client){
 
 
 
-app.get('/set', function(req, res){
+app.get('/', function(req, res){
     var file = fs.createReadStream('./set.html');
     file.pipe(res);
 
@@ -35,8 +35,8 @@ app.get('/superset', function(req, res){
 
 var port = process.env.PORT || 8080;
 
-server.listen(8080);
+//server.listen(8080);
 
-// app.listen(port, function() {
-//     console.log('Our app is running on http://localhost:' + port);
-// });
+server.listen(port, function() {
+    console.log('Our app is running on http://localhost:' + port);
+});
