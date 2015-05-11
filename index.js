@@ -7,7 +7,7 @@ var fs = require('fs');
 
 var app = express();
 
-app.get('/set', function(req, res){
+app.get('/', function(req, res){
     var file = fs.createReadStream('./set.html');
     file.pipe(res);
 
