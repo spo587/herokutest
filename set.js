@@ -71,7 +71,7 @@ function dom(name, attributes) {
 
 //this function creates a dom element for each card
 function domCard(cardnum) {
-    var cardsrc = 'cards/' + String(cardnum) + '.JPG'
+    var cardsrc = 'https://dl.dropboxusercontent.com/u/95890750/set/cards/' + String(cardnum) + '.JPG'
     return dom('IMG', {src: cardsrc, id: cardnum, border: 5}) //click: printnum()}) //adding click to the properties just executes the function without click...wtf?
 }
 
