@@ -1,27 +1,16 @@
 {
-  "name": "newtestapp",
+  "name": "chat-app",
   "version": "0.0.0",
-  "description": "testing out the set app, trying to get an app to deploy!!",
+  "description": "chat server",
   "main": "index.js",
   "scripts": {
-    "set": "set.js"
+    "test": "test.js"
   },
-  "repository": {
-    "type": "git",
-    "url": "github.com/spo587/herokutest"
-  },
-  "keywords": [
-    "set",
-    "node"
-  ],
-  "author": "sam post",
+  "author": "",
   "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/spo587/herokutest/issues"
-  },
-  "homepage": "https://github.com/spo587/herokutest",
   "dependencies": {
+    "socket.io": "~1.3.5",
     "express": "~4.12.3",
-    "socket.io": "~1.3.5"
+    "redis": "~0.12.1"
   }
 }
