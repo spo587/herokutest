@@ -1,6 +1,6 @@
 <script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
 <script src='https://dl.dropboxusercontent.com/u/95890750/set/set.js'></script>
-<script src="http://code.jquery.com/jquery-1.11.1.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
 
 <body>
     <button type='button' id='button1' class='button'> click me to deal </button>
@@ -14,7 +14,7 @@
     </form>
     <div id='div1'></div>
     <script>
-    var socket = io.connect('http://localhost:8080');
+    var socket = io.connect('/');
     socket.on('new connection', function(numPlayers){
 
         var current = $('#numclients')[0].value;
