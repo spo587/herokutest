@@ -3,7 +3,6 @@ var set = require('./set');
 
 var express = require('express');
 
-var fs = require('fs');
 
 var app = express();
 
@@ -11,27 +10,23 @@ var server = require('http').createServer(app);
 
 var io = require('socket.io')(server);
 
-io.on('connection', function(client){
+io.on('connection', function(socket){
   console.log('client has connected');
 });
 
-
+// io.on('highlight', function(){
+//     console.log('click received');
+// })
 
 app.get('/', function(req, res){
-    var file = fs.createReadStream('./set.html');
-    file.pipe(res);
+    res.sendFile(__dirname + '/set.html');
 
 });
 
-app.get('/besttimes', function(req, res){
-    var file = fs.createReadStream('./besttimes.html');
-    file.pipe(res);
+app.get('/test', function(req, res){
+    res.sendFile(__dirname + '/test.html')
 });
 
-app.get('/superset', function(req, res){
-    var file = fs.createReadStream('./superset.html');
-    file.pipe(res);
-})
 
 var port = process.env.PORT || 8080;
 
