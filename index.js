@@ -11,26 +11,31 @@ var server = require('http').createServer(app);
 
 var io = require('socket.io')(server);
 
-var gameNumbers = [];
+//var gameNumbers = [];
 
 function livegameVar(num){
-    gameNumbers.push(num);
-    return io.of('/livegame' + String(num));
+    //gameNumbers.push(num);
+    game = io.of('/livegame' + String(num));
+    game.numPlayers = 0;
+    return game;
 }
 
 function connectSocket(socketVar){
-    var numPlayers = 0;
+    //var numPlayers = 0;
+    
     socketVar.on('connection', function(socket){
         //console.log(socket);
         console.log(socketVar.name);
         console.log('connected!!!');
-        numPlayers += 1;
-        socketVar.emit('new connection', numPlayers);
+        //numPlayers += 1;
+        socketVar.numPlayers += 1;
+        console.log(socketVar.numPlayers);
+        socketVar.emit('new connection', socketVar.numPlayers);
         socket.broadcast.emit('new player');
         socket.on('disconnect', function(){
-            numPlayers = numPlayers - 1;
+            socketVar.numPlayers = socketVar.numPlayers - 1;
             console.log('client disconnected');
-            socketVar.emit('disconnect', numPlayers);
+            socketVar.emit('disconnect', socketVar.numPlayers);
             socket.broadcast.emit('player has departed');
         });
 
@@ -61,7 +66,7 @@ function connectSocket(socketVar){
 function setUpGames(number){
     var gameNumbers = set.range(number);
     var games = gameNumbers.map(function(current){
-        return livegameVar(current)
+        return livegameVar(current);
     });
     games.forEach(function(game){
         connectSocket(game);
@@ -80,7 +85,14 @@ function getGamesOnly(gameNumbers){
 setUpGames(10);
 
 
+var homesocket = io.of('/');
+homesocket.on('connection', function(socket){
+
+});
+
 var oneplayer = io.of('/oneplayer');
+
+
 //console.log(oneplayer);
 
 var bestTime = 1000000;
