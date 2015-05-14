@@ -6,10 +6,9 @@
     <h1> Set! </h1>
     <a href='/'> Return to home page </a><br>
     <button type='button' id='button1' class='button'> click me to start a new game </button>
-    <br> number of people in game <input id='numclients' type='text' value='1'></input>
-    <br>your set count<input id='setsFoundSelf' type='text' value='0'></input>
-    opponent's set count
-    <input id='setsFoundOpponent' type='text' value='0'></input>
+    <br> number of people in game: <span id='numclients'> 1 </span>
+    <br>your set count: <span id='setsFoundSelf'>0</span><br>
+    opponent's set count: <span id='setsFoundOpponent'>0</span>
     <br>
     
     <div id='div1'></div>
@@ -17,16 +16,16 @@
     <form action="">
       <input id="m" autocomplete="off" /><button>Trash talk</button>
     </form>
-    <script>
-    function assignVar(num){
-        var socket = io('/livegame/' + String(num));
-        return socket;
-    }
+    <script>  
+    // function assignVar(num){
+    //         var socket = io('/livegame/' + String(num));
+    //         return socket;
+    //     }
     function doStuff(socket){
         socket.on('new connection', function(numPlayers){
 
-            var current = $('#numclients')[0].value;
-            $('#numclients')[0].value = String(numPlayers);
+            var current = $('#numclients').text();
+            $('#numclients').text(String(numPlayers));
             if (numPlayers === 1){
                 alert('wait for second player to join...');
             }
@@ -36,8 +35,8 @@
             alert('another player has joined! Either one of you can start the game');
         });
         socket.on('disconnect', function(numPlayers){
-            var current = $('#numclients')[0].value;
-            $('#numclients')[0].value = String(numPlayers);
+            var current = $('#numclients').text();
+            $('#numclients').text(String(numPlayers));
         });
         socket.on('player has departed', function(){
             alert('the other player left :(');
@@ -76,86 +75,78 @@
             dealThree(cards);
         });
         socket.on('set found', function(cards){
-            var current = $('#setsFoundOpponent')[0].value;
-            $('#setsFoundOpponent')[0].value = String(Number(current) + 1);
+            console.log('firing event');
+            var current = $('#setsFoundOpponent').text();
+            $('#setsFoundOpponent').text(String(Number(current) + 1));
 
             removeDeal(cards);
         });
 
     }
-    // var gameone = assignVar(1);
-    // doStuff(gameone);
-    //var gamefive = assignVar(5);
-    //doStuff(gamefive);
-    
-    // //doStuff(socket);
+
     var socket = io('/livegame' + document.URL[document.URL.length - 1]);
-    socket.on('new connection', function(numPlayers){
+    doStuff(socket);
+    // socket.on('new connection', function(numPlayers){
 
-        var current = $('#numclients')[0].value;
-        $('#numclients')[0].value = String(numPlayers);
-        if (numPlayers === 1){
-            alert('wait for second player to join...');
-        }
+    //     var current = $('#numclients')[0].value;
+    //     $('#numclients')[0].value = String(numPlayers);
+    //     if (numPlayers === 1){
+    //         alert('wait for second player to join...');
+    //     }
 
-    });
-    socket.on('new player', function(){
-        alert('another player has joined! Either one of you can start the game');
-    });
-    socket.on('disconnect', function(numPlayers){
-        var current = $('#numclients')[0].value;
-        $('#numclients')[0].value = String(numPlayers);
-    });
-    socket.on('player has departed', function(){
-        alert('the other player left :(');
-    });
-    $('#button1').click(function(){
-        if ($('IMG').length > 0){
-
-        }
-        console.log('click');
-        socket.emit('start game'); //$('#paragraph').html());
-        //$('#paragraph').html('');
-
-        return false;
-    });
-    $('form').submit(function(){
-        socket.emit('chat message', $('#m').val());
-        $('#m').val('');
-        return false;
-      });
-
-    socket.on('chat message', function(msg){
-        console.log('incoming message');
-        $('#messages').append($('<li>').text(msg));
-    });
-    var deck;
-    socket.on('order of deck', function(orderedDeck){
-        var firstTwelve = orderedDeck.splice(0, 12);
-        //console.log(firstTwelve);
-        firstDeal(firstTwelve);
-        deck = orderedDeck;
-        //return orderedDeck;
-    });
-    socket.on('dealing next three', function(){
-        //console.log(cards);
-        var cards = deck.splice(0, 3);
-        dealThree(cards);
-    });
-    socket.on('set found', function(cards){
-        var current = $('#setsFoundOpponent')[0].value;
-        $('#setsFoundOpponent')[0].value = String(Number(current) + 1);
-
-        removeDeal(cards);
-    });
-    // var change = setInterval(function() { 
-    //     ObserveInputValue($('#setsFound').value; 
-    // }, 100);
     // });
+    // socket.on('new player', function(){
+    //     alert('another player has joined! Either one of you can start the game');
+    // });
+    // socket.on('disconnect', function(numPlayers){
+    //     var current = $('#numclients')[0].value;
+    //     $('#numclients')[0].value = String(numPlayers);
+    // });
+    // socket.on('player has departed', function(){
+    //     alert('the other player left :(');
+    // });
+    // $('#button1').click(function(){
+    //     if ($('IMG').length > 0){
 
+    //     }
+    //     console.log('click');
+    //     socket.emit('start game'); //$('#paragraph').html());
+    //     //$('#paragraph').html('');
 
-    
+    //     return false;
+    // });
+    // $('form').submit(function(){
+    //     socket.emit('chat message', $('#m').val());
+    //     $('#m').val('');
+    //     return false;
+    //   });
 
-   
-</script>
+    // socket.on('chat message', function(msg){
+    //     console.log('incoming message');
+    //     $('#messages').append($('<li>').text(msg));
+    // });
+    // var deck;
+    // socket.on('order of deck', function(orderedDeck){
+    //     var firstTwelve = orderedDeck.splice(0, 12);
+    //     //console.log(firstTwelve);
+    //     firstDeal(firstTwelve);
+    //     deck = orderedDeck;
+    //     //return orderedDeck;
+    // });
+    // socket.on('dealing next three', function(){
+    //     //console.log(cards);
+    //     var cards = deck.splice(0, 3);
+    //     dealThree(cards);
+    // });
+    // socket.on('set found', function(cards){
+    //     var current = $('#setsFoundOpponent')[0].value;
+    //     $('#setsFoundOpponent')[0].value = String(Number(current) + 1);
+
+    //     removeDeal(cards);
+    // });
+    // // var change = setInterval(function() { 
+    // //     ObserveInputValue($('#setsFound').value; 
+    // // }, 100);
+    // // });
+    </script>
 </body>
