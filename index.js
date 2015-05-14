@@ -44,10 +44,10 @@ livegame.on('connection', function(socket){
         socket.broadcast.emit('player has departed');
     });
 
-    // socket.on('chat message', function(msg){
-    //     io.emit('chat message', msg);
-    //     console.log(msg);
-    // });
+    socket.on('chat message', function(msg){
+        livegame.emit('chat message', msg);
+        console.log(msg);
+    });
     socket.on('start game', function(){
         // var allCards = set.allCards;
         // console.log(allCards);

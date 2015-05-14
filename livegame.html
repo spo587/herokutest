@@ -8,18 +8,22 @@
     <br>your set count<input id='setsFoundSelf' type='text' value='0'></input>
     opponent's set count
     <input id='setsFoundOpponent' type='text' value='0'></input>
+    <br>
+    
+    <div id='div1'></div>
     <ul id="messages"></ul>
     <form action="">
-      <input id="m" autocomplete="off" /><button>Send</button>
+      <input id="m" autocomplete="off" /><button>Trash talk</button>
     </form>
-    <div id='div1'></div>
     <script>
     var socket = io('/livegame');
     socket.on('new connection', function(numPlayers){
 
         var current = $('#numclients')[0].value;
         $('#numclients')[0].value = String(numPlayers);
-
+        if (numPlayers === 1){
+            alert('wait for second player to join...');
+        }
 
     });
     socket.on('new player', function(){
@@ -42,17 +46,16 @@
 
         return false;
     });
-    // $('form').submit(function(){
-    //     socket.emit('chat message', $('#m').val());
-    //     console.log('bam');
-    //     $('#m').val('');
-    //     return false;
-    // });
+    $('form').submit(function(){
+        socket.emit('chat message', $('#m').val());
+        $('#m').val('');
+        return false;
+      });
 
-    // socket.on('chat message', function(msg){
-    //     console.log('incoming message');
-    //     $('#paragraph').append($('<li>').text(msg));
-    // });
+    socket.on('chat message', function(msg){
+        console.log('incoming message');
+        $('#messages').append($('<li>').text(msg));
+    });
     var deck;
     socket.on('order of deck', function(orderedDeck){
         var firstTwelve = orderedDeck.splice(0, 12);
