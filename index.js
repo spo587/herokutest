@@ -11,6 +11,31 @@ var server = require('http').createServer(app);
 
 var io = require('socket.io')(server);
 
+//socket across all pages
+var visitCounter = {};
+
+io.on('connection', function(socket){
+    
+    console.log(socket.client.request.headers.referer);
+    var route = socket.client.request.headers.referer;
+    var page = route.split('/')[route.split('/').length - 1];
+    if (visitCounter[page]){
+        visitCounter[page] += 1;
+    }
+    else {
+        visitCounter[page] = 1;
+    }
+    console.log(visitCounter);
+    io.emit('player joined game', visitCounter);
+    socket.on('disconnect', function(){
+        var route = socket.client.request.headers.referer;
+        var page = route.split('/')[route.split('/').length - 1];
+        visitCounter[page] = visitCounter[page] - 1;
+        console.log(visitCounter);
+        io.emit('player left game', visitCounter);
+    });
+});
+
 //var gameNumbers = [];
 
 function livegameVar(num){
@@ -25,11 +50,11 @@ function connectSocket(socketVar){
     
     socketVar.on('connection', function(socket){
         //console.log(socket);
-        console.log(socketVar.name);
-        console.log('connected!!!');
+        //console.log(socketVar.name);
+        //console.log('connected!!!');
         //numPlayers += 1;
         socketVar.numPlayers += 1;
-        console.log(socketVar.numPlayers);
+        //console.log(socketVar.numPlayers);
         socketVar.emit('new connection', socketVar.numPlayers);
         socket.broadcast.emit('new player');
         socket.on('disconnect', function(){
@@ -41,20 +66,20 @@ function connectSocket(socketVar){
 
         socket.on('chat message', function(msg){
             socketVar.emit('chat message', msg);
-            console.log(msg);
+            //console.log(msg);
         });
         socket.on('start game', function(){
             // var allCards = set.allCards;
             // console.log(allCards);
-            console.log('game starting??');
+            //console.log('game starting??');
             var deck = set.setDeckShuffled();
             socketVar.emit('order of deck', deck);
-            console.log(deck);
+            //console.log(deck);
             //io.emit('dealing twelve cards', twelve);
             //io.emit('array of all cards', allCards);
         });
         socket.on('set found', function(setcards){
-            console.log('set found');
+            //console.log('set found');
             socket.broadcast.emit('set found', setcards);
             // var three = set.nextThree();
             socketVar.emit('dealing next three');
@@ -100,11 +125,11 @@ var bestTime = 1000000;
 //var numPlayers = 0;
 
 oneplayer.on('connection', function(socket){
-        console.log('player connected to one player game');
-        socket.on('timed game over', function(t){
-        console.log(t);
-        bestTime = Math.min(t, bestTime);
-        console.log(bestTime);
+    console.log('player connected to one player game');
+    socket.on('timed game over', function(t){
+    console.log(t);
+    bestTime = Math.min(t, bestTime);
+    console.log(bestTime);
 
         //client.set('best time', t);
 
