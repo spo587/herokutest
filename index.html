@@ -31,8 +31,12 @@
         gameStatus[current] = 'no players';
     });
     socket.on('player joined game', function(visitCounter){
-        var gamesWaiting = [];
-        var gamesHappening = [];
+        resetGameLinks(visitCounter);
+        socket.on('player left game', function(visitCounter){
+            resetGameLinks(visitCounter);
+        });       
+    });
+    function resetGameLinks(visitCounter){
         forEachIn(visitCounter, function(prop, val){
             if (val === 1 && prop !== ''){
                 gameStatus[prop] = 'player waiting';
@@ -40,27 +44,14 @@
             }
             else if (val === 2 && prop !== ''){
                 gameStatus[prop] = 'game in progress';
-                //gamesHappening.push(prop);
             }
         });
-        console.log(gamesWaiting);
+        
         for (var i=0; i<10; i++){
             var p = $('#' + String(i));
             p.text('livegame ' + String(i) + ': ' + gameStatus['livegame' + String(i)]);
         }
-        // gamesWaiting.forEach(function(current){
-        //     $('#counter').append($('<li>').text('game waiting for another player at /' + current));
-        // });
-        // gamesHappening.forEach(function(current){
-        //     $('#counter').append($('<li>').text('two player game happening at /' + current));
-        // });
-    socket.on('player left game', function(visitCounter){
-
-    })
-        
-        
-        
-    })
+    }
     </script>
 
 </body>
