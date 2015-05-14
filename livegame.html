@@ -16,7 +16,11 @@
     <form action="">
       <input id="m" autocomplete="off" /><button>Trash talk</button>
     </form>
-    <script>  
+    <script>
+    var playerName;
+    $(document).ready(function(){
+        playerName = prompt("Your name please", '');
+    });
     // function assignVar(num){
     //         var socket = io('/livegame/' + String(num));
     //         return socket;
@@ -52,14 +56,15 @@
             return false;
         });
         $('form').submit(function(){
-            socket.emit('chat message', $('#m').val());
+            var data = {playerName: playerName, msg: $('#m').val()}
+            socket.emit('chat message', data);
             $('#m').val('');
             return false;
           });
 
-        socket.on('chat message', function(msg){
-            console.log('incoming message');
-            $('#messages').append($('<li>').text(msg));
+        socket.on('chat message', function(data){
+            //console.log('incoming message');
+            $('#messages').append($('<li>').text(data.playerName + ':  ' + data.msg));
         });
         var deck;
         socket.on('order of deck', function(orderedDeck){

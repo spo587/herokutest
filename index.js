@@ -64,8 +64,8 @@ function connectSocket(socketVar){
             socket.broadcast.emit('player has departed');
         });
 
-        socket.on('chat message', function(msg){
-            socketVar.emit('chat message', msg);
+        socket.on('chat message', function(data){
+            socketVar.emit('chat message', data);
             //console.log(msg);
         });
         socket.on('start game', function(){
