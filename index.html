@@ -4,15 +4,15 @@
 
 <body>
     <h1> Set! </h1>
-    <p><a href='/livegame1'>click here to play two player game</a></p>
+    <p>Click on a link below to join a game</p>
     <p><a href='/oneplayer'>click here to play timed one player game</a></p>
     <p><a href='/besttime'> click to see best time</a></p>
     <div id='counter'></div>
     
     <script>
     for (var i=0; i<10; i++){
-        newp = dom('P', {id: i});
-        $('#counter').append(newp);
+        newp = dom('A', {id: i, href: '/livegame' + String(i)});
+        $('#counter').append(newp).append('<br>');
 
     }
     function forEachIn(object, func) {
@@ -46,7 +46,7 @@
         console.log(gamesWaiting);
         for (var i=0; i<10; i++){
             var p = $('#' + String(i));
-            p.text('/livegame' + String(i) + ': ' + gameStatus['livegame' + String(i)]);
+            p.text('livegame ' + String(i) + ': ' + gameStatus['livegame' + String(i)]);
         }
         // gamesWaiting.forEach(function(current){
         //     $('#counter').append($('<li>').text('game waiting for another player at /' + current));
