@@ -16,7 +16,78 @@
       <input id="m" autocomplete="off" /><button>Trash talk</button>
     </form>
     <script>
-    var socket = io('/livegame');
+    function assignVar(num){
+        var socket = io('/livegame/' + String(num));
+        return socket;
+    }
+    function doStuff(socket){
+        socket.on('new connection', function(numPlayers){
+
+            var current = $('#numclients')[0].value;
+            $('#numclients')[0].value = String(numPlayers);
+            if (numPlayers === 1){
+                alert('wait for second player to join...');
+            }
+
+        });
+        socket.on('new player', function(){
+            alert('another player has joined! Either one of you can start the game');
+        });
+        socket.on('disconnect', function(numPlayers){
+            var current = $('#numclients')[0].value;
+            $('#numclients')[0].value = String(numPlayers);
+        });
+        socket.on('player has departed', function(){
+            alert('the other player left :(');
+        });
+        $('#button1').click(function(){
+            if ($('IMG').length > 0){
+
+            }
+            console.log('click');
+            socket.emit('start game'); //$('#paragraph').html());
+            //$('#paragraph').html('');
+
+            return false;
+        });
+        $('form').submit(function(){
+            socket.emit('chat message', $('#m').val());
+            $('#m').val('');
+            return false;
+          });
+
+        socket.on('chat message', function(msg){
+            console.log('incoming message');
+            $('#messages').append($('<li>').text(msg));
+        });
+        var deck;
+        socket.on('order of deck', function(orderedDeck){
+            var firstTwelve = orderedDeck.splice(0, 12);
+            //console.log(firstTwelve);
+            firstDeal(firstTwelve);
+            deck = orderedDeck;
+            //return orderedDeck;
+        });
+        socket.on('dealing next three', function(){
+            //console.log(cards);
+            var cards = deck.splice(0, 3);
+            dealThree(cards);
+        });
+        socket.on('set found', function(cards){
+            var current = $('#setsFoundOpponent')[0].value;
+            $('#setsFoundOpponent')[0].value = String(Number(current) + 1);
+
+            removeDeal(cards);
+        });
+
+    }
+    // var gameone = assignVar(1);
+    // doStuff(gameone);
+    //var gamefive = assignVar(5);
+    //doStuff(gamefive);
+    
+    // //doStuff(socket);
+    var socket = io('/livegame' + document.URL[document.URL.length - 1]);
     socket.on('new connection', function(numPlayers){
 
         var current = $('#numclients')[0].value;
@@ -78,6 +149,7 @@
     // var change = setInterval(function() { 
     //     ObserveInputValue($('#setsFound').value; 
     // }, 100);
+    // });
 
 
     

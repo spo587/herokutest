@@ -11,13 +11,81 @@ var server = require('http').createServer(app);
 
 var io = require('socket.io')(server);
 
-var livegame = io.of('/livegame');
+var gameNumbers = [];
+
+function livegameVar(num){
+    gameNumbers.push(num);
+    return io.of('/livegame' + String(num));
+}
+
+function connectSocket(socketVar){
+    var numPlayers = 0;
+    socketVar.on('connection', function(socket){
+        //console.log(socket);
+        console.log(socketVar.name);
+        console.log('connected!!!');
+        numPlayers += 1;
+        socketVar.emit('new connection', numPlayers);
+        socket.broadcast.emit('new player');
+        socket.on('disconnect', function(){
+            numPlayers = numPlayers - 1;
+            console.log('client disconnected');
+            socketVar.emit('disconnect', numPlayers);
+            socket.broadcast.emit('player has departed');
+        });
+
+        socket.on('chat message', function(msg){
+            socketVar.emit('chat message', msg);
+            console.log(msg);
+        });
+        socket.on('start game', function(){
+            // var allCards = set.allCards;
+            // console.log(allCards);
+            console.log('game starting??');
+            var deck = set.setDeckShuffled();
+            socketVar.emit('order of deck', deck);
+            console.log(deck);
+            //io.emit('dealing twelve cards', twelve);
+            //io.emit('array of all cards', allCards);
+        });
+        socket.on('set found', function(setcards){
+            console.log('set found');
+            socket.broadcast.emit('set found', setcards);
+            // var three = set.nextThree();
+            socketVar.emit('dealing next three');
+        });
+
+    });
+}
+
+function setUpGames(number){
+    var gameNumbers = set.range(number);
+    var games = gameNumbers.map(function(current){
+        return livegameVar(current)
+    });
+    games.forEach(function(game){
+        connectSocket(game);
+    });
+    getGamesOnly(gameNumbers);
+}
+
+function getGamesOnly(gameNumbers){
+    gameNumbers.forEach(function(number){
+        app.get('/livegame' + String(number), function(req, res){
+            res.sendFile(__dirname + '/livegame.html')
+        });
+    });
+}
+
+setUpGames(10);
+
 
 var oneplayer = io.of('/oneplayer');
+//console.log(oneplayer);
 
 var bestTime = 1000000;
 
-var numPlayers = 0;
+//var numPlayers = 0;
 
 oneplayer.on('connection', function(socket){
         console.log('player connected to one player game');
@@ -32,53 +100,13 @@ oneplayer.on('connection', function(socket){
 });
 
 
-livegame.on('connection', function(socket){
-    console.log('connected!!!');
-    numPlayers += 1;
-    livegame.emit('new connection', numPlayers);
-    socket.broadcast.emit('new player');
-    socket.on('disconnect', function(){
-        numPlayers = numPlayers - 1;
-        console.log('client disconnected');
-        livegame.emit('disconnect', numPlayers);
-        socket.broadcast.emit('player has departed');
-    });
-
-    socket.on('chat message', function(msg){
-        livegame.emit('chat message', msg);
-        console.log(msg);
-    });
-    socket.on('start game', function(){
-        // var allCards = set.allCards;
-        // console.log(allCards);
-        console.log('game starting??');
-        var deck = set.setDeckShuffled();
-        livegame.emit('order of deck', deck);
-        console.log(deck);
-        //io.emit('dealing twelve cards', twelve);
-        //io.emit('array of all cards', allCards);
-    });
-    socket.on('set found', function(setcards){
-        console.log('set found');
-        socket.broadcast.emit('set found', setcards);
-        // var three = set.nextThree();
-        livegame.emit('dealing next three');
-    });
-
-});
-
-
-app.get('/livegame', function(req, res){
-    res.sendFile(__dirname + '/livegame.html');
-});
-
 app.get('/oneplayer', function(req, res){
     res.sendFile(__dirname + '/oneplayer.html')
 });
 
 app.get('/besttime', function(req, res){
     res.writeHead(200);
-    res.write(String('best time so far is ' + bestTime));
+    res.write(String('best time so far is ' + bestTime + ' seconds'));
     res.end();
 })
 

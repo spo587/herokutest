@@ -1,5 +1,5 @@
 
-function range(end) {
+var range = function(end) {
     var arr = [];
     for (var i=0; i<end; i++){
         arr.push(i);
@@ -38,6 +38,7 @@ var nextThree = function(){
 }
 
 //exports.allCards = allCards;
+exports.range = range;
 exports.setDeckShuffled = setDeckShuffled;
 exports.firstTwelve = firstTwelve;
 exports.nextThree = nextThree;
