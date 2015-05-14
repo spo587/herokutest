@@ -8,7 +8,6 @@ function range(end) {
 
 }
 
-var allCards = range(81) //can we do this better?
 
 function shuffleArray(array) {
     for (var i = array.length - 1; i > 0; i--) {
@@ -20,9 +19,17 @@ function shuffleArray(array) {
     return array;
 }
 
-shuffleArray(allCards)
+//shuffleArray(allCards)
+
+var setDeckShuffled = function(){
+    //returns an array of numbers 1-81 shuffled which will correspond to set cards
+    return shuffleArray(range(81));
+}
+
 
 var firstTwelve = function(){
+    var allCards = range(81);
+    shuffleArray(allCards);
     return allCards.splice(0,12);
 }
 
@@ -30,7 +37,8 @@ var nextThree = function(){
     return allCards.splice(0,3);
 }
 
-exports.allCards = allCards;
+//exports.allCards = allCards;
+exports.setDeckShuffled = setDeckShuffled;
 exports.firstTwelve = firstTwelve;
 exports.nextThree = nextThree;
 
