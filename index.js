@@ -84,6 +84,9 @@ function connectSocket(socketVar){
             // var three = set.nextThree();
             socketVar.emit('dealing next three');
         });
+        socket.on('cardClick', function(id){
+            socket.broadcast.emit('cardClick', id);
+        });
 
     });
 }
@@ -121,16 +124,19 @@ var oneplayer = io.of('/oneplayer');
 //console.log(oneplayer);
 
 var bestTime = 1000000;
+var bestPlayer = 'postman';
 
 //var numPlayers = 0;
 
 oneplayer.on('connection', function(socket){
     console.log('player connected to one player game');
-    socket.on('timed game over', function(t){
-    console.log(t);
-    bestTime = Math.min(t, bestTime);
-    console.log(bestTime);
-
+    socket.on('timed game over', function(data){
+        console.log(data);
+        if (data.t < bestTime){
+            bestTime = data.t;
+            bestPlayer = data.playerName;
+        }
+        
         //client.set('best time', t);
 
     });
@@ -143,7 +149,7 @@ app.get('/oneplayer', function(req, res){
 
 app.get('/besttime', function(req, res){
     res.writeHead(200);
-    res.write(String('best time so far is ' + bestTime + ' seconds'));
+    res.write(String('best time so far is ' + bestTime + ' seconds by ' + bestPlayer));
     res.end();
 })
 

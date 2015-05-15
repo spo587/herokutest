@@ -86,6 +86,11 @@
 
             removeDeal(cards);
         });
+        socket.on('cardClick', function(id){
+            var card = $('#' + String(id))[0];
+            //var currentColor = card.style.borderColor;
+            changeBorderColor(card, 'red', 'black');
+        })
 
     }
 
