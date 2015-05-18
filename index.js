@@ -2,7 +2,6 @@ var express = require('express');
 var app = express();
 
 // var redis = require('redis');
-
 // var client = redis.createClient();
 
 var set = require('./set');
@@ -78,7 +77,10 @@ function connectSocket(socketVar){
             //io.emit('dealing twelve cards', twelve);
             //io.emit('array of all cards', allCards);
         });
-        socket.on('set found', function(setcards){
+        socket.on('deadboard', function(){
+            socketVar.emit('force deal next three');
+        })
+        socket.on('set found', function(setcards, nextThree){
             //console.log('set found');
             socket.broadcast.emit('set found', setcards);
             // var three = set.nextThree();

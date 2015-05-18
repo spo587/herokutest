@@ -20,12 +20,14 @@
     var playerName;
     $(document).ready(function(){
         playerName = prompt("Your name please", '');
+        socket.emit('')
     });
     // function assignVar(num){
     //         var socket = io('/livegame/' + String(num));
     //         return socket;
     //     }
     function doStuff(socket){
+
         socket.on('new connection', function(numPlayers){
 
             var current = $('#numclients').text();
@@ -35,6 +37,7 @@
             }
 
         });
+        //add opponent name to new player
         socket.on('new player', function(){
             alert('another player has joined! Either one of you can start the game');
         });
@@ -76,7 +79,18 @@
         });
         socket.on('dealing next three', function(){
             //console.log(cards);
-            var cards = deck.splice(0, 3);
+            var cardsOnBoard = cardnumarray_numbers();
+            if (cardsOnBoard.length === 9){
+                var cards = deck.splice(0, 3);
+                dealThree(cards);
+            }
+            else {
+                console.log('checking for deadboard');
+                checkDeadboardAndDeal();
+            }
+        });
+        socket.on('force deal next three', function(){
+            var cards = deck.splice(0, 3)
             dealThree(cards);
         });
         socket.on('set found', function(cards){
