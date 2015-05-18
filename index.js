@@ -14,22 +14,27 @@ var io = require('socket.io')(server);
 var visitCounter = {};
 
 io.on('connection', function(socket){
-    
+    // socket.on('player name received', function(visitCounter){
+    //     io.emit('player name', visitCounter);
+    // });
     console.log(socket.client.request.headers.referer);
     var route = socket.client.request.headers.referer;
     var page = route.split('/')[route.split('/').length - 1];
     if (visitCounter[page]){
         visitCounter[page] += 1;
     }
-    else {
-        visitCounter[page] = 1;
+    else if (page !== '') {
+        console.log('this step');
+        visitCounter[page] = 1;    
     }
     console.log(visitCounter);
     io.emit('player joined game', visitCounter);
     socket.on('disconnect', function(){
         var route = socket.client.request.headers.referer;
         var page = route.split('/')[route.split('/').length - 1];
-        visitCounter[page] = visitCounter[page] - 1;
+        if (visitCounter[page]){
+            visitCounter[page] = visitCounter[page] - 1;
+        }
         console.log(visitCounter);
         io.emit('player left game', visitCounter);
     });
@@ -49,13 +54,28 @@ function connectSocket(socketVar){
     
     socketVar.on('connection', function(socket){
         //console.log(socket);
-        //console.log(socketVar.name);
+        console.log(socketVar.name);
+        //take off the slash
+        var route = socketVar.name.split('').splice(1,socketVar.name.split('').length).join('');
         //console.log('connected!!!');
         //numPlayers += 1;
         socketVar.numPlayers += 1;
         //console.log(socketVar.numPlayers);
         socketVar.emit('new connection', socketVar.numPlayers);
-        socket.broadcast.emit('new player');
+        var otherName;
+        socket.on('player name', function(playerName){
+            otherName = playerName;
+            //console.log('player name received, broadcasting now');
+            socket.broadcast.emit('player name', otherName);
+            // if (visitCounter[route]){
+            //     visitCounter[route].push(otherName);
+            // }
+            // else {
+            //     visitCounter[route] = [otherName];
+            // }
+
+        });
+        //socket.broadcast.emit('new player', otherName);
         socket.on('disconnect', function(){
             socketVar.numPlayers = socketVar.numPlayers - 1;
             console.log('client disconnected');

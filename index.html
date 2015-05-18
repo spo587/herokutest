@@ -7,51 +7,73 @@
     <p>Click on a link below to join a game</p>
     <p><a href='/oneplayer'>click here to play timed one player game</a></p>
     <p><a href='/besttime'> click to see best time</a></p>
-    <div id='counter'></div>
+    <div id='start-game'>
+        <a id='start-game-link' href='/livegame0'>click to start a new game</a><br>
+    </div>
+    <div id='games-in-progress'></div>
     
     <script>
-    for (var i=0; i<10; i++){
-        newp = dom('A', {id: i, href: '/livegame' + String(i)});
-        $('#counter').append(newp).append('<br>');
-
+    var socket = io('/');
+    
+    socket.on('player joined game', function(visitCounter){
+        var gameCounter = 0;
+        forEachIn(visitCounter, function(prop, val){
+            gameCounter += visitCounter[prop] > 0 ? 1 : 0;
+        });
+        setLinksToWaitingGames(visitCounter);
+        if (gameCounter > 0){
+            changeLinkForNewGame(visitCounter);
+        }
+        
+        //resetGameLinks(visitCounter);
+        socket.on('player left game', function(visitCounter){
+            setLinksToWaitingGames(visitCounter);
+            changeLinkForNewGame(visitCounter);
+        });       
+    });
+    function setLinksToWaitingGames(visitCounter){
+        $('#games-in-progress').html('');
+        forEachIn(visitCounter, function(prop, val){
+            if (val === 1){
+                var id = Number(prop[prop.length - 1]);
+                var newLink = dom('A', {id: id, href: '/' + prop}, 'click to join game ' + String(id) + ' , player waiting!');
+                $('#games-in-progress').append(newLink).append('<br>');
+            }
+        });
     }
+    function changeLinkForNewGame(visitCounter){
+        //fix this!!!
+        $('#start-game').html('');
+        //debugger;
+        var lowestOpenGame;
+        console.log(lowestOpenGame);
+        forEachIn(visitCounter, function(prop, val){
+            if (visitCounter[prop] === 0){
+                if (!lowestOpenGame){
+                    console.log('assigning lowestopengame not with min to next one');
+                    lowestOpenGame = Number(prop[prop.length - 1]);
+                }
+                else {
+                    console.log('assigning with min');
+                    lowestOpenGame = Math.min(Number(prop[prop.length - 1]), lowestOpenGame);
+                }
+                console.log(lowestOpenGame);
+            }
+        });
+        var id = lowestOpenGame;
+
+        var newLink = dom('A', {id: id, href: '/livegame' + String(id)}, 'click to start new game');
+        $('#start-game').append(newLink).append('<br>');
+        
+    }
+
     function forEachIn(object, func) {
         for (var property in object) {
             if (object.hasOwnProperty(property))
                 func(property, object[property])
         }
     }
-    var socket = io('/');
-    var gameStatus = {};
-    var games = [];
-    for (var i=0; i<10; i++){
-        games.push('livegame' + i);
-    }
-    games.forEach(function(current){
-        gameStatus[current] = 'no players';
-    });
-    socket.on('player joined game', function(visitCounter){
-        resetGameLinks(visitCounter);
-        socket.on('player left game', function(visitCounter){
-            resetGameLinks(visitCounter);
-        });       
-    });
-    function resetGameLinks(visitCounter){
-        forEachIn(visitCounter, function(prop, val){
-            if (val === 1 && prop !== ''){
-                gameStatus[prop] = 'player waiting';
-                //gamesWaiting.push(prop);
-            }
-            else if (val === 2 && prop !== ''){
-                gameStatus[prop] = 'game in progress';
-            }
-        });
-        
-        for (var i=0; i<10; i++){
-            var p = $('#' + String(i));
-            p.text('livegame ' + String(i) + ': ' + gameStatus['livegame' + String(i)]);
-        }
-    }
+    
     </script>
 
 </body>
