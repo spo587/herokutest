@@ -6,6 +6,7 @@
     <h1> Set! </h1>
     <a href='/'> Return to home page </a><br>
     <button type='button' id='button1' class='button'> click me to start a new game </button>
+    <br><button type='button' id='shuffle' onclick='shuffleBoardCards()'>click to shuffle the board</button>
     <br> number of people in game: <span id='numclients'> 1 </span>
     <br>your set count: <span id='setsFoundSelf'>0</span><br>
     opponent's set count: <span id='setsFoundOpponent'>0</span>
@@ -100,11 +101,27 @@
 
             removeDeal(cards);
         });
-        socket.on('cardClick', function(id){
+        socket.on('cardClick', function(data){
+            var id = data.card;
+            var clicked = data.clicked;
+            
             var card = $('#' + String(id))[0];
             //var currentColor = card.style.borderColor;
             changeBorderColor(card, 'red', 'black');
-        })
+            
+            if (clicked.length === 3) {
+                //console.log(clicked);
+                var clickedCardNums = clicked.map(function(current){
+                    return convertCardBack(current);
+                });
+                var clickedCardDoms = clickedCardNums.map(function(current){
+                    return $('#' + String(current))[0];
+                });
+                clickedCardDoms.forEach(function(current){
+                    changeBorderColor(current, 'red', 'black')
+                });
+            }
+        });
 
     }
 
