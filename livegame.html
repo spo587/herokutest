@@ -78,7 +78,7 @@
             //return orderedDeck;
         });
         socket.on('dealing next three', function(){
-            //console.log(cards);
+            console.log('dealing next three');
             var cardsOnBoard = cardnumarray_numbers();
             if (cardsOnBoard.length === 9){
                 var cards = deck.splice(0, 3);
