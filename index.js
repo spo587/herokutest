@@ -87,9 +87,12 @@ function connectSocket(socketVar){
             socketVar.emit('order of deck', deck);
 
         });
-        socket.on('deadboard', function(){
-            socketVar.emit('force deal next three');
-        })
+        // socket.on('deadboard', function(){
+        //     socketVar.emit('force deal next three');
+        // });
+        // socket.on('dealt three more', function(){
+        //     socket.broadcast.emit('force deal next three');
+        // });
         socket.on('set found', function(setcards, nextThree){
             
             socket.broadcast.emit('set found', setcards);
@@ -153,20 +156,27 @@ oneplayer.on('connection', function(socket){
     });
 });
 
+function appGet(urlPath, fileExtension){
+    app.get(urlPath, function(req, res){
+        res.sendFile(__dirname + fileExtension);
+    });
+}
 
-app.get('/oneplayer', function(req, res){
-    res.sendFile(__dirname + '/oneplayer.html')
-});
+appGet('/oneplayer', '/oneplayer.html');
+appGet('/setgame.js', '/setgame.js');
+appGet('/','/index.html');
+appGet('/socket.io/socket.io.js','/node_modules/socket.io/socket.io.js');
+appGet('/utilities/jquery.js', '/utilities/jquery.js');
+
+for (var i=0; i < 81; i += 1){
+    appGet('/cards/' + String(i) + '.JPG', '/cards/' + String(i) + '.JPG');
+}
 
 app.get('/besttime', function(req, res){
     res.writeHead(200);
     res.write(String('best time so far is ' + bestTime + ' seconds by ' + bestPlayer));
     res.end();
-})
-
-app.get('/', function(req, res){
-    res.sendFile(__dirname + '/index.html');
-})
+});
 
 var port = process.env.PORT || 8080;
 

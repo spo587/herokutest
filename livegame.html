@@ -1,6 +1,6 @@
 <script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
-<script src='https://dl.dropboxusercontent.com/u/95890750/set/set.js'></script>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
+<script src="/utilities/jquery.js"></script>
+<script src="./setgame.js"></script>
 
 <body>
     <h1> Set! </h1>
@@ -111,9 +111,9 @@
             }
         });
     }
-
+    var deck;
     function dealFunctions(socket){
-        var deck;
+        //var deck;
         socket.on('order of deck', function(orderedDeck){
             var firstTwelve = orderedDeck.splice(0, 12);
             //console.log(firstTwelve);
@@ -128,15 +128,16 @@
             if (cardsOnBoard.length === 9){
                 var cards = deck.splice(0, 3);
                 dealThree(cards);
+                //checkDeadboardAndDeal();
             }
             else {
                 console.log('checking for deadboard');
-                checkDeadboardAndDeal();
+                //checkDeadboardAndDeal();
             }
         });
 
         socket.on('force deal next three', function(){
-            var cards = deck.splice(0, 3)
+            var cards = deck.splice(0, 3);
             dealThree(cards);
         });
 
