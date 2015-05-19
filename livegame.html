@@ -18,17 +18,14 @@
       <input id="m" autocomplete="off" /><button>Trash talk</button>
     </form>
     <script>
+    //get name
     var playerName;
     $(document).ready(function(){
         playerName = prompt("Your name please", '');
         //socket.emit('name entered');
     });
-    // function assignVar(num){
-    //         var socket = io('/livegame/' + String(num));
-    //         return socket;
-    //     }
-    function doStuff(socket){
 
+    function setUpPregame(socket){
         socket.on('new connection', function(numPlayers){
             socket.emit('player name', playerName);
             socket.on('player name', function(name){
@@ -44,7 +41,6 @@
             }
 
         });
-
         
         socket.on('disconnect', function(numPlayers){
             var current = $('#numclients').text();
@@ -54,6 +50,12 @@
             alert('the other player left :(');
             return false
         });
+
+
+
+    }
+
+    function startGame(socket){
         $('#button1').click(function(){
             if ($('IMG').length > 0){
 
@@ -64,6 +66,10 @@
 
             return false;
         });
+    }
+
+    function chatForm(socket){
+
         $('form').submit(function(){
             var data = {playerName: playerName, msg: $('#m').val()}
             socket.emit('chat message', data);
@@ -75,6 +81,38 @@
             //console.log('incoming message');
             $('#messages').append($('<li>').text(data.playerName + ':  ' + data.msg));
         });
+    }
+
+    function checkThreeClicks(clickedOpp){
+        var clickedCardNums = clickedOpp.map(function(current){
+            return convertCardBack(current);
+        });
+        // var clickedCardDoms = clickedCardNums.map(function(current){
+        //     return $('#' + String(current))[0];
+        // });
+        clickedCardNums.forEach(function(current){
+            changeBorderStyle(current)
+        });
+
+    }
+
+    function cardClicks(socket){
+        socket.on('cardClick', function(data){
+            var id = data.card;
+            var clickedOpp = data.clicked;
+            console.log(id);
+            
+            //var card = $('#' + String(id))[0];
+            //var currentColor = card.style.borderColor;
+            changeBorderStyle(id);
+            
+            if (clickedOpp.length === 3) {
+                checkThreeClicks(clickedOpp);
+            }
+        });
+    }
+
+    function dealFunctions(socket){
         var deck;
         socket.on('order of deck', function(orderedDeck){
             var firstTwelve = orderedDeck.splice(0, 12);
@@ -83,6 +121,7 @@
             deck = orderedDeck;
             //return orderedDeck;
         });
+
         socket.on('dealing next three', function(){
             console.log('dealing next three');
             var cardsOnBoard = cardnumarray_numbers();
@@ -95,104 +134,36 @@
                 checkDeadboardAndDeal();
             }
         });
+
         socket.on('force deal next three', function(){
             var cards = deck.splice(0, 3)
             dealThree(cards);
         });
+
         socket.on('set found', function(cards){
             console.log('firing event');
             var current = $('#setsFoundOpponent').text();
             $('#setsFoundOpponent').text(String(Number(current) + 1));
-
-            removeDeal(cards);
-        });
-        socket.on('cardClick', function(data){
-            var id = data.card;
-            var clicked = data.clicked;
-            
-            var card = $('#' + String(id))[0];
-            //var currentColor = card.style.borderColor;
-            changeBorderColor(card, 'red', 'black');
-            
-            if (clicked.length === 3) {
-                //console.log(clicked);
-                var clickedCardNums = clicked.map(function(current){
-                    return convertCardBack(current);
-                });
-                var clickedCardDoms = clickedCardNums.map(function(current){
-                    return $('#' + String(current))[0];
-                });
-                clickedCardDoms.forEach(function(current){
-                    changeBorderColor(current, 'red', 'black')
-                });
-            }
+            console.log(cards);
+            var cardNumbers = cards.map(function(current){
+                return convertCardBack(current);
+            });
+            console.log(cardNumbers);
+            removeDeal(cardNumbers);
         });
 
     }
 
+    function fullSetUp(socket){
+        setUpPregame(socket);
+        startGame(socket);
+        chatForm(socket);
+        cardClicks(socket);
+        dealFunctions(socket);
+        
+    }
+
     var socket = io('/livegame' + document.URL[document.URL.length - 1]);
-    doStuff(socket);
-    // socket.on('new connection', function(numPlayers){
-
-    //     var current = $('#numclients')[0].value;
-    //     $('#numclients')[0].value = String(numPlayers);
-    //     if (numPlayers === 1){
-    //         alert('wait for second player to join...');
-    //     }
-
-    // });
-    // socket.on('new player', function(){
-    //     alert('another player has joined! Either one of you can start the game');
-    // });
-    // socket.on('disconnect', function(numPlayers){
-    //     var current = $('#numclients')[0].value;
-    //     $('#numclients')[0].value = String(numPlayers);
-    // });
-    // socket.on('player has departed', function(){
-    //     alert('the other player left :(');
-    // });
-    // $('#button1').click(function(){
-    //     if ($('IMG').length > 0){
-
-    //     }
-    //     console.log('click');
-    //     socket.emit('start game'); //$('#paragraph').html());
-    //     //$('#paragraph').html('');
-
-    //     return false;
-    // });
-    // $('form').submit(function(){
-    //     socket.emit('chat message', $('#m').val());
-    //     $('#m').val('');
-    //     return false;
-    //   });
-
-    // socket.on('chat message', function(msg){
-    //     console.log('incoming message');
-    //     $('#messages').append($('<li>').text(msg));
-    // });
-    // var deck;
-    // socket.on('order of deck', function(orderedDeck){
-    //     var firstTwelve = orderedDeck.splice(0, 12);
-    //     //console.log(firstTwelve);
-    //     firstDeal(firstTwelve);
-    //     deck = orderedDeck;
-    //     //return orderedDeck;
-    // });
-    // socket.on('dealing next three', function(){
-    //     //console.log(cards);
-    //     var cards = deck.splice(0, 3);
-    //     dealThree(cards);
-    // });
-    // socket.on('set found', function(cards){
-    //     var current = $('#setsFoundOpponent')[0].value;
-    //     $('#setsFoundOpponent')[0].value = String(Number(current) + 1);
-
-    //     removeDeal(cards);
-    // });
-    // // var change = setInterval(function() { 
-    // //     ObserveInputValue($('#setsFound').value; 
-    // // }, 100);
-    // // });
+    fullSetUp(socket);
     </script>
 </body>

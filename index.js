@@ -17,17 +17,17 @@ io.on('connection', function(socket){
     // socket.on('player name received', function(visitCounter){
     //     io.emit('player name', visitCounter);
     // });
-    console.log(socket.client.request.headers.referer);
+    //console.log(socket.client.request.headers.referer);
     var route = socket.client.request.headers.referer;
     var page = route.split('/')[route.split('/').length - 1];
     if (visitCounter[page]){
         visitCounter[page] += 1;
     }
     else if (page !== '') {
-        console.log('this step');
+        //console.log('this step');
         visitCounter[page] = 1;    
     }
-    console.log(visitCounter);
+    //console.log(visitCounter);
     io.emit('player joined game', visitCounter);
     socket.on('disconnect', function(){
         var route = socket.client.request.headers.referer;
@@ -35,7 +35,7 @@ io.on('connection', function(socket){
         if (visitCounter[page]){
             visitCounter[page] = visitCounter[page] - 1;
         }
-        console.log(visitCounter);
+        //console.log(visitCounter);
         io.emit('player left game', visitCounter);
     });
 });
@@ -50,15 +50,10 @@ function livegameVar(num){
 }
 
 function connectSocket(socketVar){
-    //var numPlayers = 0;
-    
     socketVar.on('connection', function(socket){
-        //console.log(socket);
         console.log(socketVar.name);
         //take off the slash
         var route = socketVar.name.split('').splice(1,socketVar.name.split('').length).join('');
-        //console.log('connected!!!');
-        //numPlayers += 1;
         socketVar.numPlayers += 1;
         //console.log(socketVar.numPlayers);
         socketVar.emit('new connection', socketVar.numPlayers);
@@ -88,22 +83,16 @@ function connectSocket(socketVar){
             //console.log(msg);
         });
         socket.on('start game', function(){
-            // var allCards = set.allCards;
-            // console.log(allCards);
-            //console.log('game starting??');
             var deck = set.setDeckShuffled();
             socketVar.emit('order of deck', deck);
-            //console.log(deck);
-            //io.emit('dealing twelve cards', twelve);
-            //io.emit('array of all cards', allCards);
+
         });
         socket.on('deadboard', function(){
             socketVar.emit('force deal next three');
         })
         socket.on('set found', function(setcards, nextThree){
-            //console.log('set found');
+            
             socket.broadcast.emit('set found', setcards);
-            // var three = set.nextThree();
             socketVar.emit('dealing next three');
         });
         socket.on('cardClick', function(id){
@@ -135,10 +124,10 @@ function getGamesOnly(gameNumbers){
 setUpGames(10);
 
 
-var homesocket = io.of('/');
-homesocket.on('connection', function(socket){
+// var homesocket = io.of('/');
+// homesocket.on('connection', function(socket){
 
-});
+// });
 
 var oneplayer = io.of('/oneplayer');
 

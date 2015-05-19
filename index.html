@@ -8,7 +8,7 @@
     <p><a href='/oneplayer'>click here to play timed one player game</a></p>
     <p><a href='/besttime'> click to see best time</a></p>
     <div id='start-game'>
-        <a id='start-game-link' href='/livegame0'>click to start a new game</a><br>
+        <a id='start-game-link' href='/livegame0'>click to start a new game (no games currently waiting)</a><br>
     </div>
     <div id='games-in-progress'></div>
     
@@ -41,10 +41,8 @@
             }
         });
     }
-    function changeLinkForNewGame(visitCounter){
-        //fix this!!!
-        $('#start-game').html('');
-        //debugger;
+    function findLowestOpenGameNumber(visitCounter){
+        //some bug in this function, doesn't go to the min call somehow
         var lowestOpenGame;
         console.log(lowestOpenGame);
         forEachIn(visitCounter, function(prop, val){
@@ -60,8 +58,14 @@
                 console.log(lowestOpenGame);
             }
         });
-        var id = lowestOpenGame;
+        return lowestOpenGame;
+    }
 
+    function changeLinkForNewGame(visitCounter){
+        //fix this!!!
+        $('#start-game').html('');
+        //debugger;
+        var id = findLowestOpenGameNumber(visitCounter);
         var newLink = dom('A', {id: id, href: '/livegame' + String(id)}, 'click to start new game');
         $('#start-game').append(newLink).append('<br>');
         
