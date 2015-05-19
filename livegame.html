@@ -17,6 +17,8 @@
     <form action="">
       <input id="m" autocomplete="off" /><button>Trash talk</button>
     </form>
+    <div id='sets-self'><p>Your sets: </p></div>
+    <div id='sets-opponent'><p>Oppoent's sets:</p></div>
     <script>
     //get name
     var playerName;
@@ -111,6 +113,7 @@
             }
         });
     }
+
     var deck;
     function dealFunctions(socket){
         //var deck;
@@ -142,15 +145,16 @@
         });
 
         socket.on('set found', function(cards){
-            console.log('firing event');
+            //console.log('firing event');
             var current = $('#setsFoundOpponent').text();
             $('#setsFoundOpponent').text(String(Number(current) + 1));
-            console.log(cards);
+            //console.log(cards);
             var cardNumbers = cards.map(function(current){
                 return convertCardBack(current);
             });
-            console.log(cardNumbers);
+            //console.log(cardNumbers);
             removeDeal(cardNumbers);
+            addToSetsOnScreen(cardNumbers, 'opponent');
         });
 
     }

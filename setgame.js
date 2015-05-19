@@ -156,7 +156,8 @@ function cardnumarray() {
 
 function cardnumarray_numbers() {
     //same as above but trying to use actual numbers, not strings
-    var elements = $('IMG');
+    var div = $('#div1')[0];
+    var elements = div.getElementsByTagName('IMG');
     var cardnums = [];
     for (var i=0; i<elements.length; i++){
         cardnums.push(Number(elements[i].id));
@@ -372,8 +373,10 @@ function threeClicks(cardsClicked){
         socket.emit('set found', cardsClicked);
         setsFound += 1;
         $('#setsFoundSelf').text(String(setsFound));
+        
         //test = cardsClicked;
         removeDeal(cards);
+        addToSetsOnScreen(cards, 'self');
         //clicked = [];
         // var secondDiv = $('#div2')[0];
         // var img = secondDiv.getElementsByTagName('IMG');
@@ -384,7 +387,17 @@ function threeClicks(cardsClicked){
     //}
 }
 
-
+function addToSetsOnScreen(cards, selfOrOpp){
+    var newp = dom('P',null);
+    var cardImgs = cards.map(function(current){
+        return domCard(current);
+    });
+    var id = selfOrOpp === 'self' ? 'sets-self' : 'sets-opponent';
+    $('#' + id).append(newp);
+    cardImgs.forEach(function(cardImg){
+        newp.appendChild(cardImg);
+    });
+}
 
 
 function addEventListeners(cards) {
@@ -584,7 +597,7 @@ function removeDeal(cards) {
     realign();
     realign();
     if (cardnumarray_numbers().length >= 12){
-        console.log('9 or more cards on board');
+        console.log('12 or more cards on board');
         checkDeadboardAndDeal();
     }
 }
