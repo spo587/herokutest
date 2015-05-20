@@ -123,6 +123,16 @@ function connectSocket(socketVar){
             firstClick = false;
             console.log(firstClick);
         });
+        socket.on('opponent falsey', function(){
+            socket.broadcast.emit('falsey');
+        });
+        socket.on('game data', function(data){
+            console.log(data);
+            if (data.t < bestTimeTwoPlayer){
+                bestTimeTwoPlayer = data.t;
+                bestPlayers = [data.player1, data.player2];
+            }
+        });
 
     });
 }
@@ -159,8 +169,11 @@ var oneplayer = io.of('/oneplayer');
 
 //console.log(oneplayer);
 
-var bestTime = 1000000;
-var bestPlayer = 'postman';
+var bestTimeTwoPlayer = 100000;
+var bestPlayers = ['sam', 'brett'];
+
+var bestTime;
+var bestPlayer;
 
 //var numPlayers = 0;
 
@@ -197,7 +210,7 @@ for (var i=0; i < 81; i += 1){
 
 app.get('/besttime', function(req, res){
     res.writeHead(200);
-    res.write(String('best time so far is ' + bestTime + ' seconds by ' + bestPlayer));
+    res.write(String('best time so far is ' + bestTimeTwoPlayer + ' seconds by ' + bestPlayers[0] + ' and ' + bestPlayers[1]));
     res.end();
 });
 

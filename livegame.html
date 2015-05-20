@@ -10,7 +10,8 @@
     <br> number of people in game: <span id='numclients'> 1 </span>
     <br>your set count: <span id='setsFoundSelf'>0</span><br>
     opponent's set count: <span id='setsFoundOpponent'>0</span>
-    <br>
+    <p id='time-paragraph'>Time elapsed: <span id='time'></span></p>
+
     
     <div id='div1'></div>
     <ul id="messages"></ul>
@@ -22,6 +23,7 @@
     <script>
     //get name
     var playerName;
+    var opponentName;
     $(document).ready(function(){
         playerName = prompt("Your name please", '');
         //socket.emit('name entered');
@@ -31,6 +33,7 @@
         socket.on('new connection', function(numPlayers){
             socket.emit('player name', playerName);
             socket.on('player name', function(name){
+                opponentName = name;
                 alert(name + ' has joined! Either one of you can start the game');
                 return false;
             });
@@ -124,7 +127,7 @@
                 addEventListeners(cards);
                 socket.emit('clickBanExpiring');
 
-            }, 1500);
+            }, 2000);
         });
     }
 
@@ -136,6 +139,7 @@
             var firstTwelve = deck.splice(0, 12);
             //console.log(firstTwelve);
             firstDeal(firstTwelve);
+            timer();
             
             //return orderedDeck;
         });
@@ -174,6 +178,10 @@
             //console.log(cardNumbers);
             removeDeal(cards);
             addToSetsOnScreen(cards, 'opponent');
+        });
+        socket.on('falsey', function(){
+            var current = $('#setsFoundOpponent').text();
+            $('#setsFoundOpponent').text(String(Number(current) - 1));
         });
 
     }

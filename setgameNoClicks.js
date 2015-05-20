@@ -29,11 +29,11 @@ function range(end) {
 
 function timer() {
     var t = new Date().getTime();
-    // var myVar = setInterval(function(){
-    //     $('time').innerHTML = Math.floor((new Date().getTime() - t)/1000);
-    // },1000);
+    var myVar = setInterval(function(){
+        var toShow = String(Math.floor((new Date().getTime() - t)/1000));
+        $('#time').text(toShow);
+    },1000);
     return Math.floor((new Date().getTime() - t)/1000);
-
 }
 
 function setNodeAttribute(node, attribute, value) {
@@ -329,6 +329,9 @@ function setFoundOrNot(){
     if (setFound === false){
         clicked = [];
         allBordersBlack();
+        setsFound = setsFound - 1;
+        $('#setsFoundSelf').text(String(setsFound));
+        socket.emit('opponent falsey');
     }
     //socket.emit('clickBanExpiring')
     console.log(setFound);
@@ -341,7 +344,7 @@ function clickListener(card){
         if (clicked.length === 0){
             setFound = false;
             socket.emit('firstCardClick', {card: card, clicked: clicked});
-            findSet = setTimeout(setFoundOrNot, 1500);
+            findSet = setTimeout(setFoundOrNot, 2000);
         }
         var clickTarget = click.target;
         //same thing below
@@ -596,10 +599,13 @@ function endGame() {
     console.log('endgame function called');
     if (CARDCOUNT === 81 && !isthereanyset()){
         //var t = $('time').innerHTML;
+        var t = $('#time').text();
         var setsSelf = Number($('#setsFoundSelf').text());
         var setsOpp = Number($('#setsFoundOpponent').text());
         var win = setsSelf > setsOpp ? ' won!' : ' lost!';
-        alert('game over! You' + win);
+        alert('game over! You' + win + 'game time: ' + t);
+        var data = {t: t, player1: playerName, player2: opponentName};
+        socket.emit('game data', data)
     }
         
 }
