@@ -193,16 +193,28 @@ oneplayer.on('connection', function(socket){
 
 function appGet(urlPath, fileExtension){
     app.get(urlPath, function(req, res){
+        res.header("Access-Control-Allow-Origin", "*");
+        res.header("Access-Control-Allow-Headers", "X-Requested-With");
+        res.header("Access-Control-Allow-Headers", "Content-Type");
+        res.header("Access-Control-Allow-Methods", "PUT, GET, POST, DELETE, OPTIONS");
         res.sendFile(__dirname + fileExtension);
     });
 }
+
+
 
 appGet('/oneplayer', '/oneplayer.html');
 appGet('/setgame.js', '/setgame.js');
 appGet('/setgameNoClicks.js', '/setgameNoClicks.js');
 appGet('/','/index.html');
-appGet('/socket.io/socket.io.js','/node_modules/socket.io/socket.io.js');
+appGet('/node_modules/socket.io/node_modules/socket.io-client/socket.io.js','/node_modules/socket.io/node_modules/socket.io-client/socket.io.js');
 appGet('/utilities/jquery.js', '/utilities/jquery.js');
+
+// app.get('/node_modules/socket.io/node_modules/socket.io-client/socket.io.js', function(req, res){
+//     res.header("Access-Control-Allow-Origin", "*");
+//     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+//     res.sendFile(__dirname + '/node_modules/socket.io/node_modules/socket.io-client/socket.io.js');
+// });
 
 for (var i=0; i < 81; i += 1){
     appGet('/cards/' + String(i) + '.JPG', '/cards/' + String(i) + '.JPG');
