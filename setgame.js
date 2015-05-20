@@ -199,9 +199,15 @@ var sixCardIndices = generate_all_three_card_indices(6);
 var INDICESSTORE = {6: sixCardIndices, 12: twelveCardIndices, 9: nineCardIndices, 15: fifteenCardIndices, 18: eighteenCardIndices};
 
 function isthereanyset() {
+
     var numCards = cardnumarray_numbers().length;
-    
-    var all_indices = INDICESSTORE[numCards];
+    if (numCards % 3 === 0){
+        var all_indices = INDICESSTORE[numCards];
+    }
+    else {
+        console.log('overlapping sets or something funny happened');
+        var all_indices = generate_all_three_card_indices(numCards);
+    }
     //for (var i = 0; i<array_of_all_three_index_triples.length; i++) {
     // var set = false;
     // all_indices.forEach(function(current){
