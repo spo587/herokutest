@@ -49,8 +49,14 @@ function livegameVar(num){
     return game;
 }
 
+//putting this var here works only in one direction
+//var firstClick = false;
+
 function connectSocket(socketVar){
+    var firstClick = false;
     socketVar.on('connection', function(socket){
+        
+
         console.log(socketVar.name);
         //take off the slash
         var route = socketVar.name.split('').splice(1,socketVar.name.split('').length).join('');
@@ -93,6 +99,7 @@ function connectSocket(socketVar){
         // socket.on('dealt three more', function(){
         //     socket.broadcast.emit('force deal next three');
         // });
+        
         socket.on('set found', function(setcards, nextThree){
             
             socket.broadcast.emit('set found', setcards);
@@ -100,6 +107,21 @@ function connectSocket(socketVar){
         });
         socket.on('cardClick', function(id){
             socket.broadcast.emit('cardClick', id);
+        });
+        socket.on('firstCardClick', function(data){
+            console.log(firstClick);
+            if (firstClick === true){
+                console.log('already received click');
+                return false;
+            }
+            firstClick = true;
+            console.log(data);
+            socket.broadcast.emit('noClicksUntil', data);
+        });
+        socket.on('clickBanExpiring', function(){
+            console.log('click ban expiring, resetting first click');
+            firstClick = false;
+            console.log(firstClick);
         });
 
     });
@@ -164,6 +186,7 @@ function appGet(urlPath, fileExtension){
 
 appGet('/oneplayer', '/oneplayer.html');
 appGet('/setgame.js', '/setgame.js');
+appGet('/setgameNoClicks.js', '/setgameNoClicks.js');
 appGet('/','/index.html');
 appGet('/socket.io/socket.io.js','/node_modules/socket.io/socket.io.js');
 appGet('/utilities/jquery.js', '/utilities/jquery.js');

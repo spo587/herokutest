@@ -1,6 +1,6 @@
 <script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
 <script src="/utilities/jquery.js"></script>
-<script src="./setgame.js"></script>
+<script src="./setgameNoClicks.js"></script>
 
 <body>
     <h1> Set! </h1>
@@ -97,6 +97,7 @@
         });
 
     }
+    var oppFindSet;
 
     function cardClicks(socket){
         socket.on('cardClick', function(data){
@@ -112,31 +113,46 @@
                 checkThreeClicks(clickedOpp);
             }
         });
+        socket.on('noClicksUntil', function(data){
+            var card = data.card;
+            changeBorderStyle(card);
+            clickListenersOff();
+            oppFindSet = setTimeout(function(){
+                var cards = cardnumarray_numbers();
+                clickListenersOff();
+                changeBorderStyle(card);
+                addEventListeners(cards);
+                socket.emit('clickBanExpiring');
+
+            }, 1500);
+        });
     }
 
     var deck;
     function dealFunctions(socket){
         //var deck;
         socket.on('order of deck', function(orderedDeck){
-            var firstTwelve = orderedDeck.splice(0, 12);
+            deck = orderedDeck;
+            var firstTwelve = deck.splice(0, 12);
             //console.log(firstTwelve);
             firstDeal(firstTwelve);
-            deck = orderedDeck;
+            
             //return orderedDeck;
         });
 
         socket.on('dealing next three', function(){
             console.log('dealing next three');
             var cardsOnBoard = cardnumarray_numbers();
-            if (cardsOnBoard.length === 9){
+            if (cardsOnBoard.length <= 9){
                 var cards = deck.splice(0, 3);
                 dealThree(cards);
                 //checkDeadboardAndDeal();
             }
-            else {
-                console.log('checking for deadboard');
-                //checkDeadboardAndDeal();
-            }
+            //addEventListeners(cardsOnBoard);
+            // else {
+            //     console.log('checking for deadboard');
+            //     //checkDeadboardAndDeal();
+            // }
         });
 
         socket.on('force deal next three', function(){
@@ -145,16 +161,19 @@
         });
 
         socket.on('set found', function(cards){
+            console.log(cards);
+            clearTimeout(oppFindSet);
+            socket.emit('clickBanExpiring');
             //console.log('firing event');
             var current = $('#setsFoundOpponent').text();
             $('#setsFoundOpponent').text(String(Number(current) + 1));
             //console.log(cards);
-            var cardNumbers = cards.map(function(current){
-                return convertCardBack(current);
-            });
+            // var cardNumbers = cards.map(function(current){
+            //     return convertCardBack(current);
+            // });
             //console.log(cardNumbers);
-            removeDeal(cardNumbers);
-            addToSetsOnScreen(cardNumbers, 'opponent');
+            removeDeal(cards);
+            addToSetsOnScreen(cards, 'opponent');
         });
 
     }
