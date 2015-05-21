@@ -339,9 +339,9 @@ function setFoundOrNot(){
     if (setFound === false){
         clicked = [];
         allBordersBlack();
-        setsFound = setsFound - 1;
-        $('#' + nickname).text(nickname + '\'s sets: ' + String(setsFound));
-        socket.emit('opponent falsey');
+        //setsFound = setsFound - 1;
+        //$('#' + nickname).text(nickname + '\'s sets: ' + String(setsFound));
+        socket.emit('falsey', nickname);
     }
     //socket.emit('clickBanExpiring')
     //console.log(setFound);
