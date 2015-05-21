@@ -1,133 +1,9 @@
 
-//helper functions for later (since not using jQuery)
-// function $(id) {
-//     return document.getElementById(id)
-// }
-
-Object.size = function(obj) {
-    var size = 0, key;
-    for (key in obj) {
-        if (obj.hasOwnProperty(key)) size++;
-    }
-    return size;
-};
-
-// Get the size of an object
-//var size = Object.size(myArray);
-
-function forEachIn(object, func) {
-    for (var property in object) {
-        if (object.hasOwnProperty(property))
-            func(property, object[property])
-    }
-}
-
-function forEach(arr, func) {
-    for (var i=0; i<arr.length; i++)
-        func(arr[i])
-}
-
-
-function range(end) {
-    var arr = []
-    for (var i=0; i<end; i++)
-        arr.push(i)
-    return arr
-
-}
-
-
-function timer() {
-    var t = new Date().getTime();
-    var myVar = setInterval(function(){
-        var toShow = String(Math.floor((new Date().getTime() - t)/1000));
-        $('#time').text(toShow);
-    },1000);
-    return Math.floor((new Date().getTime() - t)/1000);
-}
-
-function setNodeAttribute(node, attribute, value) {
-  if (attribute == "class")
-    node.className = value;
-  else if (attribute == "checked")
-    node.defaultChecked = value;
-  else if (attribute == "for")
-    node.htmlFor = value;
-  else if (attribute == "style")
-    node.style.cssText = value;
-  else
-    node.setAttribute(attribute, value);
-}
-
-
-
-function dom(name, attributes) {
-  var node = document.createElement(name);
-  if (attributes) {
-    forEachIn(attributes, function(name, value) {
-      setNodeAttribute(node, name, value);
-    });
-  }
-  for (var i = 2; i < arguments.length; i++) {
-    //console.log(child);
-    var child = arguments[i];
-    if (typeof child === "string"){
-      child = document.createTextNode(child);
-    node.appendChild(child);
-    }
-  }
-  return node;
-}
-
-
-
-//this function creates a dom element for each card
-function domCard(cardnum) {
-    var cardsrc = './cards/' + String(cardnum) + '.JPG';
-    //console.log(cardsrc);
-    return dom('IMG', {src: cardsrc, id: cardnum, border: 5}) //click: printnum()}) //adding click to the properties just executes the function without click...wtf?
-}
-
 
 var CARDCOUNT = 0;
 
-function getDomElement(cardNumber){
-    return $('#' + String(cardNumber))[0];
-}
- 
-
-function shuffleArray(array) {
-    for (var i = array.length - 1; i > 0; i--) {
-        var j = Math.floor(Math.random() * (i + 1));
-        var temp = array[i];
-        array[i] = array[j];
-        array[j] = temp;
-    }
-    return array;
-}
 
 
-function dealCards(cards, height, width){
-    if (height*width !== cards.length){
-        throw('cards called dont match length of board')
-    }
-    for (var j=0; j<height; j++) {
-        newp = dom('P',null);
-        var firstDiv = $('#div1');
-        firstDiv.append(newp);
-        for (var i=0; i<width; i++) {
-            
-            var randNum = cards.shift();
-            var card = domCard(randNum);
-            newp.appendChild(card);
-            //console.log(card.id)
-        
-        }
-
-    }
-    clickListenersOff()
-    addEventListeners();
-}
 
 function firstDeal(cards){
     //deal twelve cards to the board, in 3 groups of four
@@ -138,19 +14,7 @@ function firstDeal(cards){
 
 
 
-function checkDeadboardAndDeal() {
-    console.log('heres the board input to deadboard');
-    console.log(cardnumarray_numbers());
-    if (!isthereanyset()){
-        endGame();
-        console.log('deadboard');
-        //checkDeadboardAndDeal()
-        dealThree(deck.splice(0,3));
-        //socket.emit('dealt three more');
-        //socket.emit('deadboard');
-    }
 
-}
 
 function superSetFirstDeal() {
     dealCards(3, 3);
@@ -166,41 +30,9 @@ function cardnumarray() {
     });
 }
 
-function cardnumarray_numbers() {
-    //same as above but trying to use actual numbers, not strings
-    var div = $('#div1')[0];
-    var elements = div.getElementsByTagName('IMG');
-    var cardnums = [];
-    for (var i=0; i<elements.length; i++){
-        cardnums.push(Number(elements[i].id));
-    }
-    return cardnums;
 
-}
 
-function three_cards_a_set(three_indices) {
-    //three_indices is an array of BOARD indices
-    var cards = cardnumarray_numbers();
-    var testarr = [];
-    for (var i = 0; i<3; i++){
-        testarr.push(convertCard(cards[three_indices[i]]));
-    }
-    return isset(testarr);
-}
 
-function generate_all_three_card_indices(numCardsOnBoard){
-    //var cards = cardnumarray_numbers();
-    //var num = cards.length;
-    var all_indices = [];
-        for (var i = 0; i < numCardsOnBoard - 2; i++) {
-            for (var j = i+1; j< numCardsOnBoard - 1; j++){
-                for (var k=j+1; k < numCardsOnBoard; k++) {
-                    all_indices.push([i,j,k]);
-                }
-            }
-        }
-    return all_indices;
-}
 
 var twelveCardIndices = generate_all_three_card_indices(12);
 var nineCardIndices = generate_all_three_card_indices(9);
@@ -251,73 +83,52 @@ function allSets(){
 
 var numHints = 0;
 
-function deadBoard() {
-    //for hint function
-    if (isthereanyset()) {
-        var indices = isthereanyset()
+// function deadBoard() {
+//     //for hint function
+//     if (isthereanyset()) {
+//         var indices = isthereanyset()
 
-        function choose(choices) {
-            var index = Math.floor(Math.random() * choices.length);
-            return choices[index];
-        }
-        hintCardPosition = choose(indices);
-        console.log(hintCardPosition);
-        hintCardNum = cardnumarray()[hintCardPosition];
-        console.log(hintCardNum);
-        hintcard = domCard(hintCardNum);
-        var secondDiv = $('#div2')[0];
-        var img = secondDiv.getElementsByTagName('IMG');
-        if (img.length == 0) {
-            secondDiv.appendChild(hintcard);
-            alert('you fool, it\'s not a deadboard! here\'s your hint!');
-        }
-        numHints += 1;
-        $('numHints').innerHTML = 'Number of hints used: ' + numHints;
+//         function choose(choices) {
+//             var index = Math.floor(Math.random() * choices.length);
+//             return choices[index];
+//         }
+//         hintCardPosition = choose(indices);
+//         console.log(hintCardPosition);
+//         hintCardNum = cardnumarray()[hintCardPosition];
+//         console.log(hintCardNum);
+//         hintcard = domCard(hintCardNum);
+//         var secondDiv = $('#div2')[0];
+//         var img = secondDiv.getElementsByTagName('IMG');
+//         if (img.length == 0) {
+//             secondDiv.appendChild(hintcard);
+//             alert('you fool, it\'s not a deadboard! here\'s your hint!');
+//         }
+//         numHints += 1;
+//         $('numHints').innerHTML = 'Number of hints used: ' + numHints;
              
-    }
-    else {
-        //dealThree();
-    }
-}
+//     }
+//     else {
+//         //dealThree();
+//     }
+// }
 
 
 //now need to generate all possible three-index combos
 
 var clicked = [];
-console.log(clicked);
-
-function arraysEqual(a1,a2) {
-    return JSON.stringify(a1) == JSON.stringify(a2);
-}
-
-function notClicked(cardnum){
-    if (arraysEqual(convertCard(cardnum), clicked[0]) || arraysEqual(convertCard(cardnum), clicked[1])){
-        return false;
-    }
-    return true;
-}
-
-function changeBorderStyle(card){
-    var cardDom = getDomElement(card);
-    cardDom.style.borderStyle === 'dotted' ? cardDom.style.borderStyle = 'solid' : cardDom.style.borderStyle = 'dotted';
-}
-
-function changeBorderColor(card){//, color1, color2){
-    var cardDom = getDomElement(card);
-    cardDom.style.borderColor = 'red'; //== color1 ? (cardDom.style.borderColor = color2) : (cardDom.style.borderColor = color1);
-    
-}
 
 
-function removeLastCard(clicked, cardnum){
-    var converted = convertCard(cardnum);
-    if (arraysEqual(converted, clicked[0])){
-        clicked.splice(0,1);
-    }
-    else if (arraysEqual(converted, clicked[1])){
-        clicked.splice(1,1);
-    }
-}
+
+
+// function removeLastCard(clicked, cardnum){
+//     var converted = convertCard(cardnum);
+//     if (arraysEqual(converted, clicked[0])){
+//         clicked.splice(0,1);
+//     }
+//     else if (arraysEqual(converted, clicked[1])){
+//         clicked.splice(1,1);
+//     }
+// }
 
 function addToClicked(card){
     if (clicked.indexOf(card) === -1){
@@ -378,13 +189,6 @@ function clickListener(card){
 
 var test;
 
-function allBordersBlack(){
-    var imgs = $('IMG');
-        forEach(imgs, function(img){
-            img.style.borderColor = 'black';
-        });
-
-}
 
 function threeClicks(cards){
     //console.log(cardsClicked);
@@ -433,112 +237,12 @@ function threeClicks(cards){
     //}
 }
 
-function addToSetsOnScreen(cards, playerName){
-    console.log(playerName);
-    var newp = dom('P', null);
-    var cardImgs = cards.map(function(current){
-        return domCard(current);
-    });
-    var id = playerName + '-sets';
-    console.log(id);
-    $('#' + id).append(newp);
-    cardImgs.forEach(function(cardImg){
-        newp.appendChild(cardImg);
-    });
-}
-
-function clickListenersOff(){
-    var cards = cardnumarray_numbers();
-    cards.forEach(function(card){
-        clickListenerOff(card);
-    });
-}
-
-function clickListenerOff(card){
-    //console.log(card);
-    var cardDom = $('#' + String(card));
-    //console.log(cardDom);
-    cardDom.unbind('click');
-}
-
-function addEventListeners(cards) {
-    //console.log(clicked);
-
-    if (cards === undefined){ 
-        var cards = cardnumarray_numbers();
-    }
-
-    else {
-        //console.log(cards);
-    }
-    //console.log(cards);
-    cards.forEach(function(current, index, array){
-        clickListener(current);
-    });
-}
 
     
-function reduce(combine, base, array) {
-    forEach(array, function(element) {
-        base = combine(base, element)
-    })
-    return base;
-}
 
 
 
 
-function convertCard(cardNum) {
-    att3 = Math.floor(cardNum/27);
-    att2 = Math.floor((cardNum - att3*27) / 9);
-    att1 = Math.floor((cardNum - 27*att3 - 9*att2) / 3);
-    att0 = Math.floor(cardNum - 27*att3 - 9*att2 - 3*att1);
-    return [att0, att1, att2, att3]
-    //return {'att0': att0, 'att1': att1, 'att2': att2, 'att3':att3}
-}
-
-
-
-function equalArray(arr1,arr2) {
-    var res = 0;
-    for (i=0; i<arr1.length; i++) {
-        if (arr1[i] === arr2[i])
-            res += 1
-    }
-    return res === arr1.length
-}
-
-function isset(cards) {
-    //console.log(cards);
-    console.log('isset function called');
-    if (equalArray(cards[0], cards[1])){
-        return false;
-    }
-    var ans = 0;
-    for (var j=0; j<4; j++) {
-        testarray = [];
-        forEach(cards, function(card) {testarray.push(card[j])});
-        //console.log(testarray)
-        if (reduce(function(a,b){return a + b}, 0, testarray) % 3 === 0){
-            ans +=1
-        }
-    }
-    //console.log(cards)
-    return ans === 4;    
-
-}
-
-function removeElement(node) {
-  if (node.parentNode)
-    node.parentNode.removeChild(node);
-}
-
-function convertCardBack(cardArray) {
-    if (cardArray === undefined) {
-        return undefined;
-    }
-    return cardArray[0]*1 + cardArray[1]*3 + cardArray[2]*9 + cardArray[3]*27
-}
 
 function dealThree(cards) {
     console.log('deal three being called here');
@@ -592,20 +296,7 @@ function dealThree(cards) {
 //     //addEventListeners()
 // }
 
-function realign() {
-    var firstDiv = $('#div1')[0];
-    var lines = firstDiv.getElementsByTagName('P');
-    var arr = [];
-    forEach(lines,function(a){arr.push(a.childNodes.length)});
-    var longLine = arr.indexOf(Math.max(arr[0],arr[1],arr[2]));
-    var shortLine = arr.indexOf(Math.min(arr[0],arr[1],arr[2]));
-    if (longLine != shortLine) {
-        var cardToMove = lines[longLine].lastChild;
-        lines[shortLine].appendChild(cardToMove);
-    }
 
-
-}
 
 function endGame() {
     console.log('endgame function called');
@@ -624,25 +315,7 @@ function endGame() {
 
 var setsFound = 0;
 
-function findAndRemoveCard(cardnum){
-    var str = '#' + String(cardnum);
-    var elem = $(str)[0];
-    takeAway(elem);
-}
 
-function takeAway(elem){
-    var par = elem.parentNode;
-    par.removeChild(elem);
-}
-
-function highlight(card){
-    //console.log('highlight called');
-    //var card = $('#' + String(cardNumber))[0];
-    if (card === undefined){
-        console.log('highlight function call, card undefined');
-    }
-    changeBorderColor(card, 'red', 'black');
-}
 
 function removeDeal(cards) {
     console.log('remove deal function called');
