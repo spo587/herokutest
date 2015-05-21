@@ -164,9 +164,9 @@ function connectSocket(socketVar){
             firstClick = false;
             console.log(firstClick);
         });
-        socket.on('opponent falsey', function(name){
+        socket.on('falsey', function(name){
             setsPerPlayer[name] = setsPerPlayer[name] - 1;
-            socketVar.emit('allPlayers', setsPerPlayer);
+            socketVar.emit('adjustSets', setsPerPlayer);
         });
         socket.on('game data', function(data){
             console.log(data);

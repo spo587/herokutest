@@ -30,6 +30,14 @@
     //     playerName = prompt("Your name please", '');
     //     //socket.emit('name entered');
     // });
+    function adjustSets(setsPerPlayerObj){
+        forEachIn(setsPerPlayerObj, function(prop, val){
+            //console.log(prop);
+            //console.log(val);
+            $('#' + prop).text(prop + '\'s set count: ' + String(val));
+
+        });
+    }
     var nickname;
     function setUpPregame(socket){
         //var numPlayers = 1;
@@ -39,14 +47,17 @@
             socket.emit('join', nickname);
 
         });
-
+        socket.on('adjustSets', function(setsPerPlayerObj){
+            adjustSets(setsPerPlayerObj);
+        })
         socket.on('allPlayers', function(setsPerPlayerObj){
 
-            console.log(setsPerPlayerObj);
+            //console.log(setsPerPlayerObj);
+
             $('#players').text('');
             $('#sets').text('');
             forEachIn(setsPerPlayerObj, function(prop, val){
-                var newp = dom('P', {id: prop}, prop + '\'s set count: 0');
+                var newp = dom('P', {id: prop}, prop + '\'s set count: ' + String(val));
                 $('#players').append(newp);
                 var setp = dom('P', {id: prop + '-sets'}, prop + '\'s sets: ');
                 $('#sets').append(setp);
@@ -184,12 +195,8 @@
             //console.log('firing event');
             //setsOpponents[player] += 1
             console.log(setsPerPlayerObj);
-            forEachIn(setsPerPlayerObj, function(prop, val){
-                console.log(prop);
-                console.log(val);
-                $('#' + prop).text(prop + '\'s set count: ' + String(val));
-
-            });
+            adjustSets(setsPerPlayerObj);
+            
             //$('#' + player).text(player + '\'s sets: ' + String(setsOpponent));
             //console.log(cards);
             // var cardNumbers = cards.map(function(current){
