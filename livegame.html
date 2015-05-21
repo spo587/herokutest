@@ -5,11 +5,12 @@
 <body>
     <h1> Set! </h1>
     <a href='/'> Return to home page </a><br>
-    <button type='button' id='button1' class='button'> click me to start a new game </button>
+    <button type='button' id='start-game' class='button'> click me to start a new game </button>
     <br><button type='button' id='shuffle' onclick='shuffleBoardCards()'>click to shuffle the board</button>
     <br> number of people in game: <span id='numclients'> 1 </span>
-    <br>your set count: <span id='setsFoundSelf'>0</span><br>
-    opponent's set count: <span id='setsFoundOpponent'>0</span>
+    
+    <div id='players'></div>
+    
     <p id='time-paragraph'>Time elapsed: <span id='time'></span></p>
 
     
@@ -18,42 +19,53 @@
     <form action="">
       <input id="m" autocomplete="off" /><button>Trash talk</button>
     </form>
-    <div id='sets-self'><p>Your sets: </p></div>
-    <div id='sets-opponent'><p>Oppoent's sets:</p></div>
+    <div id='sets'><p></p></div>
+    
     <script>
     //get name
-    var playerName;
+    //var playerName;
+    var grandSetsObj = {};
     var opponentName;
-    $(document).ready(function(){
-        playerName = prompt("Your name please", '');
-        //socket.emit('name entered');
-    });
-
+    // $(document).ready(function(){
+    //     playerName = prompt("Your name please", '');
+    //     //socket.emit('name entered');
+    // });
+    var nickname;
     function setUpPregame(socket){
-        socket.on('new connection', function(numPlayers){
-            socket.emit('player name', playerName);
-            socket.on('player name', function(name){
-                opponentName = name;
-                alert(name + ' has joined! Either one of you can start the game');
-                return false;
-            });
+        //var numPlayers = 1;
+        socket.on('connect', function(data){
+            nickname = prompt("Your name, please", 'anonymous' + String(Math.round(100*Math.random())));
 
-            var current = $('#numclients').text();
-            $('#numclients').text(String(numPlayers));
-            if (numPlayers === 1){
-                alert('wait for second player to join...');
-                return false;
-            }
+            socket.emit('join', nickname);
 
         });
+
+        socket.on('allPlayers', function(setsPerPlayerObj){
+
+            console.log(setsPerPlayerObj);
+            $('#players').text('');
+            $('#sets').text('');
+            forEachIn(setsPerPlayerObj, function(prop, val){
+                var newp = dom('P', {id: prop}, prop + '\'s set count: 0');
+                $('#players').append(newp);
+                var setp = dom('P', {id: prop + '-sets'}, prop + '\'s sets: ');
+                $('#sets').append(setp);
+
+            });
+            var numPlayers = Object.size(setsPerPlayerObj);
+            $('#numclients').text(String(numPlayers));
+            
+            //console.log(players);
+        });
+
         
         socket.on('disconnect', function(numPlayers){
             var current = $('#numclients').text();
             $('#numclients').text(String(numPlayers));
         });
-        socket.on('player has departed', function(){
-            alert('the other player left :(');
-            return false
+        socket.on('player has departed', function(name){
+            alert(name + ' left :(');
+            
         });
 
 
@@ -61,7 +73,7 @@
     }
 
     function startGame(socket){
-        $('#button1').click(function(){
+        $('#start-game').click(function(){
             if ($('IMG').length > 0){
 
             }
@@ -163,21 +175,30 @@
             var cards = deck.splice(0, 3);
             dealThree(cards);
         });
-
-        socket.on('set found', function(cards){
+        socket.on('set found', function(data){
+            var cards = data.cards;
+            var setsPerPlayerObj = data.setsPerPlayer;
             console.log(cards);
             clearTimeout(oppFindSet);
             socket.emit('clickBanExpiring');
             //console.log('firing event');
-            var current = $('#setsFoundOpponent').text();
-            $('#setsFoundOpponent').text(String(Number(current) + 1));
+            //setsOpponents[player] += 1
+            console.log(setsPerPlayerObj);
+            forEachIn(setsPerPlayerObj, function(prop, val){
+                console.log(prop);
+                console.log(val);
+                $('#' + prop).text(prop + '\'s set count: ' + String(val));
+
+            });
+            //$('#' + player).text(player + '\'s sets: ' + String(setsOpponent));
             //console.log(cards);
             // var cardNumbers = cards.map(function(current){
             //     return convertCardBack(current);
             // });
             //console.log(cardNumbers);
             removeDeal(cards);
-            addToSetsOnScreen(cards, 'opponent');
+            console.log('okay');
+            addToSetsOnScreen(cards, data.player);
         });
         socket.on('falsey', function(){
             var current = $('#setsFoundOpponent').text();

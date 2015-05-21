@@ -4,6 +4,16 @@
 //     return document.getElementById(id)
 // }
 
+Object.size = function(obj) {
+    var size = 0, key;
+    for (key in obj) {
+        if (obj.hasOwnProperty(key)) size++;
+    }
+    return size;
+};
+
+// Get the size of an object
+//var size = Object.size(myArray);
 
 function forEachIn(object, func) {
     for (var property in object) {
@@ -59,7 +69,7 @@ function dom(name, attributes) {
     });
   }
   for (var i = 2; i < arguments.length; i++) {
-    console.log(child);
+    //console.log(child);
     var child = arguments[i];
     if (typeof child === "string"){
       child = document.createTextNode(child);
@@ -313,7 +323,7 @@ function addToClicked(card){
     if (clicked.indexOf(card) === -1){
         clicked.push(card);
     }
-    console.log(clicked);
+    //console.log(clicked);
     // if (notClicked(card)){
     //     clicked.push(convertCard(card))
     // }
@@ -330,16 +340,16 @@ function setFoundOrNot(){
         clicked = [];
         allBordersBlack();
         setsFound = setsFound - 1;
-        $('#setsFoundSelf').text(String(setsFound));
+        $('#' + nickname).text(nickname + '\'s sets: ' + String(setsFound));
         socket.emit('opponent falsey');
     }
     //socket.emit('clickBanExpiring')
-    console.log(setFound);
+    //console.log(setFound);
 }
 
 function clickListener(card){
     //card is the cardnumber
-    console.log(card);
+    //console.log(card);
     $('#' + String(card)).bind('click', function(click){
         if (clicked.length === 0){
             setFound = false;
@@ -351,7 +361,7 @@ function clickListener(card){
         //var card = Number(clickTarget.id);
         //console.log(cardnum);
         addToClicked(card);
-        console.log(clicked);
+        //console.log(clicked);
         if (clickTarget === undefined){
             console.log('clickListener function call, card undefined');
         }
@@ -403,16 +413,16 @@ function threeClicks(cards){
     // }
     if (isitaset){
         setFound = true;
-        console.log('set registered');
+        //console.log('set registered');
         console.log(setFound);
         clearTimeout(findSet);
-        socket.emit('set found', cards);
-        setsFound += 1;
-        $('#setsFoundSelf').text(String(setsFound));
+        socket.emit('set found', {cards: cards, playerName: nickname});
+        //setsFound += 1;
+        //$('#' + nickname).text(nickname + '\'s sets: ' + String(setsFound));
         
         //test = cardsClicked;
-        removeDeal(cards);
-        addToSetsOnScreen(cards, 'self');
+        //removeDeal(cards);
+        //addToSetsOnScreen(cards, 'self');
         //clicked = [];
         // var secondDiv = $('#div2')[0];
         // var img = secondDiv.getElementsByTagName('IMG');
@@ -423,12 +433,14 @@ function threeClicks(cards){
     //}
 }
 
-function addToSetsOnScreen(cards, selfOrOpp){
-    var newp = dom('P',null);
+function addToSetsOnScreen(cards, playerName){
+    console.log(playerName);
+    var newp = dom('P', null);
     var cardImgs = cards.map(function(current){
         return domCard(current);
     });
-    var id = selfOrOpp === 'self' ? 'sets-self' : 'sets-opponent';
+    var id = playerName + '-sets';
+    console.log(id);
     $('#' + id).append(newp);
     cardImgs.forEach(function(cardImg){
         newp.appendChild(cardImg);
@@ -443,9 +455,9 @@ function clickListenersOff(){
 }
 
 function clickListenerOff(card){
-    console.log(card);
+    //console.log(card);
     var cardDom = $('#' + String(card));
-    console.log(cardDom);
+    //console.log(cardDom);
     cardDom.unbind('click');
 }
 
@@ -459,7 +471,7 @@ function addEventListeners(cards) {
     else {
         //console.log(cards);
     }
-    console.log(cards);
+    //console.log(cards);
     cards.forEach(function(current, index, array){
         clickListener(current);
     });

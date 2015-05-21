@@ -12,31 +12,34 @@ var io = require('socket.io')(server);
 
 //socket across all pages
 var visitCounter = {};
+var gameStartedTracker = {};
 
 io.on('connection', function(socket){
-    // socket.on('player name received', function(visitCounter){
-    //     io.emit('player name', visitCounter);
-    // });
-    //console.log(socket.client.request.headers.referer);
     var route = socket.client.request.headers.referer;
     var page = route.split('/')[route.split('/').length - 1];
     if (visitCounter[page]){
         visitCounter[page] += 1;
+
     }
     else if (page !== '') {
         //console.log('this step');
-        visitCounter[page] = 1;    
+        visitCounter[page] = 1; 
+        gameStartedTracker[page] = false;   
     }
     //console.log(visitCounter);
-    io.emit('player joined game', visitCounter);
+    var data = {visitCounter: visitCounter, gameStartedTracker: gameStartedTracker};
+    io.emit('player joined game', data);
     socket.on('disconnect', function(){
         var route = socket.client.request.headers.referer;
         var page = route.split('/')[route.split('/').length - 1];
         if (visitCounter[page]){
             visitCounter[page] = visitCounter[page] - 1;
+            if (visitCounter[page] === 0){
+                gameStartedTracker[page] = false;
+            }
         }
         //console.log(visitCounter);
-        io.emit('player left game', visitCounter);
+        io.emit('player left game', data);
     });
 });
 
@@ -52,36 +55,70 @@ function livegameVar(num){
 //putting this var here works only in one direction
 //var firstClick = false;
 
+
+
+function cutOffFirst(str){
+    return str.split('').splice(1, str.split('').length).join('');
+}
+
 function connectSocket(socketVar){
     var firstClick = false;
+    //var players = [];
+    var setsPerPlayer = {};
     socketVar.on('connection', function(socket){
         
 
-        console.log(socketVar.name);
-        //take off the slash
-        var route = socketVar.name.split('').splice(1,socketVar.name.split('').length).join('');
-        socketVar.numPlayers += 1;
-        //console.log(socketVar.numPlayers);
-        socketVar.emit('new connection', socketVar.numPlayers);
-        var otherName;
-        socket.on('player name', function(playerName){
-            otherName = playerName;
-            //console.log('player name received, broadcasting now');
-            socket.broadcast.emit('player name', otherName);
-            // if (visitCounter[route]){
-            //     visitCounter[route].push(otherName);
-            // }
-            // else {
-            //     visitCounter[route] = [otherName];
-            // }
+        socket.on('join', function(name){
+            socket.nickname = name;
+            console.log(name + 'joined the game');
+            setsPerPlayer[name] = 0;
+            socket.broadcast.emit('new player', name);
+            console.log(setsPerPlayer);
+            
+            socketVar.emit('allPlayers', setsPerPlayer);
+            setsPerPlayer[name] = 0;
+            //socketVar.numPlayers += 1;
+            //socketVar.emit('new connection', socketVar.numPlayers);
 
         });
+        //take off the slash
+        //var route = socketVar.name.split('').splice(1,socketVar.name.split('').length).join('');
+        
+        //console.log(socketVar.numPlayers);
+        // socketVar.emit('new connection', socketVar.numPlayers);
+        // var otherName;
+        // socket.on('player name', function(playerName){
+        //     console.log('name event firing from client to server');
+        //     console.log(playerName);
+        //     if (otherName !== playerName){
+        //         otherName = playerName;
+        //         socket.broadcast.emit('player name', otherName);
+        //     }
+        //     else {
+        //         console.log('duplicate???');
+        //     }
+        //     //console.log('player name received, broadcasting now');
+            
+
+        // });
         //socket.broadcast.emit('new player', otherName);
         socket.on('disconnect', function(){
-            socketVar.numPlayers = socketVar.numPlayers - 1;
+            var departed = socket.nickname;
+            console.log(departed);
+            console.log(setsPerPlayer);
+            delete setsPerPlayer[socket.nickname];
+            console.log(setsPerPlayer);
+            //players.splice(players.indexOf(departed), 1);
+            
+            socket.broadcast.emit('player has departed', departed);
+            
+            socket.broadcast.emit('allPlayers', setsPerPlayer);
+
+            // socketVar.numPlayers = socketVar.numPlayers - 1;
             console.log('client disconnected');
-            socketVar.emit('disconnect', socketVar.numPlayers);
-            socket.broadcast.emit('player has departed');
+            //console.log(players);
+            // socketVar.emit('disconnect', socketVar.numPlayers);
+            // socket.broadcast.emit('player has departed');
         });
 
         socket.on('chat message', function(data){
@@ -91,18 +128,22 @@ function connectSocket(socketVar){
         socket.on('start game', function(){
             var deck = set.setDeckShuffled();
             socketVar.emit('order of deck', deck);
+            //console.log(socketVar.name);
+            //console.log(visitCounter);
+            var gameName = cutOffFirst(socketVar.name);
+            gameStartedTracker[gameName] = true;
+            io.emit('game no longer open', gameStartedTracker);
 
         });
-        // socket.on('deadboard', function(){
-        //     socketVar.emit('force deal next three');
-        // });
-        // socket.on('dealt three more', function(){
-        //     socket.broadcast.emit('force deal next three');
-        // });
         
-        socket.on('set found', function(setcards, nextThree){
-            
-            socket.broadcast.emit('set found', setcards);
+        socket.on('set found', function(data){
+            // var cards = data.cards;
+            // var player = data.playerName;
+            var cards = data.cards;
+            setsPerPlayer[data.playerName] += 1;
+
+            var transmit = {cards: cards, setsPerPlayer: setsPerPlayer, player: data.playerName};
+            socketVar.emit('set found', transmit);
             socketVar.emit('dealing next three');
         });
         socket.on('cardClick', function(id){
