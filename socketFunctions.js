@@ -94,7 +94,9 @@ exports.connectSocket = function(socketVar, io, gameStartedTracker){
             io.emit('game no longer open', gameStartedTracker);
 
         });
-        
+        socket.on('hintcard called', function(){
+            socketVar.emit('show hintcard');
+        });
         socket.on('set found', function(data){
             // var cards = data.cards;
             // var player = data.playerName;
@@ -117,6 +119,11 @@ exports.connectSocket = function(socketVar, io, gameStartedTracker){
             firstClick = true;
             console.log(data);
             socket.broadcast.emit('noClicksUntil', data);
+        });
+        socket.on('secondCardClick', function(data){
+            var card = data.card;
+            var clicked = data.clicked;
+            socket.broadcast.emit('secondCardClick', card);
         });
         socket.on('clickBanExpiring', function(){
             console.log('click ban expiring, resetting first click');

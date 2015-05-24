@@ -10,6 +10,7 @@
     <a href='/'> Return to home page </a><br>
     <button type='button' id='start-game' class='button'> click me to start a new game </button>
     <br><button type='button' id='shuffle' onclick='shuffleBoardCards()'>click to shuffle the board</button>
+    <button type='button' id='click-reset' onclick='clickReset()'>Click here if the clicking isn't working for some reason (working on it)</button>
     <br> number of people in game: <span id='numclients'> 1 </span>
     
     <div id='players'></div>
@@ -22,9 +23,16 @@
     <form action="">
       <input id="m" autocomplete="off" /><button>Trash talk</button>
     </form>
+    <div id='hint'><button type='button' onclick='hintCard()'>Give up? Click for hint</button>
+        <p id='hint-card-position'></p></div>
     <div id='sets'><p></p></div>
     
     <script>
+    function clickReset(){
+        var cards = cardnumarray_numbers();
+        clickListenersOff();
+        addEventListeners(cards);
+    }
     //get name
     //var playerName;
     var grandSetsObj = {};
@@ -62,8 +70,9 @@
             forEachIn(setsPerPlayerObj, function(prop, val){
                 var newp = dom('P', {id: prop}, prop + '\'s set count: ' + String(val));
                 $('#players').append(newp);
-                var setp = dom('P', {id: prop + '-sets'}, prop + '\'s sets: ');
-                $('#sets').append(setp);
+                var dummy = dom('P', null, prop + '\'s sets: ');
+                var setp = dom('P', {id: prop + '-sets'});
+                $('#sets').append(dummy).append(setp);
 
             });
             var numPlayers = Object.size(setsPerPlayerObj);
@@ -155,6 +164,7 @@
                 checkThreeClicks(clickedOpp);
             }
         });
+
         socket.on('noClicksUntil', function(data){
             var card = data.card;
             changeBorderStyle(card);
@@ -162,11 +172,14 @@
             oppFindSet = setTimeout(function(){
                 var cards = cardnumarray_numbers();
                 clickListenersOff();
-                changeBorderStyle(card);
+                allBordersSolid();
                 addEventListeners(cards);
                 socket.emit('clickBanExpiring');
 
             }, 2000);
+        });
+        socket.on('secondCardClick', function(card){
+            changeBorderStyle(card);
         });
     }
 
@@ -226,6 +239,9 @@
         socket.on('falsey', function(){
             var current = $('#setsFoundOpponent').text();
             $('#setsFoundOpponent').text(String(Number(current) - 1));
+        });
+        socket.on('show hintcard', function(){
+            displayHint();
         });
 
     }

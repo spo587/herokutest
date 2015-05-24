@@ -95,6 +95,13 @@ function allBordersBlack(){
 
 }
 
+function allBordersSolid(){
+    var imgs = $('IMG');
+    forEach(imgs, function(img){
+        img.style.borderStyle = 'solid';
+    });
+}
+
 
 function clickListenersOff(){
     var cards = cardnumarray_numbers();
@@ -135,7 +142,7 @@ function addToSetsOnScreen(cards, playerName){
     });
     var id = playerName + '-sets';
     console.log(id);
-    $('#' + id).append(newp);
+    $('#' + id).prepend(newp);
     cardImgs.forEach(function(cardImg){
         newp.appendChild(cardImg);
     });

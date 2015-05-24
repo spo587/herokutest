@@ -64,34 +64,41 @@ function allSets(){
 
 var numHints = 0;
 
-// function deadBoard() {
-//     //for hint function
-//     if (isthereanyset()) {
-//         var indices = isthereanyset()
 
-//         function choose(choices) {
-//             var index = Math.floor(Math.random() * choices.length);
-//             return choices[index];
-//         }
-//         hintCardPosition = choose(indices);
-//         console.log(hintCardPosition);
-//         hintCardNum = cardnumarray()[hintCardPosition];
-//         console.log(hintCardNum);
-//         hintcard = domCard(hintCardNum);
-//         var secondDiv = $('#div2')[0];
-//         var img = secondDiv.getElementsByTagName('IMG');
-//         if (img.length == 0) {
-//             secondDiv.appendChild(hintcard);
-//             alert('you fool, it\'s not a deadboard! here\'s your hint!');
-//         }
-//         numHints += 1;
-//         $('numHints').innerHTML = 'Number of hints used: ' + numHints;
+function choose(choices) {
+    var index = Math.floor(Math.random() * choices.length);
+    return choices[index];
+}
+
+function hintCard(){
+    socket.emit('hintcard called');
+    console.log('this function called');
+}
+
+function displayHint() {
+    //for hint function
+    
+    if (!isthereanyset()){
+        console.log('error!!! no set detected but board didnt auto-deal more cards');
+    }
+    else {
+        var indices = isthereanyset();
+        var hintCardPosition = 0;
+        //console.log(hintCardPosition);
+        var hintCardNum = cardnumarray_numbers()[hintCardPosition];
+        //console.log(hintCardNum);
+        var hintcard = domCard(hintCardNum);
+        var secondDiv = $('#hint-card-position')[0];
+        if (secondDiv.children.length > 0){
+            takeAway(secondDiv.children[0]);
+        }
+        secondDiv.appendChild(hintcard);
+            //alert('you fool, it\'s not a deadboard! here\'s your hint!');
+        //$('numHints').innerHTML = 'Number of hints used: ' + numHints;
              
-//     }
-//     else {
-//         //dealThree();
-//     }
-// }
+    }
+
+}
 
 
 //now need to generate all possible three-index combos
@@ -147,6 +154,9 @@ function clickListener(card){
             setFound = false;
             socket.emit('firstCardClick', {card: card, clicked: clicked});
             findSet = setTimeout(setFoundOrNot, 2000);
+        }
+        if (clicked.length === 1){
+            socket.emit('secondCardClick', {card: card, clicked: clicked});
         }
         var clickTarget = click.target;
         //same thing below
