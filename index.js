@@ -8,18 +8,18 @@ var io = require('socket.io')(server);
 var hs = require('./homeSocket');
 //socket across all pages
 
-var redis = require('redis');
+// var redis = require('redis');
 
-var redisClient = redis.createClient();
+// var redisClient = redis.createClient();
 
-redisClient.set('bestTimes', 10000);
-redisClient.get('bestTime', function(err, reply){
-    console.log(reply);
-});
+// redisClient.set('bestTimes', 10000);
+// redisClient.get('bestTime', function(err, reply){
+//     console.log(reply);
+// });
 
-function deleteAllKeys(client){
+// function deleteAllKeys(client){
 
-}
+// }
 
 // redisClient.zadd('nameOfSet', '400', 'bey', function(err, val){
 //     console.log(err);
@@ -36,36 +36,36 @@ function deleteAllKeys(client){
 // });
 // console.log(sortedSet);
 
-var obj = {'a':4, 'b':5};
+// var obj = {'a':4, 'b':5};
 
-console.log(obj);
-redisClient.lpush('foo', 'brett', '20', function(err, val){
-    console.log(val);
-    //list = val;
-});
+// console.log(obj);
+// redisClient.lpush('foo', 'brett', '20', function(err, val){
+//     console.log(val);
+//     //list = val;
+// });
 
-var myVar;
+// var myVar;
 
-var test2 = redisClient.lrange('foo', 0, 10, function(err, vals){
-    //console.log(err);
-    //list = val;
-    //console.log(val);
-    var test = vals;
-    myVar = vals;
-    console.log('logging var');
-    //console.log(myVar);
-    test.forEach(function(cur){
-        console.log(cur);
-    });
-    return vals;
-    //console.log(list);
-});
+// var test2 = redisClient.lrange('foo', 0, 10, function(err, vals){
+//     //console.log(err);
+//     //list = val;
+//     //console.log(val);
+//     var test = vals;
+//     myVar = vals;
+//     console.log('logging var');
+//     //console.log(myVar);
+//     test.forEach(function(cur){
+//         console.log(cur);
+//     });
+//     return vals;
+//     //console.log(list);
+// });
 
 
-console.log('hello');
-setTimeout(function(){
-    console.log(myVar);
-},2000);
+// console.log('hello');
+// setTimeout(function(){
+//     console.log(myVar);
+// },2000);
 
 var visitCounter = {};
 var gameStartedTracker = {};
