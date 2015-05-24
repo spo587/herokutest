@@ -45,7 +45,15 @@ exports.connectSocket = function(socketVar, io, gameStartedTracker){
             console.log(setsPerPlayer);
             
             socketVar.emit('allPlayers', setsPerPlayer);
-            setsPerPlayer[name] = 0;
+            //setsPerPlayer[name] = 0;
+            // if (!players[socketVar.name]){
+            //     players[socketVar.name] = [];
+            //     players[socketVar.name].push(name);
+            // }
+            // else {
+            //     players[socketVar.name].push(name);
+            // }
+            // io.emit('new player', players )
             //socketVar.numPlayers += 1;
             //socketVar.emit('new connection', socketVar.numPlayers);
 
@@ -66,6 +74,10 @@ exports.connectSocket = function(socketVar, io, gameStartedTracker){
             // socketVar.numPlayers = socketVar.numPlayers - 1;
             console.log('client disconnected');
 
+        });
+        socket.on('game over', function(t){
+            socket.emit('game over', {setsPerPlayer: setsPerPlayer, t: t});
+            
         });
 
         socket.on('chat message', function(data){

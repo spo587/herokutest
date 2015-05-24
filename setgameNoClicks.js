@@ -1,9 +1,5 @@
 
-
 var CARDCOUNT = 0;
-
-
-
 
 function firstDeal(cards){
     //deal twelve cards to the board, in 3 groups of four
@@ -13,9 +9,6 @@ function firstDeal(cards){
 }
 
 
-
-
-
 function superSetFirstDeal() {
     dealCards(3, 3);
     addEventListeners();
@@ -23,15 +16,11 @@ function superSetFirstDeal() {
 
 }
 
-
 function cardnumarray() {
     return cardnumarray_numbers().map(function(current){
         return String(current);
     });
 }
-
-
-
 
 
 var twelveCardIndices = generate_all_three_card_indices(12);
@@ -52,21 +41,13 @@ function isthereanyset() {
         console.log('overlapping sets or something funny happened');
         var all_indices = generate_all_three_card_indices(numCards);
     }
-    //for (var i = 0; i<array_of_all_three_index_triples.length; i++) {
-    // var set = false;
-    // all_indices.forEach(function(current){
-    //     if (three_cards_a_set(current)){
-    //         set = current;
-    //     }
-    // });
+
     for (var i = 0; i < all_indices.length; i++) {
         if (three_cards_a_set(all_indices[i])) {
             return all_indices[i];
         }
     }
     return false;
-    //return set;
-    //dealThree()
 }
 
 function allSets(){
@@ -297,18 +278,16 @@ function dealThree(cards) {
 // }
 
 
-
 function endGame() {
     console.log('endgame function called');
     if (CARDCOUNT === 81 && !isthereanyset()){
         //var t = $('time').innerHTML;
         var t = $('#time').text();
-        var setsSelf = Number($('#setsFoundSelf').text());
-        var setsOpp = Number($('#setsFoundOpponent').text());
-        var win = setsSelf > setsOpp ? ' won!' : ' lost!';
-        alert('game over! You' + win + 'game time: ' + t);
-        var data = {t: t, player1: playerName, player2: opponentName};
-        socket.emit('game data', data)
+        socket.emit('game over', t);
+        // var win = setsSelf > setsOpp ? ' won!' : ' lost!';
+        // alert('game over! You' + win + ' game time: ' + t);
+        // var data = {t: t, player1: playerName, player2: opponentName};
+        // socket.emit('game data', data)
     }
         
 }
@@ -332,7 +311,6 @@ function removeDeal(cards) {
             }
         });
     }
-
     realign();
     realign();
     if (cardnumarray_numbers().length >= 12){
@@ -362,21 +340,7 @@ function clearSet(clickDelay){
             setCardsDom.shift().click();
         }, clickDelay * i);
     }
-            
-    
-    // setCardsDom.forEach(function(current){
-    //     current.click();
-    //     //changeBorderColor(current, 'red', 'black')
-    // });
-    // var setCardsSetForm = setCards.map(function(current){
-    //     return convertCard(current);
-    // });
-    // setTimeout(function(){
-    //     socket.emit('set found', setCardsSetForm);
-    //     removeDeal(setCardsSetForm);
-    //     }, delay);
 }
-
 
 function playGameArtificial(setDelay, clearDelay){
     //if (CARDCOUNT < 81){

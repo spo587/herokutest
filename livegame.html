@@ -45,7 +45,7 @@
     function setUpPregame(socket){
         //var numPlayers = 1;
         socket.on('connect', function(data){
-            nickname = prompt("Your name, please", 'anonymous' + String(Math.round(100*Math.random())));
+            nickname = prompt("Your name, please", 'anonymous' + String(Math.round(1000*Math.random())));
 
             socket.emit('join', nickname);
 
@@ -81,6 +81,19 @@
             alert(name + ' left :(');
             
         });
+        socket.on('game over', function(data){
+            var t = data.t;
+            var setsPerPlayerObj = data.setsPerPlayer;
+            var max = 0;
+            var winner;
+            forEachIn(setsPerPlayerObj, function(prop, val){
+                if (val > max){
+                    winner = prop;
+                    max = val;
+                }
+            });
+            alert('game over! ' + winner + ' won! ' + 'game time : ' + String(t) + ' seconds ');
+        });
 
 
 
@@ -102,7 +115,7 @@
     function chatForm(socket){
 
         $('form').submit(function(){
-            var data = {playerName: playerName, msg: $('#m').val()}
+            var data = {playerName: nickname, msg: $('#m').val()}
             socket.emit('chat message', data);
             $('#m').val('');
             return false;
