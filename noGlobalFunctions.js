@@ -1,5 +1,8 @@
 function dealCards(cards, height, width){
+    console.log(width);
     if (height*width !== cards.length){
+        console.log(height*width);
+        console.log(cards.length);
         throw('cards called dont match length of board')
     }
     for (var j=0; j<height; j++) {
@@ -17,13 +20,15 @@ function dealCards(cards, height, width){
 
     }
     clickListenersOff()
-    addEventListeners();
+    addEventListeners(cardnumarray_numbers(), setLength);
 }
+
+//var setLength = 4;
 
 function checkDeadboardAndDeal() {
     console.log('heres the board input to deadboard');
     console.log(cardnumarray_numbers());
-    if (!isthereanyset()){
+    if (!isthereanyset(setLength)){
         endGame();
         console.log('deadboard');
         //checkDeadboardAndDeal()
@@ -47,12 +52,36 @@ function cardnumarray_numbers() {
 
 }
 
+function convertToCards(cardBoardIndices){
+
+    var cardsOnBoard = cardnumarray_numbers();
+    //console.log(cardsOnBoard);
+    var arr = [];
+    for (var i = 0; i<cardBoardIndices.length; i+=1){
+        if (cardBoardIndices[i] === undefined){
+            console.log('wtf');
+        }
+        arr.push(cardsOnBoard[cardBoardIndices[i]]);
+    }
+    return arr;
+}
+
 function three_cards_a_set(three_indices) {
     //three_indices is an array of BOARD indices
     var cards = cardnumarray_numbers();
     var testarr = [];
     for (var i = 0; i<3; i++){
+        //console.log(three_indices[i]);
+        //try {
         testarr.push(convertCard(cards[three_indices[i]]));
+        //}
+        // finally {
+        //     console.log(three_indices);
+        //     console.log(three_indices[i]);
+        //     console.log(i);
+        //     console.log(testarr);
+        //     console.log(convertCard(cards[three_indices[i]]));
+        // }
     }
     return isset(testarr);
 }
@@ -73,6 +102,47 @@ function generate_all_three_card_indices(numCardsOnBoard){
 }
 
 
+function makeSubsets(input, size){
+    var results = [], result, mask, total = Math.pow(2, input.length);
+    for(mask = 0; mask < total; mask++){
+        result = [];
+        i = input.length - 1; 
+        do{
+            if( (mask & (1 << i)) !== 0){
+                result.push(input[i]);
+            }
+        }while(i--);
+        if( result.length === size){
+            results.push(result);
+        }
+    }
+
+    return results;
+}
+
+///0,1 2,3  0,2 3,1  0,3 1,2  
+
+// choose two, then fill in the other two
+
+function generateTwoCardPairs(fourCards){
+    //build an array of three sets
+    var allPairs = []; 
+    for (var i=0; i<3; i+=1){
+        var s = [];
+        var s1 = fourCards.slice(0,2);
+        var s2 = fourCards.slice(2,4);
+        s.push(s1);
+        s.push(s2);
+        allPairs.push(s);
+
+        fourCards = fourCards.concat(fourCards.splice(1,1))
+    }
+    return allPairs;
+}
+
+function rotateArray(arr){
+    arr.push(arr.shift());
+}
 
 function changeBorderStyle(card){
     var cardDom = getDomElement(card);
@@ -117,9 +187,12 @@ function clickListenerOff(card){
     cardDom.unbind('click');
 }
 
-function addEventListeners(cards) {
+function addEventListeners(cards, setLength) {
     //console.log(clicked);
-
+    if (setLength === undefined){
+        console.log('no set length passed');
+        setLength = 3;
+    }
     if (cards === undefined){ 
         var cards = cardnumarray_numbers();
     }
@@ -129,7 +202,7 @@ function addEventListeners(cards) {
     }
     //console.log(cards);
     cards.forEach(function(current, index, array){
-        clickListener(current);
+        clickListener(current, setLength);
     });
 }
 
@@ -161,27 +234,81 @@ function convertCard(cardNum) {
 
 
 
-
+function isSetEitherType(cards){
+    if (cards.length === 3){
+        var cardsSetForm = cards.map(function(card){
+            return convertCard(card);
+        });
+        return isset(cardsSetForm);
+    }
+    else if (cards.length === 4){
+        return isSuperSet(cards);
+    }
+}
 
 function isset(cards) {
-    //console.log(cards);
-    console.log('isset function called');
     if (equalArray(cards[0], cards[1])){
         return false;
     }
     var ans = 0;
-    for (var j=0; j<4; j++) {
-        testarray = [];
-        forEach(cards, function(card) {testarray.push(card[j])});
+    for (var j = 0; j < 4; j++) {
+        var testarray = [];
+        forEach(cards, function(card) {
+            testarray.push(card[j])
+        });
         //console.log(testarray)
-        if (reduce(function(a,b){return a + b}, 0, testarray) % 3 === 0){
-            ans +=1
+        //console.log(testarray)
+        if (reduce(function(a,b){
+            return a + b
+        }, 0, testarray) % 3 === 0){
+            ans += 1
         }
     }
     //console.log(cards)
     return ans === 4;    
+}
+
+function completeSet(twoCards){
+    //console.log(twoCards);
+    var cardsSetForm = twoCards.map(function(card){
+        return convertCard(card);
+    });
+    var thirdCard = [];
+    var thirdAttribute;
+    for (var i = 0; i < 4; i += 1){
+        thirdAttribute = cardsSetForm[0][i] === cardsSetForm[1][i] ? cardsSetForm[0][i] : 
+        3 - (cardsSetForm[0][i] + cardsSetForm[1][i]);
+        thirdCard.push(thirdAttribute);
+
+    }
+    return convertCardBack(thirdCard);
 
 }
+
+function isSuperSet(cardsCopy){
+    var cards = cardsCopy.map(function(card){
+        return card;
+    });
+    var twoCardSplits = generateTwoCardPairs(cards);
+    var superSet = false;
+    twoCardSplits.forEach(function(twoCardSplit){
+        //console.log(twoCardSplit);
+        if (completeSet(twoCardSplit[0]) === completeSet(twoCardSplit[1])){
+            //console.log('superSet');
+            superSet = true;
+        }
+    });
+    return superSet;
+}
+
+function makeTwoCardSplits(cards){
+    var splits = [];
+    return splits.concat([[[cards[0], cards[1]], [cards[2], cards[3]]]]).concat([[[cards[0], cards[2]], [cards[1], cards[3]]]]).concat([[[cards[0], cards[3]], [cards[1], cards[2]]]])
+    
+}
+
+
+
 
 function removeElement(node) {
   if (node.parentNode)

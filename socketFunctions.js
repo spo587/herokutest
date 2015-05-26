@@ -84,9 +84,10 @@ exports.connectSocket = function(socketVar, io, gameStartedTracker){
             socketVar.emit('chat message', data);
             //console.log(msg);
         });
-        socket.on('start game', function(){
+        socket.on('start game', function(setLength){
             var deck = setDeckShuffled();
-            socketVar.emit('order of deck', deck);
+            var data = {setLength: setLength, deck: deck}
+            socketVar.emit('order of deck', data);
             //console.log(socketVar.name);
             //console.log(visitCounter);
             var gameName = cutOffFirst(socketVar.name);
@@ -98,6 +99,7 @@ exports.connectSocket = function(socketVar, io, gameStartedTracker){
             socketVar.emit('show hintcard');
         });
         socket.on('set found', function(data){
+            console.log(data.cards);
             // var cards = data.cards;
             // var player = data.playerName;
             var cards = data.cards;

@@ -1,20 +1,22 @@
 
 var CARDCOUNT = 0;
 
-function firstDeal(cards){
+function firstDeal(cards, setLength){
+    console.log(cards.length);
+    CARDCOUNT += cards.length;
+    //console.log(setLength);
     //deal twelve cards to the board, in 3 groups of four
-    dealCards(cards, 3, 4);
+    dealCards(cards, 3, 12 / setLength);
     checkDeadboardAndDeal();
-    CARDCOUNT += 12;
 }
 
 
-function superSetFirstDeal() {
-    dealCards(3, 3);
-    addEventListeners();
-    checkDeadboardAndDeal();
+// function superSetFirstDeal(cards) {
+//     dealCards(cards, 3, 3);
+//     //addEventListeners();
+//     checkDeadboardAndDeal();
 
-}
+// }
 
 function cardnumarray() {
     return cardnumarray_numbers().map(function(current){
@@ -22,6 +24,17 @@ function cardnumarray() {
     });
 }
 
+function makeIterator(array){
+    var nextIndex = 0;
+    
+    return {
+       next: function(){
+           return nextIndex < array.length ?
+               {value: array[nextIndex++], done: false} :
+               {done: true};
+       }
+    }
+}
 
 var twelveCardIndices = generate_all_three_card_indices(12);
 var nineCardIndices = generate_all_three_card_indices(9);
@@ -31,24 +44,67 @@ var sixCardIndices = generate_all_three_card_indices(6);
 
 var INDICESSTORE = {6: sixCardIndices, 12: twelveCardIndices, 9: nineCardIndices, 15: fifteenCardIndices, 18: eighteenCardIndices};
 
-function isthereanyset() {
+
+var FACT = [];
+function factorial (n) {
+  if (n == 0 || n == 1)
+    return 1;
+  if (FACT[n] > 0)
+    return FACT[n];
+  return FACT[n] = factorial(n-1) * n;
+}
+
+
+function isthereanyset(setLength) {
 
     var numCards = cardnumarray_numbers().length;
-    if (numCards % 3 === 0){
-        var all_indices = INDICESSTORE[numCards];
-    }
-    else {
-        console.log('overlapping sets or something funny happened');
-        var all_indices = generate_all_three_card_indices(numCards);
-    }
+    //if (numCards % 3 === 0){
+        //use iterator here? does that save any time / memory?
+    var all_indices = makeIterator(makeSubsets(range(numCards), setLength));
+    var len = factorial(numCards) / (factorial(numCards - setLength) * factorial(setLength)) 
+    //var all_indices = makeSubsets(range(numCards), setLength);
+    //var all_indices = INDICESSTORE[numCards];
+    //}
+    // else {
+    //     console.log('overlapping sets or something funny happened');
+    //     var all_indices = generate_all_three_card_indices(numCards);
+    // }
+    
+    for (var i = 0; i < len; i += 1){
+        //console.log(all_indices.next().value)
+        var cardBoardIndices = all_indices.next().value;
+        //console.log(cardBoardIndices);
 
-    for (var i = 0; i < all_indices.length; i++) {
-        if (three_cards_a_set(all_indices[i])) {
-            return all_indices[i];
+        var cards = convertToCards(cardBoardIndices);
+        // var cardsSetForm = cards.map(function(card){
+        //     return convertCard(card);
+        // });
+        if (isSetEitherType(cards)){
+            console.log(cardBoardIndices);
+            return cards;
         }
     }
+        // if (three_cards_a_set(cardBoardIndices)){
+        //     return next;
+        // }
+    //}
+    // for (var i = 0; i < all_indices.length; i++) {
+    //     var cardBoardIndices = all_indices[i];
+    //     var cards = convertToCards(cardBoardIndices);
+    //     var cardsSetForm = cards.map(function(card){
+    //         return convertCard(card);
+    //     });
+    //     if (isSetEitherType(cardsSetForm)){
+    //         return cardBoardIndices;
+    //     }
+    //     // if (three_cards_a_set(all_indices[i])) {
+    //     //     return all_indices[i];
+    //     // }
+    // }
     return false;
 }
+
+
 
 function allSets(){
     var numCards = cardnumarray_numbers().length;
@@ -78,11 +134,11 @@ function hintCard(){
 function displayHint() {
     //for hint function
     
-    if (!isthereanyset()){
+    if (!isthereanyset(setLength)){
         console.log('error!!! no set detected but board didnt auto-deal more cards');
     }
     else {
-        var indices = isthereanyset();
+        var indices = isthereanyset(setLength);
         var hintCardPosition = 0;
         //console.log(hintCardPosition);
         var hintCardNum = cardnumarray_numbers()[hintCardPosition];
@@ -146,14 +202,16 @@ function setFoundOrNot(){
     //console.log(setFound);
 }
 
-function clickListener(card){
-    //card is the cardnumber
-    //console.log(card);
+function clickListener(card, setLength){
+    if (setLength === undefined){
+        setLength = 3;
+
+    }
     $('#' + String(card)).bind('click', function(click){
         if (clicked.length === 0){
             setFound = false;
             socket.emit('firstCardClick', {card: card, clicked: clicked});
-            findSet = setTimeout(setFoundOrNot, 2000);
+            findSet = setTimeout(setFoundOrNot, 600 * setLength);
         }
         if (clicked.length === 1){
             socket.emit('secondCardClick', {card: card, clicked: clicked});
@@ -170,127 +228,93 @@ function clickListener(card){
         changeBorderColor(card, 'red', 'black');
         //click.target.style.borderColor = chooseNewBorderColor(click.target.style.borderColor);
         
-        if (clicked.length === 3){
+        if (clicked.length === setLength){
             //allBordersBlack
-            threeClicks(clicked);
+            checkClicks(clicked, setLength);
             clicked = [];
         }
     });
 }
 
-var test;
 
+function checkClicks(cards, setLength){
+    console.log(cards);
+    // var cardsSetForm = cards.map(function(current){
+    //     return convertCard(current);
+    // });
+    var isitaset = isSetEitherType(cards);
+    console.log(cards);
+    console.log(isitaset);
 
-function threeClicks(cards){
-    //console.log(cardsClicked);
-    //if (cardsClicked.length === 3) {
-    var cardsSetForm = cards.map(function(current){
-        return convertCard(current);
-    })
-    var isitaset = isset(cardsSetForm);
-    //console.log(isitaset); 
-    //for all img in doc.body: set border = black
     cards.forEach(function(current){
         if (current === undefined){
-            console.log('threeClicks function call, card undefined');
+            console.log('checkClicks function call, card undefined');
         }
         changeBorderColor(current, 'black', 'red');    
     });
 
-    //var imgs = $('IMG');
-    // forEach(imgs, function(img){
-    //     img.style.borderColor = 'black';
-    // });
     clicked = [];
-    // if (!isitaset){   
-    //     // cardsClicked = [];
-    //     clicked = [];
-    // }
+    console.log(cards);
     if (isitaset){
         setFound = true;
         //console.log('set registered');
         console.log(setFound);
         clearTimeout(findSet);
+        console.log(cards);
         socket.emit('set found', {cards: cards, playerName: nickname});
-        //setsFound += 1;
-        //$('#' + nickname).text(nickname + '\'s sets: ' + String(setsFound));
-        
-        //test = cardsClicked;
-        //removeDeal(cards);
-        //addToSetsOnScreen(cards, 'self');
-        //clicked = [];
-        // var secondDiv = $('#div2')[0];
-        // var img = secondDiv.getElementsByTagName('IMG');
-        // if (img.length > 0) {   
-        //     secondDiv.removeChild(img[0]);
     }
-        
-    //}
 }
 
 
     
+function getRowLengths(div){
+    var firstRow = div.childNodes[0].childNodes.length;
+    var secondRow = div.childNodes[1].childNodes.length;
+    var thirdRow = div.childNodes[2].childNodes.length;
+    return {0: firstRow, 1: secondRow, 2: thirdRow};
+}
 
-
-
+function dealOne(card){
+    var cardDom = domCard(card);
+    var firstDiv = $('#div1')[0];
+    var rowLengths = getRowLengths(firstDiv);
+    
+    var shortestRow;
+    var shortestLength = 100;
+    forEachIn(rowLengths, function(row, length){
+        if (length < shortestLength){
+            shortestRow = row;
+            shortestLength = length;
+        }
+    });
+    firstDiv.childNodes[shortestRow].appendChild(cardDom);
+}
 
 
 function dealThree(cards) {
-    console.log('deal three being called here');
-    //debugger;
-    console.log(cards);
+    var len = cards.length;
     if (CARDCOUNT === 81){
         endGame();
         return false;
     }
-    for (var i=0; i<3; i++) {
+    for (var i = 0; i < len; i++) {
         //console.log(cards);
         var card = cards.shift();
-        //console.log(allCards);
-        var newCard = domCard(card);
-        var firstDiv = $('#div1')[0];
-        
-        
-        firstDiv.childNodes[i].appendChild(newCard);
-        //addEventListeners([(newCard.id)]);
-        clickListenersOff();
-        addEventListeners();
+        dealOne(card);
     }
-    realign();
-    realign();
+    clickListenersOff();
+    addEventListeners(cardnumarray_numbers(), setLength);
+    //realign();
+    //realign();
     CARDCOUNT += 3;
-    checkDeadboardAndDeal();
-    
+    checkDeadboardAndDeal();  
 }
-//     if (allCards.length >= 3) {
-//         theDeal()
-//     }
-//     console.log('line 353');
-//     if (!isthereanyset() && allCards.length >= 3) {
-//         console.log('it worked!!!')
-//         theDeal()
-//     }
-//     realign();   
-//     endGame();
-// }
 
-
-// function dealOne(parent, card) {
-//     //console.log(allCards)
-//     var randNum = card;
-//     var newCard = domCard(randNum);
-//     parent.appendChild(newCard);
-//     //console.log(newCard);
-//     addEventListeners([(newCard.id)]);
-
-
-//     //addEventListeners()
-// }
 
 
 function endGame() {
     console.log('endgame function called');
-    if (CARDCOUNT === 81 && !isthereanyset()){
+    if (CARDCOUNT === 81 && !isthereanyset(setLength)){
         //var t = $('time').innerHTML;
         var t = $('#time').text();
         socket.emit('game over', t);
@@ -331,7 +355,7 @@ function removeDeal(cards) {
 
 
 function clearSet(clickDelay){
-    var set = isthereanyset();
+    var set = isthereanyset(setLength);
     var setCards = set.map(function(current){
         return cardnumarray_numbers()[current];
     });
@@ -354,7 +378,7 @@ function clearSet(clickDelay){
 
 function playGameArtificial(setDelay, clearDelay){
     //if (CARDCOUNT < 81){
-    var set = isthereanyset();
+    var set = isthereanyset(setLength);
     if (!set){
         checkDeadboardAndDeal();
     }

@@ -6,8 +6,13 @@
 <script src="./setgameNoClicks.js"></script>
 
 <body>
-    <h1> Set! </h1>
+    <h1 id='intro'> Set! </h1>
     <a href='/'> Return to home page </a><br>
+    <form id='gameType'>
+        <input type="radio" name='gameType' value="set" id='set' checked>set</input>
+        <input type="radio" name="gameType" value="superSet" id='superSet'>superSet</input>
+        
+    </form>
     <button type='button' id='start-game' class='button'> click me to start a new game </button>
     <br><button type='button' id='shuffle' onclick='shuffleBoardCards()'>click to shuffle the board</button>
     <button type='button' id='click-reset' onclick='clickReset()'>Click here if the clicking isn't working for some reason (working on it)</button>
@@ -28,15 +33,15 @@
     <div id='sets'><p></p></div>
     
     <script>
+    
     function clickReset(){
         var cards = cardnumarray_numbers();
         clickListenersOff();
-        addEventListeners(cards);
+        addEventListeners(cards, setLength);
     }
     //get name
     //var playerName;
     var grandSetsObj = {};
-    var opponentName;
     // $(document).ready(function(){
     //     playerName = prompt("Your name please", '');
     //     //socket.emit('name entered');
@@ -50,6 +55,9 @@
         });
     }
     var nickname;
+    var setType;
+    var setLength;
+    var depletedBoard;
     function setUpPregame(socket){
         //var numPlayers = 1;
         socket.on('connect', function(data){
@@ -113,8 +121,11 @@
             if ($('IMG').length > 0){
 
             }
-            console.log('click');
-            socket.emit('start game'); //$('#paragraph').html());
+            setType = $('input[name=gameType]:checked').val();
+            setLength = setType === 'superSet' ? 4 : 3;
+            
+            //console.log('click');
+            socket.emit('start game', setLength); //$('#paragraph').html());
             //$('#paragraph').html('');
 
             return false;
@@ -151,19 +162,19 @@
     var oppFindSet;
 
     function cardClicks(socket){
-        socket.on('cardClick', function(data){
-            var id = data.card;
-            var clickedOpp = data.clicked;
-            console.log(id);
+        // socket.on('cardClick', function(data){
+        //     var id = data.card;
+        //     var clickedOpp = data.clicked;
+        //     console.log(id);
             
-            //var card = $('#' + String(id))[0];
-            //var currentColor = card.style.borderColor;
-            changeBorderStyle(id);
+        //     //var card = $('#' + String(id))[0];
+        //     //var currentColor = card.style.borderColor;
+        //     changeBorderStyle(id);
             
-            if (clickedOpp.length === 3) {
-                checkThreeClicks(clickedOpp);
-            }
-        });
+        //     if (clickedOpp.length === 3) {
+        //         checkThreeClicks(clickedOpp);
+        //     }
+        // });
 
         socket.on('noClicksUntil', function(data){
             var card = data.card;
@@ -173,10 +184,10 @@
                 var cards = cardnumarray_numbers();
                 clickListenersOff();
                 allBordersSolid();
-                addEventListeners(cards);
+                addEventListeners(cards, setLength);
                 socket.emit('clickBanExpiring');
 
-            }, 2000);
+            }, 600 * setLength);
         });
         socket.on('secondCardClick', function(card){
             changeBorderStyle(card);
@@ -184,13 +195,21 @@
     }
 
     var deck;
+    
+
     function dealFunctions(socket){
         //var deck;
-        socket.on('order of deck', function(orderedDeck){
-            deck = orderedDeck;
-            var firstTwelve = deck.splice(0, 12);
+        socket.on('order of deck', function(data){
+            console.log(setLength);
+            deck = data.deck;
+            setLength = data.setLength;
+            var type = setLength === 4 ? 'superSet' : 'set';
+            $('#' + type).prop('checked', true);
+            $('#intro').text(type + '!')
+            depletedBoard = setLength === 4 ? 5 : 9;
+            var firstCards = deck.splice(0, 36 / setLength);
             //console.log(firstTwelve);
-            firstDeal(firstTwelve);
+            firstDeal(firstCards, setLength);
             timer();
             
             //return orderedDeck;
@@ -199,8 +218,8 @@
         socket.on('dealing next three', function(){
             console.log('dealing next three');
             var cardsOnBoard = cardnumarray_numbers();
-            if (cardsOnBoard.length <= 9){
-                var cards = deck.splice(0, 3);
+            if (cardsOnBoard.length <= depletedBoard){
+                var cards = deck.splice(0, setLength);
                 dealThree(cards);
                 //checkDeadboardAndDeal();
             }
