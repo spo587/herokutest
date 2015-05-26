@@ -35,16 +35,18 @@ exports.connectSocket = function(socketVar, io, gameStartedTracker){
     //var players = [];
     var setsPerPlayer = {};
     socketVar.on('connection', function(socket){
-        
+        console.log(socket.nickname);
 
         socket.on('join', function(name){
             socket.nickname = name;
             console.log(name + 'joined the game');
             setsPerPlayer[name] = 0;
             socket.broadcast.emit('new player', name);
+            console.log('line 45');
             console.log(setsPerPlayer);
             
             socketVar.emit('allPlayers', setsPerPlayer);
+            io.emit('allPlayers', setsPerPlayer);
             //setsPerPlayer[name] = 0;
             // if (!players[socketVar.name]){
             //     players[socketVar.name] = [];
@@ -62,6 +64,7 @@ exports.connectSocket = function(socketVar, io, gameStartedTracker){
         socket.on('disconnect', function(){
             var departed = socket.nickname;
             console.log(departed);
+            console.log('line 66');
             console.log(setsPerPlayer);
             delete setsPerPlayer[socket.nickname];
             console.log(setsPerPlayer);
@@ -84,9 +87,9 @@ exports.connectSocket = function(socketVar, io, gameStartedTracker){
             socketVar.emit('chat message', data);
             //console.log(msg);
         });
-        socket.on('start game', function(setLength){
+        socket.on('start game', function(SETLENGTH){
             var deck = setDeckShuffled();
-            var data = {setLength: setLength, deck: deck}
+            var data = {SETLENGTH: SETLENGTH, deck: deck}
             socketVar.emit('order of deck', data);
             //console.log(socketVar.name);
             //console.log(visitCounter);

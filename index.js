@@ -77,28 +77,38 @@ io.on('connection', function(socket){
 
 function livegameVar(num){
     //gameNumbers.push(num);
-    game = io.of('/livegame' + String(num));
-    game.numPlayers = 0;
-    return game;
+    var setGame = io.of('/set' + String(num));
+    var superSetGame = io.of('/superSet' + String(num));
+    //setGame.numPlayers = 0;
+    return {setGame: setGame, superSetGame: superSetGame};
 }
 
 
 function setUpGames(number){
     var gameNumbers = sf.range(number);
-    var games = gameNumbers.map(function(current){
-        return livegameVar(current);
+    var setGames = gameNumbers.map(function(current){
+        return livegameVar(current).setGame;
     });
-    games.forEach(function(game){
+    var superSetGames = gameNumbers.map(function(current){
+        return livegameVar(current).superSetGame;
+    });
+    setGames.forEach(function(game){
         sf.connectSocket(game, io, gameStartedTracker);
     });
+    superSetGames.forEach(function(game){
+        sf.connectSocket(game, io, gameStartedTracker);
+    })
     getGamesOnly(gameNumbers);
 }
 
 function getGamesOnly(gameNumbers){
     gameNumbers.forEach(function(number){
-        app.get('/livegame' + String(number), function(req, res){
-            res.sendFile(__dirname + '/livegame.html')
+        app.get('/set' + String(number), function(req, res){
+            res.sendFile(__dirname + '/livegame.html');
         });
+        app.get('/superSet' + String(number), function(req, res){
+            res.sendFile(__dirname + '/livegame.html');
+        })
     });
 }
 

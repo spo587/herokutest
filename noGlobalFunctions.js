@@ -20,15 +20,15 @@ function dealCards(cards, height, width){
 
     }
     clickListenersOff()
-    addEventListeners(cardnumarray_numbers(), setLength);
+    addEventListeners(cardnumarray_numbers(), SETLENGTH);
 }
 
-//var setLength = 4;
+//var SETLENGTH = 4;
 
 function checkDeadboardAndDeal() {
     console.log('heres the board input to deadboard');
     console.log(cardnumarray_numbers());
-    if (!isthereanyset(setLength)){
+    if (!isthereanyset(SETLENGTH)){
         endGame();
         console.log('deadboard');
         //checkDeadboardAndDeal()
@@ -187,11 +187,11 @@ function clickListenerOff(card){
     cardDom.unbind('click');
 }
 
-function addEventListeners(cards, setLength) {
+function addEventListeners(cards, SETLENGTH) {
     //console.log(clicked);
-    if (setLength === undefined){
+    if (SETLENGTH === undefined){
         console.log('no set length passed');
-        setLength = 3;
+        SETLENGTH = 3;
     }
     if (cards === undefined){ 
         var cards = cardnumarray_numbers();
@@ -202,7 +202,7 @@ function addEventListeners(cards, setLength) {
     }
     //console.log(cards);
     cards.forEach(function(current, index, array){
-        clickListener(current, setLength);
+        clickListener(current, SETLENGTH);
     });
 }
 

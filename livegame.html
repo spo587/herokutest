@@ -4,15 +4,17 @@
 <script src='./domFunctions.js'></script>
 <script src='./noGlobalFunctions.js'></script>
 <script src="./setgameNoClicks.js"></script>
+<script>
+var gameType = document.URL.split('/')[document.URL.split('/').length - 1];
+console.log(gameType);
+var SETLENGTH = gameType.slice(0,gameType.length - 1) === 'superSet' ? 4 : 3;
+console.log(SETLENGTH);
+</script>
 
 <body>
     <h1 id='intro'> Set! </h1>
     <a href='/'> Return to home page </a><br>
-    <form id='gameType'>
-        <input type="radio" name='gameType' value="set" id='set' checked>set</input>
-        <input type="radio" name="gameType" value="superSet" id='superSet'>superSet</input>
-        
-    </form>
+    
     <button type='button' id='start-game' class='button'> click me to start a new game </button>
     <br><button type='button' id='shuffle' onclick='shuffleBoardCards()'>click to shuffle the board</button>
     <button type='button' id='click-reset' onclick='clickReset()'>Click here if the clicking isn't working for some reason (working on it)</button>
@@ -33,11 +35,11 @@
     <div id='sets'><p></p></div>
     
     <script>
-    
+    $('#intro').text(gameType.slice(0, gameType.length - 1) + '!!!');
     function clickReset(){
         var cards = cardnumarray_numbers();
         clickListenersOff();
-        addEventListeners(cards, setLength);
+        addEventListeners(cards, SETLENGTH);
     }
     //get name
     //var playerName;
@@ -55,14 +57,14 @@
         });
     }
     var nickname;
-    var setType;
-    var setLength;
+    // var setType;
+    // var SETLENGTH;
     var depletedBoard;
     function setUpPregame(socket){
         //var numPlayers = 1;
         socket.on('connect', function(data){
             nickname = prompt("Your name, please", 'anonymous' + String(Math.round(1000*Math.random())));
-
+            //socket.nickname = nickname;
             socket.emit('join', nickname);
 
         });
@@ -121,11 +123,12 @@
             if ($('IMG').length > 0){
 
             }
-            setType = $('input[name=gameType]:checked').val();
-            setLength = setType === 'superSet' ? 4 : 3;
+            // setType = $('input[name=gameType]:checked').val();
+            // SETLENGTH = setType === 'superSet' ? 4 : 3;
             
             //console.log('click');
-            socket.emit('start game', setLength); //$('#paragraph').html());
+            console.log(SETLENGTH);
+            socket.emit('start game', SETLENGTH); //$('#paragraph').html());
             //$('#paragraph').html('');
 
             return false;
@@ -184,10 +187,10 @@
                 var cards = cardnumarray_numbers();
                 clickListenersOff();
                 allBordersSolid();
-                addEventListeners(cards, setLength);
+                addEventListeners(cards, SETLENGTH);
                 socket.emit('clickBanExpiring');
 
-            }, 600 * setLength);
+            }, 600 * SETLENGTH);
         });
         socket.on('secondCardClick', function(card){
             changeBorderStyle(card);
@@ -200,16 +203,18 @@
     function dealFunctions(socket){
         //var deck;
         socket.on('order of deck', function(data){
-            console.log(setLength);
+            console.log(SETLENGTH);
             deck = data.deck;
-            setLength = data.setLength;
-            var type = setLength === 4 ? 'superSet' : 'set';
+
+            SETLENGTH = data.SETLENGTH;
+            console.log(SETLENGTH);
+            var type = SETLENGTH === 4 ? 'superSet' : 'set';
             $('#' + type).prop('checked', true);
             $('#intro').text(type + '!')
-            depletedBoard = setLength === 4 ? 5 : 9;
-            var firstCards = deck.splice(0, 36 / setLength);
+            depletedBoard = SETLENGTH === 4 ? 5 : 9;
+            var firstCards = deck.splice(0, 36 / SETLENGTH);
             //console.log(firstTwelve);
-            firstDeal(firstCards, setLength);
+            firstDeal(firstCards, SETLENGTH);
             timer();
             
             //return orderedDeck;
@@ -219,7 +224,7 @@
             console.log('dealing next three');
             var cardsOnBoard = cardnumarray_numbers();
             if (cardsOnBoard.length <= depletedBoard){
-                var cards = deck.splice(0, setLength);
+                var cards = deck.splice(0, SETLENGTH);
                 dealThree(cards);
                 //checkDeadboardAndDeal();
             }
@@ -270,11 +275,10 @@
         startGame(socket);
         chatForm(socket);
         cardClicks(socket);
-        dealFunctions(socket);
-        
+        dealFunctions(socket);   
     }
-
-    var socket = io('/livegame' + document.URL[document.URL.length - 1]);
+    var socket = io('/' + document.URL.split('/')[document.URL.split('/').length - 1]);
+    //var socket = io('/livegame' + document.URL[document.URL.length - 1]);
     fullSetUp(socket);
     </script>
 </body>

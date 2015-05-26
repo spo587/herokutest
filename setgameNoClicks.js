@@ -1,12 +1,12 @@
 
 var CARDCOUNT = 0;
 
-function firstDeal(cards, setLength){
+function firstDeal(cards, SETLENGTH){
     console.log(cards.length);
     CARDCOUNT += cards.length;
-    //console.log(setLength);
+    //console.log(SETLENGTH);
     //deal twelve cards to the board, in 3 groups of four
-    dealCards(cards, 3, 12 / setLength);
+    dealCards(cards, 3, 12 / SETLENGTH);
     checkDeadboardAndDeal();
 }
 
@@ -55,14 +55,14 @@ function factorial (n) {
 }
 
 
-function isthereanyset(setLength) {
+function isthereanyset(SETLENGTH) {
 
     var numCards = cardnumarray_numbers().length;
     //if (numCards % 3 === 0){
         //use iterator here? does that save any time / memory?
-    var all_indices = makeIterator(makeSubsets(range(numCards), setLength));
-    var len = factorial(numCards) / (factorial(numCards - setLength) * factorial(setLength)) 
-    //var all_indices = makeSubsets(range(numCards), setLength);
+    var all_indices = makeIterator(makeSubsets(range(numCards), SETLENGTH));
+    var len = factorial(numCards) / (factorial(numCards - SETLENGTH) * factorial(SETLENGTH)) 
+    //var all_indices = makeSubsets(range(numCards), SETLENGTH);
     //var all_indices = INDICESSTORE[numCards];
     //}
     // else {
@@ -134,11 +134,11 @@ function hintCard(){
 function displayHint() {
     //for hint function
     
-    if (!isthereanyset(setLength)){
+    if (!isthereanyset(SETLENGTH)){
         console.log('error!!! no set detected but board didnt auto-deal more cards');
     }
     else {
-        var indices = isthereanyset(setLength);
+        var indices = isthereanyset(SETLENGTH);
         var hintCardPosition = 0;
         //console.log(hintCardPosition);
         var hintCardNum = cardnumarray_numbers()[hintCardPosition];
@@ -202,16 +202,16 @@ function setFoundOrNot(){
     //console.log(setFound);
 }
 
-function clickListener(card, setLength){
-    if (setLength === undefined){
-        setLength = 3;
+function clickListener(card, SETLENGTH){
+    if (SETLENGTH === undefined){
+        SETLENGTH = 3;
 
     }
     $('#' + String(card)).bind('click', function(click){
         if (clicked.length === 0){
             setFound = false;
             socket.emit('firstCardClick', {card: card, clicked: clicked});
-            findSet = setTimeout(setFoundOrNot, 600 * setLength);
+            findSet = setTimeout(setFoundOrNot, 600 * SETLENGTH);
         }
         if (clicked.length === 1){
             socket.emit('secondCardClick', {card: card, clicked: clicked});
@@ -228,16 +228,16 @@ function clickListener(card, setLength){
         changeBorderColor(card, 'red', 'black');
         //click.target.style.borderColor = chooseNewBorderColor(click.target.style.borderColor);
         
-        if (clicked.length === setLength){
+        if (clicked.length === SETLENGTH){
             //allBordersBlack
-            checkClicks(clicked, setLength);
+            checkClicks(clicked, SETLENGTH);
             clicked = [];
         }
     });
 }
 
 
-function checkClicks(cards, setLength){
+function checkClicks(cards, SETLENGTH){
     console.log(cards);
     // var cardsSetForm = cards.map(function(current){
     //     return convertCard(current);
@@ -303,7 +303,7 @@ function dealThree(cards) {
         dealOne(card);
     }
     clickListenersOff();
-    addEventListeners(cardnumarray_numbers(), setLength);
+    addEventListeners(cardnumarray_numbers(), SETLENGTH);
     //realign();
     //realign();
     CARDCOUNT += 3;
@@ -314,7 +314,7 @@ function dealThree(cards) {
 
 function endGame() {
     console.log('endgame function called');
-    if (CARDCOUNT === 81 && !isthereanyset(setLength)){
+    if (CARDCOUNT === 81 && !isthereanyset(SETLENGTH)){
         //var t = $('time').innerHTML;
         var t = $('#time').text();
         socket.emit('game over', t);
@@ -355,7 +355,7 @@ function removeDeal(cards) {
 
 
 function clearSet(clickDelay){
-    var set = isthereanyset(setLength);
+    var set = isthereanyset(SETLENGTH);
     var setCards = set.map(function(current){
         return cardnumarray_numbers()[current];
     });
@@ -378,7 +378,7 @@ function clearSet(clickDelay){
 
 function playGameArtificial(setDelay, clearDelay){
     //if (CARDCOUNT < 81){
-    var set = isthereanyset(setLength);
+    var set = isthereanyset(SETLENGTH);
     if (!set){
         checkDeadboardAndDeal();
     }
