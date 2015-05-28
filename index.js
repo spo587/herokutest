@@ -98,11 +98,13 @@ function appGet(urlPath, fileExtension){
 //put all scripts on the dickin server
 appGet('/oneplayer', '/oneplayer.html');
 appGet('/helperFunctions.js', '/helperFunctions.js');
-appGet('/noGlobalFunctions.js', '/noGlobalFunctions.js');
+appGet('/computerPlays.js', '/computerPlays.js');
 appGet('/home.js','/home.js');
 appGet('/domFunctions.js', '/domFunctions.js');
-appGet('/setgame.js', '/setgame.js');
-appGet('/setgameNoClicks.js', '/setgameNoClicks.js');
+appGet('/clickFunctions.js', '/clickFunctions.js');
+appGet('/dealFunctions.js', '/dealFunctions.js');
+appGet('/setsOnBoard.js', '/setsOnBoard.js');
+appGet('/setLogic.js', '/setLogic.js');
 appGet('/','/index.html');
 appGet('/node_modules/socket.io/node_modules/socket.io-client/socket.io.js','/node_modules/socket.io/node_modules/socket.io-client/socket.io.js');
 appGet('/utilities/jquery.js', '/utilities/jquery.js');

@@ -1,3 +1,7 @@
+var setFound;
+var findSet;
+
+
 
 function isthereanyset(SETLENGTH) {
 
@@ -135,3 +139,15 @@ function generateTwoCardPairs(fourCards){
     }
     return allPairs;
 }
+
+
+function setFoundOrNot(){
+    if (setFound === false){
+        clicked = [];
+        allBordersBlack();
+        socket.emit('falsey', NICKNAME);
+    }
+
+}
+
+
