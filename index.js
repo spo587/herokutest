@@ -98,7 +98,7 @@ function appGet(urlPath, fileExtension){
 //put all scripts on the dickin server
 appGet('/oneplayer', '/oneplayer.html');
 appGet('/helperFunctions.js', '/helperFunctions.js');
-appGet('/computerPlays.js', '/computerPlays.js');
+appGet('/computerPlay.js', '/computerPlay.js');
 appGet('/home.js','/home.js');
 appGet('/domFunctions.js', '/domFunctions.js');
 appGet('/clickFunctions.js', '/clickFunctions.js');
