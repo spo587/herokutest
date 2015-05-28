@@ -1,73 +1,77 @@
 
-var CARDCOUNT = 0;
 
-function firstDeal(cards, SETLENGTH){
-    console.log(cards.length);
-    CARDCOUNT += cards.length;
-    //console.log(SETLENGTH);
-    //deal twelve cards to the board, in 3 groups of four
-    dealCards(cards, 3, 12 / SETLENGTH);
-    checkDeadboardAndDeal();
+
+function removeDeal(cards) {
+    for (var i = 0; i < cards.length; i += 1){
+        findAndRemoveCard(cards[i]);
+        var cardSetForm = convertCard(cards[i]);
+        clicked.forEach(function(current){
+            var ind = clicked.indexOf(current);
+            if (equalArray(current, cardSetForm)){
+                console.log('removing from clicked');
+                clicked.splice(ind, 1);
+                console.log(clicked);
+            }
+        });
+    }
+    realign();
+    realign();
+    if (cardnumarray_numbers().length >= 12){
+        console.log('12 or more cards on board');
+        checkDeadboardAndDeal();
+    }
 }
 
-//iterators....fancey
-function makeIterator(array){
-    var nextIndex = 0;
+
+
+//iterators....fancy
+
+
+
+
+
+function setFoundOrNot(){
+    if (setFound === false){
+        clicked = [];
+        allBordersBlack();
+        socket.emit('falsey', NICKNAME);
+    }
+
+}
+
+
+
     
-    return {
-       next: function(){
-           return nextIndex < array.length ?
-               {value: array[nextIndex++], done: false} :
-               {done: true};
-       }
+function getRowLengths(div){
+    var firstRow = div.childNodes[0].childNodes.length;
+    var secondRow = div.childNodes[1].childNodes.length;
+    var thirdRow = div.childNodes[2].childNodes.length;
+    return {0: firstRow, 1: secondRow, 2: thirdRow};
+}
+
+
+
+
+function endGame() {
+    console.log('endgame function called');
+    if (CARDCOUNT === 81 && !isthereanyset(SETLENGTH)){
+        //var t = $('time').innerHTML;
+        var t = $('#time').text();
+        socket.emit('game over', t);
+        // var win = setsSelf > setsOpp ? ' won!' : ' lost!';
+        // alert('game over! You' + win + ' game time: ' + t);
+        // var data = {t: t, player1: playerName, player2: opponentName};
+        // socket.emit('game data', data)
     }
+        
 }
 
-
-var FACT = [];
-function factorial (n) {
-  if (n == 0 || n == 1)
-    return 1;
-  if (FACT[n] > 0)
-    return FACT[n];
-  return FACT[n] = factorial(n-1) * n;
-}
-
-
-function isthereanyset(SETLENGTH) {
-
-    var numCards = cardnumarray_numbers().length;
-        //use iterator here? does that save any time / memory?
-    var all_indices = makeIterator(makeSubsets(range(numCards), SETLENGTH));
-    var len = factorial(numCards) / (factorial(numCards - SETLENGTH) * factorial(SETLENGTH)) 
-
-    for (var i = 0; i < len; i += 1){
-        var cardBoardIndices = all_indices.next().value;
-
-        var cards = convertToCards(cardBoardIndices);
-
-        if (isSetEitherType(cards)){
-            console.log(cardBoardIndices);
-            return cards;
-        }
-    }
-
-    return false;
-}
+var setsFound = 0;
 
 
 
-function allSets(){
-    var numCards = cardnumarray_numbers().length;
-    var all_indices = INDICESSTORE[numCards];
-    var all = [];
-    all_indices.forEach(function(current){
-        if (three_cards_a_set(current)){
-            all.push(current);
-        }
-    });
-    return all;
-}
+
+
 
 var numHints = 0;
 
@@ -96,229 +100,6 @@ function displayHint() {
     }
 
 }
-
-
-
-
-var clicked = [];
-
-
-
-function addToClicked(card){
-    if (clicked.indexOf(card) === -1){
-        clicked.push(card);
-    }
-}
-
-var setFound;
-var findSet;
-
-function setFoundOrNot(){
-    if (setFound === false){
-        clicked = [];
-        allBordersBlack();
-        socket.emit('falsey', NICKNAME);
-    }
-
-}
-
-function clickListener(card, SETLENGTH){
-    if (SETLENGTH === undefined){
-        SETLENGTH = 3;
-
-    }
-    $('#' + String(card)).bind('click', function(click){
-        if (clicked.length === 0){
-            setFound = false;
-            socket.emit('firstCardClick', {card: card, clicked: clicked});
-            findSet = setTimeout(setFoundOrNot, 600 * SETLENGTH);
-        }
-        if (clicked.length === 1){
-            socket.emit('secondCardClick', {card: card, clicked: clicked});
-        }
-        var clickTarget = click.target;
-        //same thing below
-        //var card = Number(clickTarget.id);
-        //console.log(cardnum);
-        addToClicked(card);
-        //console.log(clicked);
-        if (clickTarget === undefined){
-            console.log('clickListener function call, card undefined');
-        }
-        changeBorderColor(card, 'red', 'black');
-        //click.target.style.borderColor = chooseNewBorderColor(click.target.style.borderColor);
-        
-        if (clicked.length === SETLENGTH){
-            //allBordersBlack
-            checkClicks(clicked, SETLENGTH);
-            clicked = [];
-        }
-    });
-}
-
-
-function checkClicks(cards, SETLENGTH){
-    console.log(cards);
-    // var cardsSetForm = cards.map(function(current){
-    //     return convertCard(current);
-    // });
-    var isitaset = isSetEitherType(cards);
-    console.log(cards);
-    console.log(isitaset);
-
-    cards.forEach(function(current){
-        if (current === undefined){
-            console.log('checkClicks function call, card undefined');
-        }
-        changeBorderColor(current, 'black', 'red');    
-    });
-
-    clicked = [];
-    console.log(cards);
-    if (isitaset){
-        setFound = true;
-        //console.log('set registered');
-        console.log(setFound);
-        clearTimeout(findSet);
-        console.log(cards);
-        socket.emit('set found', {cards: cards, playerName: NICKNAME});
-    }
-}
-
-
-    
-function getRowLengths(div){
-    var firstRow = div.childNodes[0].childNodes.length;
-    var secondRow = div.childNodes[1].childNodes.length;
-    var thirdRow = div.childNodes[2].childNodes.length;
-    return {0: firstRow, 1: secondRow, 2: thirdRow};
-}
-
-function dealOne(card){
-    var cardDom = domCard(card);
-    var firstDiv = $('#div1')[0];
-    var rowLengths = getRowLengths(firstDiv);
-    
-    var shortestRow;
-    var shortestLength = 100;
-    forEachIn(rowLengths, function(row, length){
-        if (length < shortestLength){
-            shortestRow = row;
-            shortestLength = length;
-        }
-    });
-    firstDiv.childNodes[shortestRow].appendChild(cardDom);
-}
-
-
-function dealMore(cards) {
-    var len = cards.length;
-    if (CARDCOUNT === 81){
-        endGame();
-        return false;
-    }
-    for (var i = 0; i < len; i++) {
-        //console.log(cards);
-        var card = cards.shift();
-        dealOne(card);
-    }
-    clickListenersOff();
-    addEventListeners(cardnumarray_numbers(), SETLENGTH);
-    //realign();
-    //realign();
-    CARDCOUNT += 3;
-    checkDeadboardAndDeal();  
-}
-
-
-
-function endGame() {
-    console.log('endgame function called');
-    if (CARDCOUNT === 81 && !isthereanyset(SETLENGTH)){
-        //var t = $('time').innerHTML;
-        var t = $('#time').text();
-        socket.emit('game over', t);
-        // var win = setsSelf > setsOpp ? ' won!' : ' lost!';
-        // alert('game over! You' + win + ' game time: ' + t);
-        // var data = {t: t, player1: playerName, player2: opponentName};
-        // socket.emit('game data', data)
-    }
-        
-}
-
-var setsFound = 0;
-
-
-
-function removeDeal(cards) {
-    console.log('remove deal function called');
-    console.log(cards);
-    for (var i = 0; i < cards.length; i += 1){
-        findAndRemoveCard(cards[i]);
-        var cardSetForm = convertCard(cards[i]);
-        clicked.forEach(function(current){
-            var ind = clicked.indexOf(current);
-            if (equalArray(current, cardSetForm)){
-                console.log('removing from clicked');
-                clicked.splice(ind, 1);
-                console.log(clicked);
-            }
-        });
-    }
-    realign();
-    realign();
-    if (cardnumarray_numbers().length >= 12){
-        console.log('12 or more cards on board');
-        checkDeadboardAndDeal();
-    }
-}
-
-
-function clearSet(clickDelay){
-    var set = isthereanyset(SETLENGTH);
-    var setCards = set.map(function(current){
-        return cardnumarray_numbers()[current];
-    });
-    // setCards.forEach(function(current){
-    //     clicked.push(current);
-    //     socket.emit('cardClick', {card: current, clicked: clicked})
-    // });
-    clicked = [];
-    
-    setCardsDom = setCards.map(function(current){
-        return $('#' + String(current))[0];
-    });
-    
-    for (var i=0; i < 3; i += 1){
-        setTimeout(function(){
-            setCardsDom.shift().click();
-        }, clickDelay * i);
-    }
-}
-
-function playGameArtificial(setDelay, clearDelay){
-    //if (CARDCOUNT < 81){
-    var set = isthereanyset(SETLENGTH);
-    if (!set){
-        checkDeadboardAndDeal();
-    }
-    else {
-        setTimeout(function(){
-            clearSet(clearDelay);
-        }, setDelay);
-        
-    }
-    //}
-}
-
-function compPlays(setDelay, clearDelay){
-    for (var i=0; i < 27; i += 1){
-        var k = setTimeout(function(){
-            playGameArtificial(setDelay, clearDelay);
-        }, (setDelay + clearDelay * 3) * i + 1000);
-    }
-}
-
 
 
 //dont think i need these to load anymore
