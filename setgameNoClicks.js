@@ -10,20 +10,7 @@ function firstDeal(cards, SETLENGTH){
     checkDeadboardAndDeal();
 }
 
-
-// function superSetFirstDeal(cards) {
-//     dealCards(cards, 3, 3);
-//     //addEventListeners();
-//     checkDeadboardAndDeal();
-
-// }
-
-function cardnumarray() {
-    return cardnumarray_numbers().map(function(current){
-        return String(current);
-    });
-}
-
+//iterators....fancey
 function makeIterator(array){
     var nextIndex = 0;
     
@@ -35,14 +22,6 @@ function makeIterator(array){
        }
     }
 }
-
-var twelveCardIndices = generate_all_three_card_indices(12);
-var nineCardIndices = generate_all_three_card_indices(9);
-var fifteenCardIndices = generate_all_three_card_indices(15);
-var eighteenCardIndices = generate_all_three_card_indices(18);
-var sixCardIndices = generate_all_three_card_indices(6);
-
-var INDICESSTORE = {6: sixCardIndices, 12: twelveCardIndices, 9: nineCardIndices, 15: fifteenCardIndices, 18: eighteenCardIndices};
 
 
 var FACT = [];
@@ -58,49 +37,21 @@ function factorial (n) {
 function isthereanyset(SETLENGTH) {
 
     var numCards = cardnumarray_numbers().length;
-    //if (numCards % 3 === 0){
         //use iterator here? does that save any time / memory?
     var all_indices = makeIterator(makeSubsets(range(numCards), SETLENGTH));
     var len = factorial(numCards) / (factorial(numCards - SETLENGTH) * factorial(SETLENGTH)) 
-    //var all_indices = makeSubsets(range(numCards), SETLENGTH);
-    //var all_indices = INDICESSTORE[numCards];
-    //}
-    // else {
-    //     console.log('overlapping sets or something funny happened');
-    //     var all_indices = generate_all_three_card_indices(numCards);
-    // }
-    
+
     for (var i = 0; i < len; i += 1){
-        //console.log(all_indices.next().value)
         var cardBoardIndices = all_indices.next().value;
-        //console.log(cardBoardIndices);
 
         var cards = convertToCards(cardBoardIndices);
-        // var cardsSetForm = cards.map(function(card){
-        //     return convertCard(card);
-        // });
+
         if (isSetEitherType(cards)){
             console.log(cardBoardIndices);
             return cards;
         }
     }
-        // if (three_cards_a_set(cardBoardIndices)){
-        //     return next;
-        // }
-    //}
-    // for (var i = 0; i < all_indices.length; i++) {
-    //     var cardBoardIndices = all_indices[i];
-    //     var cards = convertToCards(cardBoardIndices);
-    //     var cardsSetForm = cards.map(function(card){
-    //         return convertCard(card);
-    //     });
-    //     if (isSetEitherType(cardsSetForm)){
-    //         return cardBoardIndices;
-    //     }
-    //     // if (three_cards_a_set(all_indices[i])) {
-    //     //     return all_indices[i];
-    //     // }
-    // }
+
     return false;
 }
 
@@ -120,16 +71,6 @@ function allSets(){
 
 var numHints = 0;
 
-
-function choose(choices) {
-    var index = Math.floor(Math.random() * choices.length);
-    return choices[index];
-}
-
-function hintCard(){
-    socket.emit('hintcard called');
-    console.log('this function called');
-}
 
 function displayHint() {
     //for hint function
@@ -157,34 +98,16 @@ function displayHint() {
 }
 
 
-//now need to generate all possible three-index combos
+
 
 var clicked = [];
 
 
 
-
-// function removeLastCard(clicked, cardnum){
-//     var converted = convertCard(cardnum);
-//     if (arraysEqual(converted, clicked[0])){
-//         clicked.splice(0,1);
-//     }
-//     else if (arraysEqual(converted, clicked[1])){
-//         clicked.splice(1,1);
-//     }
-// }
-
 function addToClicked(card){
     if (clicked.indexOf(card) === -1){
         clicked.push(card);
     }
-    //console.log(clicked);
-    // if (notClicked(card)){
-    //     clicked.push(convertCard(card))
-    // }
-    // else {
-    //     removeLastCard(clicked, card);
-    // }
 }
 
 var setFound;
@@ -194,12 +117,9 @@ function setFoundOrNot(){
     if (setFound === false){
         clicked = [];
         allBordersBlack();
-        //setsFound = setsFound - 1;
-        //$('#' + NICKNAME).text(NICKNAME + '\'s sets: ' + String(setsFound));
         socket.emit('falsey', NICKNAME);
     }
-    //socket.emit('clickBanExpiring')
-    //console.log(setFound);
+
 }
 
 function clickListener(card, SETLENGTH){
@@ -400,12 +320,16 @@ function compPlays(setDelay, clearDelay){
 }
 
 
-function shuffleBoardCards() {
-    var cards = cardnumarray_numbers();
-    $('#div1').html('');
-    shuffleArray(cards);
-    dealCards(cards, cards.length / 4, cards.length / 3);
-}
+
+//dont think i need these to load anymore
+// var twelveCardIndices = generate_all_three_card_indices(12);
+// var nineCardIndices = generate_all_three_card_indices(9);
+// var fifteenCardIndices = generate_all_three_card_indices(15);
+// var eighteenCardIndices = generate_all_three_card_indices(18);
+// var sixCardIndices = generate_all_three_card_indices(6);
+
+// var INDICESSTORE = {6: sixCardIndices, 12: twelveCardIndices, 9: nineCardIndices, 15: fifteenCardIndices, 18: eighteenCardIndices};
+
 
 
 

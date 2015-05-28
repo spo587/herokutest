@@ -36,6 +36,20 @@ var SETLENGTH = gameType.slice(0,gameType.length - 1) === 'superSet' ? 4 : 3;
     
 
 
-    
+
     <script src='./livegame.js'></script>
+    <script>
+    function hintCard(){
+        socket.emit('hintcard called');
+    }
+
+    function shuffleBoardCards() {
+        var cards = cardnumarray_numbers();
+        $('#div1').html('');
+        shuffleArray(cards);
+        dealCards(cards, cards.length / 4, cards.length / 3);
+    }
+
+    </script>
+
 </body>
