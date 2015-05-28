@@ -1,93 +1,105 @@
+//this script is sourced into the index.html file which is for the homepage of the site
+
+//create socket for communicating with server
 var socket = io('/');
 
+
+//when the server sends a player join event
 socket.on('player joined game', function(data){
-    //console.log(data);
+    //data is an object with two properties: gameStartedTracker and visitCounter
+
+    //visitCounter is an object that keeps track of how many visitors are at each url
+    // e.g. {superSet0 : 1, set1: 2}, etc.
+    
+    //gameStartedTracker is false and switches to true when someone presses the start game button
+    //count the number of games currently being played?
+
+    //both visitCounter and gameStartedTracker get initizlied in homeSocket.js when the request goes to the server
+    //to load a new page
+
+    //keep track of how many games are in play
     var gameCounter = 0;
     var visitCounter = data.visitCounter;
     var gameStartedTracker = data.gameStartedTracker;
     forEachIn(visitCounter, function(prop, val){
         gameCounter += visitCounter[prop] > 0 ? 1 : 0;
     });
-    setLinksToWaitingGames(gameStartedTracker, visitCounter);
-    if (gameCounter > 0){
-        //console.log(visitCounter);
-        changeLinkForNewGame(visitCounter, gameCounter, 'set');
-        changeLinkForNewGame(visitCounter, gameCounter, 'superSet');
-    }
+    onJoinOrDeparture(data, gameCounter);
+
+    //check this later, not sure why it was here
+    // if (gameCounter > 0){
+    //     //console.log(visitCounter);
+    //     changeLinkForNewGame(visitCounter, gameCounter, 'set');
+    //     changeLinkForNewGame(visitCounter, gameCounter, 'superSet');
+    // }
     
     //resetGameLinks(visitCounter);
     socket.on('player left game', function(data){
-        var gameStartedTracker = data.gameStartedTracker;
-        var visitCounter = data.visitCounter;
-        setLinksToWaitingGames(gameStartedTracker, visitCounter);
-        changeLinkForNewGame(visitCounter, gameCounter, 'set');
-        changeLinkForNewGame(visitCounter, gameCounter, 'superSet');
+        onJoinOrDeparture(data, gameCounter);
     });
     socket.on('game no longer open', function(gameStartedTracker){
-        //console.log('start game event fired on server');
-        //console.log(gameStartedTracker);
         setLinksToWaitingGames(gameStartedTracker, visitCounter);
     });    
 });
 
 
+function onJoinOrDeparture(data, gameCounter){
+    setLinksToWaitingGames(data.gameStartedTracker, data.visitCounter);
+    changeLinkForNewGame(data.visitCounter, gameCounter, 'set');
+    changeLinkForNewGame(data.visitCounter, gameCounter, 'superSet');
+}
+
+
 function setLinksToWaitingGames(gameStartedTracker, visitCounter){
-    //console.log(visitCounter);
-    //console.log(gameStartedTracker);
     $('#games-in-progress').html('');
-    console.log(visitCounter);
-    console.log(gameStartedTracker);
     forEachIn(gameStartedTracker, function(prop, val){
-        if (val === false && visitCounter[prop] > 0){
-            var id = Number(prop[prop.length - 1]);
-            var route = '/' + prop;
-            var newLink = dom('A', {id: id, href: route}, 'click to join game ' + String(id) + ', ' + prop.slice(0, prop.length - 1) + ', player(s) waiting!');
+        if (val === false && visitCounter[prop] > 0){ //someones in game, but it hasn't started
+            var gameNumber = Number(prop[prop.length - 1]); //the number at the end of the url
+            var route = '/' + prop; //the url
+            var gameType = prop.slice(0, prop.length - 1); //set or superSet
+            var newLink = dom('A', {gameNumber: gameNumber, href: route}, 'click to join game ' + String(gameNumber) + ', ' + gameType + ', player(s) waiting!');
             $('#games-in-progress').append(newLink).append('<br>');
         }
     });
 }
 
+function changeLinkForNewGame(visitCounter, gameCounter, gameType){
+    $('#start-game-' + gameType).html('');
+    //debugger;
+    var gameNumber = findLowestOpenGameNumber(visitCounter, gameCounter, gameType);
+    var newLink = dom('A', {gameNumber: gameNumber, href: '/' + String(gameNumber)}, 'click to start new ' + gameType + ' game');
+    $('#start-game-' + gameType).append(newLink).append('<br>');
+    
+}
+
 function findLowestOpenGameNumber(visitCounter, gameCounter, gameType){
-    //some bug in this function, doesn't go to the min call somehow
+    // find the number for the lowest game
+    //this function's fracked. gotta be an easier way
     var lowestOpenGame;
-    //console.log(lowestOpenGame);
     forEachIn(visitCounter, function(prop, val){
-        console.log('line 52');
-        console.log(prop);
-        if (prop.slice(0,3) === gameType.slice(0,3)){
-            if (visitCounter[prop] === 0){
-                //console.log(visitCounter);
+        if (prop.slice(0,3) === gameType.slice(0,3)){ //check for matching game type
+            if (visitCounter[prop] === 0){ //that game must be over or everyone left
+                
+                var gameNumber = Number(prop[prop.length - 1]);
                 if (!lowestOpenGame){
                     console.log('assigning lowestopengame not with min to next one');
-                    lowestOpenGame = Number(prop[prop.length - 1]);
+                    lowestOpenGame = gameNumber; 
                 }
                 else {
                     console.log('assigning with min');
-                    lowestOpenGame = Math.min(Number(prop[prop.length - 1]), lowestOpenGame);
+                    lowestOpenGame = Math.min((gameNumber), lowestOpenGame);
                 }
-                //console.log(lowestOpenGame);
             }
         }
     });
-    
+    //if all games are in play, then just assign to the next number up
     if (lowestOpenGame === undefined){
         lowestOpenGame = gameCounter;
     }
+    //append the gametype to the beginning, and make a string
     lowestOpenGame = gameType + lowestOpenGame;
-    console.log(lowestOpenGame);
-    
+    //console.log(lowestOpenGame);
     return lowestOpenGame;
-}
-
-function changeLinkForNewGame(visitCounter, gameCounter, gameType){
-    //console.log(visitCounter);
-    //fix this!!!
-    $('#start-game-' + gameType).html('');
-    //debugger;
-    var id = findLowestOpenGameNumber(visitCounter, gameCounter, gameType);
-    var newLink = dom('A', {id: id, href: '/' + String(id)}, 'click to start new ' + gameType + ' game');
-    $('#start-game-' + gameType).append(newLink).append('<br>');
-    
 }
 
 

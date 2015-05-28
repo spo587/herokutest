@@ -32,7 +32,7 @@ function checkDeadboardAndDeal() {
         endGame();
         console.log('deadboard');
         //checkDeadboardAndDeal()
-        dealThree(deck.splice(0,3));
+        dealMore(deck.splice(0,3));
         //socket.emit('dealt three more');
         //socket.emit('deadboard');
     }
@@ -207,19 +207,6 @@ function addEventListeners(cards, SETLENGTH) {
 }
 
 
-function addToSetsOnScreen(cards, playerName){
-    console.log(playerName);
-    var newp = dom('P', null);
-    var cardImgs = cards.map(function(current){
-        return domCard(current);
-    });
-    var id = playerName + '-sets';
-    console.log(id);
-    $('#' + id).prepend(newp);
-    cardImgs.forEach(function(cardImg){
-        newp.appendChild(cardImg);
-    });
-}
 
 
 

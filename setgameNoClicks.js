@@ -195,8 +195,8 @@ function setFoundOrNot(){
         clicked = [];
         allBordersBlack();
         //setsFound = setsFound - 1;
-        //$('#' + nickname).text(nickname + '\'s sets: ' + String(setsFound));
-        socket.emit('falsey', nickname);
+        //$('#' + NICKNAME).text(NICKNAME + '\'s sets: ' + String(setsFound));
+        socket.emit('falsey', NICKNAME);
     }
     //socket.emit('clickBanExpiring')
     //console.log(setFound);
@@ -261,7 +261,7 @@ function checkClicks(cards, SETLENGTH){
         console.log(setFound);
         clearTimeout(findSet);
         console.log(cards);
-        socket.emit('set found', {cards: cards, playerName: nickname});
+        socket.emit('set found', {cards: cards, playerName: NICKNAME});
     }
 }
 
@@ -291,7 +291,7 @@ function dealOne(card){
 }
 
 
-function dealThree(cards) {
+function dealMore(cards) {
     var len = cards.length;
     if (CARDCOUNT === 81){
         endGame();
