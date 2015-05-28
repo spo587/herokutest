@@ -1,7 +1,5 @@
-//helper functions for later (since not using jQuery)
-// function $(id) {
-//     return document.getElementById(id)
-// }
+//helper functions for arrays and creating dom objects
+
 function equalArray(arr1,arr2) {
     var res = 0;
     for (i=0; i<arr1.length; i++) {
@@ -81,7 +79,6 @@ function setNodeAttribute(node, attribute, value) {
   else
     node.setAttribute(attribute, value);
 }
-
 
 
 function dom(name, attributes) {

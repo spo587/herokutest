@@ -1,8 +1,8 @@
 var express = require('express');
 var app = express();
 var sf = require('./socketFunctions');
-var af = require('./arrayFunctions');
-var set = require('./set');
+// var af = require('./arrayFunctions');
+// var set = require('./set');
 var server = require('http').createServer(app);
 var io = require('socket.io')(server);
 var hs = require('./homeSocket');
@@ -58,8 +58,6 @@ setUpGames(10);
 
 
 var oneplayer = io.of('/oneplayer');
-
-
 
 
 var bestTimeTwoPlayer = 100000;

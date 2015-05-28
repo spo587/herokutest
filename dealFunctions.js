@@ -139,24 +139,13 @@ function removeDeal(cards) {
 function endGame() {
     console.log('endgame function called');
     if (CARDCOUNT === 81 && !isthereanyset(SETLENGTH)){
-        //var t = $('time').innerHTML;
         var t = $('#time').text();
         socket.emit('game over', t);
-        // var win = setsSelf > setsOpp ? ' won!' : ' lost!';
-        // alert('game over! You' + win + ' game time: ' + t);
-        // var data = {t: t, player1: playerName, player2: opponentName};
-        // socket.emit('game data', data)
     }
         
 }
 
 var setsFound = 0;
-
-
-
-
-
-
 var numHints = 0;
 
 

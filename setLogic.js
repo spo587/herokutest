@@ -2,14 +2,14 @@
 //each entry in the array being 0-3, corresponding to one of the characteristics.
 
 function convertCard(cardNum) {
+    //convert card from integer form to set form, ie, the array of four attributes
     att3 = Math.floor(cardNum/27);
-    att2 = Math.floor((cardNum - att3*27) / 9);
-    att1 = Math.floor((cardNum - 27*att3 - 9*att2) / 3);
-    att0 = Math.floor(cardNum - 27*att3 - 9*att2 - 3*att1);
+    att2 = Math.floor((cardNum - att3 * 27) / 9);
+    att1 = Math.floor((cardNum - 27 * att3 - 9 * att2) / 3);
+    att0 = Math.floor(cardNum - 27 * att3 - 9 * att2 - 3 * att1);
     return [att0, att1, att2, att3];
     //return {'att0': att0, 'att1': att1, 'att2': att2, 'att3':att3}
 }
-
 
 
 function isSetEitherType(cards){
@@ -25,6 +25,7 @@ function isSetEitherType(cards){
 }
 
 function isset(cards) {
+    //cards here are input each in 'setform', that is, as arrays, not integers 0-80
     if (equalArray(cards[0], cards[1])){
         return false;
     }
@@ -39,7 +40,7 @@ function isset(cards) {
         if (reduce(function(a,b){
             return a + b
         }, 0, testarray) % 3 === 0){
-            ans += 1
+            ans += 1;
         }
     }
     //console.log(cards)
@@ -47,7 +48,8 @@ function isset(cards) {
 }
 
 function completeSet(twoCards){
-    //for superset
+    //for superset....takes two integer cards as input and returns the integer
+    //of the third card that makes them into a set
     //console.log(twoCards);
     var cardsSetForm = twoCards.map(function(card){
         return convertCard(card);
@@ -65,6 +67,7 @@ function completeSet(twoCards){
 }
 
 function isSuperSet(cardsCopy){
+    //was having problems with the array being modified, so making a copy instead
     var cards = cardsCopy.map(function(card){
         return card;
     });
