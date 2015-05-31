@@ -156,20 +156,15 @@ function displayHint() {
         console.log('error!!! no set detected but board didnt auto-deal more cards');
     }
     else {
-        var indices = isthereanyset(SETLENGTH);
-        var hintCardPosition = 0;
-        //console.log(hintCardPosition);
-        var hintCardNum = cardnumarray_numbers()[hintCardPosition];
-        //console.log(hintCardNum);
-        var hintcard = domCard(hintCardNum);
+        var hintCardNum = isthereanyset(SETLENGTH)[0]; //choose first card, doesn't matter which
+        var hintCard = domCard(hintCardNum);
         var secondDiv = $('#hint-card-position')[0];
         if (secondDiv.children.length > 0){
             takeAway(secondDiv.children[0]);
         }
-        secondDiv.appendChild(hintcard);
+        secondDiv.appendChild(hintCard);
             //alert('you fool, it\'s not a deadboard! here\'s your hint!');
-        //$('numHints').innerHTML = 'Number of hints used: ' + numHints;
-             
+        //$('numHints').innerHTML = 'Number of hints used: ' + numHints;           
     }
 
 }
