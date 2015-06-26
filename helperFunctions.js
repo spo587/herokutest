@@ -46,7 +46,7 @@ Object.size = function(obj) {
 function forEachIn(object, func) {
     for (var property in object) {
         if (object.hasOwnProperty(property))
-            func(property, object[property])
+            func(property, object[property]);
     }
 }
 

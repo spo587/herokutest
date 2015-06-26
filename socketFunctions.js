@@ -1,10 +1,12 @@
 
-exports.connectSocket = function(socketVar, io, gameStartedTracker){
+exports.connectSocket = function(socketVar, io, db, gameStartedTracker){
     var firstClick = false;
     var setsPerPlayer = {};
+    var startTimes = [];
     //socketVar is the socket connection communicating between players in whatever page
     // the function is being called for
     socketVar.on('connection', function(socket){
+        console.log('CONNECTION');
         //can i / should i split up this massive function ?
         socket.on('join', function(name){
             socket.NICKNAME = name;
@@ -24,10 +26,10 @@ exports.connectSocket = function(socketVar, io, gameStartedTracker){
             //take that hater off the player's list     
             socket.broadcast.emit('allPlayers', setsPerPlayer);
         });
-
         socket.on('start game', function(SETLENGTH){
             var deck = setDeckShuffled();
-            var data = {SETLENGTH: SETLENGTH, deck: deck}
+            var startTime = new Date().getTime();
+            var data = {SETLENGTH: SETLENGTH, deck: deck, startTime: startTime}
             socketVar.emit('order of deck', data);
             //console.log(socketVar.name);
             //console.log(visitCounter);
@@ -36,9 +38,27 @@ exports.connectSocket = function(socketVar, io, gameStartedTracker){
             io.emit('game no longer open', gameStartedTracker);
 
         });
+        socket.on('game over', function(data){
+            var t = data.t;
+            var startTime = data.startTime;
+            //startTimes.push(startTime);
+            console.log('GAME OVER SOCKET CALLED LINE 42');
+            //socket.broadcast.emit('game over', {setsPerPlayer: setsPerPlayer, t: t});
+            console.log(setsPerPlayer);
+            console.log(t);
+            console.log(startTimes);
+            if (startTime != startTimes[startTimes.length - 1]){
+                console.log('ADDING TO DATABASE');
+                var game = makeDatabaseEntry(setsPerPlayer, t, startTime);
+                db.insert(game);
+                startTimes.push(startTime);
+            }
+            else {
+                console.log('NOT ADDING TO DATABASE');
+                startTimes = [];
+            }
+            console.log(startTimes);
 
-        socket.on('game over', function(t){
-            socket.emit('game over', {setsPerPlayer: setsPerPlayer, t: t});         
         });
 
         socket.on('chat message', function(data){
@@ -99,17 +119,46 @@ exports.connectSocket = function(socketVar, io, gameStartedTracker){
             socketVar.emit('false set call', setsPerPlayer);
         });
 
-        socket.on('game data', function(data){
-            console.log(data);
-            if (data.t < bestTimeTwoPlayer){
-                bestTimeTwoPlayer = data.t;
-                bestPlayers = [data.player1, data.player2];
-            }
-        });
+        // socket.on('game data', function(data){
+        //     console.log('game data socket line 106!!!')
+        //     console.log(data);
+        //     // if (data.t < bestTimeTwoPlayer){
+        //     //     bestTimeTwoPlayer = data.t;
+        //     //     bestPlayers = [data.player1, data.player2];
+        //     // }
+        // });
 
     });
 }
 
+
+function forEachIn(object, func) {
+    for (var property in object) {
+        if (object.hasOwnProperty(property))
+            func(property, object[property]);
+    }
+}
+
+function makeDatabaseEntry(setsPerPlayer, time, startTime){
+    var players = [];
+    forEachIn(setsPerPlayer, function(prop, val){
+        players.push(prop);
+    });
+    var winner = findWinningPlayer(setsPerPlayer);
+    return {players: players, time: Number(time), startTime: startTime, winner: winner};
+}
+
+function findWinningPlayer(setsPerPlayer){
+    var max = 0;
+    var winner;
+    forEachIn(setsPerPlayer, function(prop, val){
+        if (val > max){
+            max = val;
+            winner = prop;
+        }
+    });
+    return winner;
+}
 
 range = function(end) {
     var arr = [];

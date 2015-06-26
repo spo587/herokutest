@@ -9,6 +9,22 @@ function clickReset(){
     addEventListeners(cards, SETLENGTH);
 }
 
+function findWinner(){
+    var max = 0;
+    var winner;
+    forEachIn($('#players')[0].childNodes, function(prop, val){
+        var player = val.id;
+        var count = $('#' + player + '-count').text();
+        if (count > max){
+            winner = player;
+            max = count;
+        }
+    });
+    console.log(winner);
+    console.log(max);
+    return winner;
+}
+
 //the name of the player playing
 var NICKNAME;
 //global for determining when to deal more cards.
@@ -40,7 +56,9 @@ function setUpPregame(socket){
         $('#players').text('');
         $('#sets').text('');
         forEachIn(setsPerPlayerObj, function(prop, val){
-            var newp = dom('P', {id: prop}, prop + '\'s set count: ' + String(val));
+            var newp = dom('P', {id: prop}, prop + '\'s set count: ');
+            var span = dom('SPAN', {id: prop + '-count'}, String(val));
+            newp.appendChild(span);
             $('#players').append(newp);
             var dummy = dom('P', null, prop + '\'s sets: ');
             var setp = dom('P', {id: prop + '-sets'});
@@ -73,7 +91,7 @@ function startGame(socket){
     });
     //for the end
     socket.on('game over', function(data){
-
+        console.log('game over socket emitted back to page');
         var t = data.t; //game time
         var setsPerPlayerObj = data.setsPerPlayer;
         var max = 0;
@@ -84,7 +102,10 @@ function startGame(socket){
                 max = val;
             }
         });
-        alert('game over! ' + winner + ' won! ' + 'game time : ' + String(t) + ' seconds ');
+        if (gameNotAlreadyEnded = true){
+            alert('game over! ' + winner + ' won! ' + 'game time : ' + String(t) + ' seconds ');
+            gameNotAlreadyEnded = false;
+        }
     });
 }
 
@@ -130,6 +151,7 @@ function cardClicks(socket){
 
 
 var deck;
+var startTime;
 
 function dealFunctions(socket){
     socket.on('order of deck', function(data){
@@ -145,6 +167,7 @@ function dealFunctions(socket){
         var firstCards = deck.splice(0, 36 / SETLENGTH);
         firstDeal(firstCards, SETLENGTH);
         //start timer
+        startTime = data.startTime;
         timer();
     });
 
@@ -191,7 +214,7 @@ function dealFunctions(socket){
 
 function addSetsToCount(setsPerPlayerObj){
     forEachIn(setsPerPlayerObj, function(prop, val){
-        $('#' + prop).text(prop + '\'s set count: ' + String(val));
+        $('#' + prop + '-count').text(String(val));
 
     });
 }

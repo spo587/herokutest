@@ -1,0 +1,40 @@
+<!Doctype html>
+
+<body>
+    <h1> Fastest games played </h1>
+    <ol id='game-list'>
+    </ol>
+<script src="/node_modules/socket.io/node_modules/socket.io-client/socket.io.js"></script>
+<script src="/utilities/jquery.js"></script>
+<script src='./helperFunctions.js'></script>
+<script>
+var socket = io('/' + document.URL.split('/')[document.URL.split('/').length - 1]);
+console.log(socket);
+socket.on('games', function(data){
+    console.log(data);
+    data.forEach(function(obj){
+        var li;
+        forEachIn(obj, function(prop, val){
+            if (prop === 'players'){
+                var players = '';
+                val.forEach(function(c){
+                    players = players.concat(c) + ', ';
+                });
+                li = dom('LI', {}, 'Players: ' + players);
+            }
+            else if (prop === 'time'){
+                var time = dom('SPAN', {}, 'time: ' + val + ' seconds, ');
+                li.appendChild(time);
+            }
+            else if (prop === 'winner'){
+                var winner = dom('SPAN', {}, 'Winner: ' + val);
+                li.appendChild(winner); 
+            }
+
+        });
+        $('#game-list')[0].appendChild(li);
+    });
+    $('#game-list')
+});
+</script>
+</body>

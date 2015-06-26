@@ -6,6 +6,78 @@ var sf = require('./socketFunctions');
 var server = require('http').createServer(app);
 var io = require('socket.io')(server);
 var hs = require('./homeSocket');
+var bt = require('./bestTimesSocket');
+var Datastore = require('nedb'), db = {}; //new Datastore({filename: 'test2', autoload: true});
+
+db.users = new Datastore({filename: 'data/users.db'});
+db.gameTimesTest = new Datastore({filename: 'data/gameTimesTest.db'})
+db.users.loadDatabase();
+db.gameTimesTest.loadDatabase();
+
+// var user1 = {
+//     name: 'postman',
+//     bestTime: 12
+// };
+
+// var game1 = {
+//     players: ['postman', 'brett'],
+//     time: 150
+// }
+
+// db.users.insert(user1);
+// db.games.insert(game1);
+
+function forEachIn(object, func) {
+    for (var property in object) {
+        if (object.hasOwnProperty(property))
+            func(property, object[property]);
+    }
+}
+
+function removeDuplicatesFromGamesDB(db){
+    db.find({}, function(e, docs){
+         //gives us an array
+         var idsToRemove = [];
+         for (var i=0; i < docs.length - 1; i++){
+            if (docs[i].startTime === docs[i + 1].startTime){
+                idsToRemove.push(docs[i + 1]._id);
+            }
+
+         }
+        idsToRemove.forEach(function(id){
+            db.remove({_id: id}, {}, function(e, numRemoved){
+
+            });
+        });
+    });
+    
+}
+
+// removeDuplicatesFromGamesDB(db.games2);
+
+// var test = [];
+// db.games2.find({}, function(e, docs){
+//     console.log(docs);
+// });
+//     docs.forEach(function(doc){
+//         //console.log(typeof(doc));
+//         test.push(doc);
+//         console.log(test);
+//     });
+// });
+//console.log(test);
+
+
+var bt = io.of('/besttimes.html');
+bt.on('connection', function(socket){
+    console.log('user queried besttimes.html');
+    removeDuplicatesFromGamesDB(db.gameTimesTest);
+    db.gameTimesTest.find({}).sort({time: 1}).limit(10).exec(function(e, docs){
+        console.log(docs);
+        socket.emit('games', docs);
+    });
+
+});
 
 
 var visitCounter = {};
@@ -14,7 +86,9 @@ var gameStartedTracker = {};
 
 //make socket for communicating with home page
 io.on('connection', function(socket){
+    //console.log('HOMESOCKETCONNCETED');
     hs.connectHomeSocket(io, visitCounter, gameStartedTracker);
+    //bt.connectSocket(io);
 });
 
 function setUpGames(number){
@@ -26,13 +100,15 @@ function setUpGames(number){
         return livegameVar(current).superSetGame;
     });
     setGames.forEach(function(game){
-        sf.connectSocket(game, io, gameStartedTracker);
+        sf.connectSocket(game, io, db.gameTimesTest, gameStartedTracker);
     });
     superSetGames.forEach(function(game){
-        sf.connectSocket(game, io, gameStartedTracker);
+        sf.connectSocket(game, io, db.gameTimesTest, gameStartedTracker);
     })
     getGamesOnly(gameNumbers);
 }
+
+
 
 
 function livegameVar(num){
@@ -57,56 +133,43 @@ function getGamesOnly(gameNumbers){
 setUpGames(10);
 
 
-var oneplayer = io.of('/oneplayer');
-
-
-var bestTimeTwoPlayer = 100000;
-var bestPlayers = ['sam', 'brett'];
-
-var bestTime;
-var bestPlayer;
-
-//var numPlayers = 0;
-
-oneplayer.on('connection', function(socket){
-    console.log('player connected to one player game');
-    socket.on('timed game over', function(data){
-        console.log(data);
-        if (data.t < bestTime){
-            bestTime = data.t;
-            bestPlayer = data.playerName;
-        }
+// oneplayer.on('connection', function(socket){
+//     console.log('player connected to one player game');
+//     socket.on('timed game over', function(data){
+//         console.log(data);
+//         if (data.t < bestTime){
+//             bestTime = data.t;
+//             bestPlayer = data.playerName;
+//         }
         
-        //client.set('best time', t);
+//         //client.set('best time', t);
 
-    });
-});
+//     });
+// });
 
 function appGet(urlPath, fileExtension){
     app.get(urlPath, function(req, res){
-        res.header("Access-Control-Allow-Origin", "*");
-        res.header("Access-Control-Allow-Headers", "X-Requested-With");
-        res.header("Access-Control-Allow-Headers", "Content-Type");
-        res.header("Access-Control-Allow-Methods", "PUT, GET, POST, DELETE, OPTIONS");
+        // res.header("Access-Control-Allow-Origin", "*");
+        // res.header("Access-Control-Allow-Headers", "X-Requested-With");
+        // res.header("Access-Control-Allow-Headers", "Content-Type");
+        // res.header("Access-Control-Allow-Methods", "PUT, GET, POST, DELETE, OPTIONS");
         res.sendFile(__dirname + fileExtension);
     });
 }
 
-
 //put all scripts on the dickin server
-appGet('/oneplayer', '/oneplayer.html');
-appGet('/helperFunctions.js', '/helperFunctions.js');
-appGet('/computerPlay.js', '/computerPlay.js');
-appGet('/home.js','/home.js');
-appGet('/domFunctions.js', '/domFunctions.js');
-appGet('/clickFunctions.js', '/clickFunctions.js');
-appGet('/dealFunctions.js', '/dealFunctions.js');
-appGet('/setsOnBoard.js', '/setsOnBoard.js');
-appGet('/setLogic.js', '/setLogic.js');
+var pages = ['/helperFunctions.js', 
+    '/computerPlay.js', '/home.js', '/domFunctions.js', '/clickFunctions.js',
+    '/dealFunctions.js','/setsOnBoard.js','/setLogic.js','/node_modules/socket.io/node_modules/socket.io-client/socket.io.js',
+    '/utilities/jquery.js','/livegame.js'];
+pages.forEach(function(page){
+    appGet(page, page);
+});
+
+//appGet('/oneplayer', '/oneplayer.html');
 appGet('/','/index.html');
-appGet('/node_modules/socket.io/node_modules/socket.io-client/socket.io.js','/node_modules/socket.io/node_modules/socket.io-client/socket.io.js');
-appGet('/utilities/jquery.js', '/utilities/jquery.js');
-appGet('/livegame.js', '/livegame.js');
+
+appGet('/besttimes.html', '/besttimes.html');
 
 // app.get('/node_modules/socket.io/node_modules/socket.io-client/socket.io.js', function(req, res){
 //     res.header("Access-Control-Allow-Origin", "*");
@@ -118,11 +181,11 @@ for (var i=0; i < 81; i += 1){
     appGet('/cards/' + String(i) + '.JPG', '/cards/' + String(i) + '.JPG');
 }
 
-app.get('/besttime', function(req, res){
-    res.writeHead(200);
-    res.write(String('best time so far is ' + bestTimeTwoPlayer + ' seconds by ' + bestPlayers[0] + ' and ' + bestPlayers[1]));
-    res.end();
-});
+// app.get('/besttime', function(req, res){
+//     res.writeHead(200);
+//     res.write(String('best time so far is ' + bestTimeTwoPlayer + ' seconds by ' + bestPlayers[0] + ' and ' + bestPlayers[1]));
+//     res.end();
+// });
 
 var port = process.env.PORT || 8080;
 

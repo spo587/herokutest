@@ -3,6 +3,7 @@ var findSet;
 
 
 
+
 function isthereanyset(SETLENGTH) {
 
     var numCards = cardnumarray_numbers().length;

@@ -140,7 +140,14 @@ function endGame() {
     console.log('endgame function called');
     if (CARDCOUNT === 81 && !isthereanyset(SETLENGTH)){
         var t = $('#time').text();
-        socket.emit('game over', t);
+        var data = {t:t, startTime: startTime};
+        var winner = findWinner();
+        if (gameNotAlreadyEnded){
+            socket.emit('game over', data);
+            console.log('game over emitted to server');
+            gameNotAlreadyEnded = false;
+            alert('game over! ' + winner + ' won! ' + 'game time : ' + String(t) + ' seconds ');
+        }
     }
         
 }

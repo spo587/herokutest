@@ -1,10 +1,10 @@
 //i may need to rewrite some of these as well
 
 function clearSet(clickDelay){
-    var set = isthereanyset(SETLENGTH);
-    var setCards = set.map(function(current){
-        return cardnumarray_numbers()[current];
-    });
+    var setCards = isthereanyset(SETLENGTH);
+    // var setCards = set.map(function(current){
+    //     return cardnumarray_numbers()[current];
+    // });
     // setCards.forEach(function(current){
     //     clicked.push(current);
     //     socket.emit('cardClick', {card: current, clicked: clicked})

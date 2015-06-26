@@ -38,8 +38,10 @@ socket.on('player joined game', function(data){
         onJoinOrDeparture(data, gameCounter);
     });
     socket.on('game no longer open', function(gameStartedTracker){
+        console.log('GAME JUST CLOSED');
         setLinksToWaitingGames(gameStartedTracker, visitCounter);
-    });    
+    }); 
+
 });
 
 
@@ -53,7 +55,7 @@ function onJoinOrDeparture(data, gameCounter){
 function setLinksToWaitingGames(gameStartedTracker, visitCounter){
     $('#games-in-progress').html('');
     forEachIn(gameStartedTracker, function(prop, val){
-        if (val === false && visitCounter[prop] > 0){ //someones in game, but it hasn't started
+        if (val === false && visitCounter[prop] > 0 && prop != 'besttimes.html'){ //someones in game, but it hasn't started
             var gameNumber = Number(prop[prop.length - 1]); //the number at the end of the url
             var route = '/' + prop; //the url
             var gameType = prop.slice(0, prop.length - 1); //set or superSet
@@ -73,6 +75,7 @@ function changeLinkForNewGame(visitCounter, gameCounter, gameType){
 }
 
 function findLowestOpenGameNumber(visitCounter, gameCounter, gameType){
+    console.log(visitCounter);
     // find the number for the lowest game
     //this function's fracked. gotta be an easier way
     var lowestOpenGame;
