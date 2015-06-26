@@ -9,9 +9,9 @@ var hs = require('./homeSocket');
 var bt = require('./bestTimesSocket');
 var Datastore = require('nedb'), db = {}; //new Datastore({filename: 'test2', autoload: true});
 
-db.users = new Datastore({filename: 'data/users.db'});
-db.gameTimes = new Datastore({filename: 'data/gameTimes.db'})
-db.users.loadDatabase();
+//db.users = new Datastore({filename: 'data/users.db'});
+db.gameTimes = new Datastore({filename: 'data/gameTimes.db'}, autoload: true);
+//db.users.loadDatabase();
 db.gameTimes.loadDatabase();
 
 // var user1 = {
