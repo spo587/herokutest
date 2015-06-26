@@ -10,9 +10,9 @@ var bt = require('./bestTimesSocket');
 var Datastore = require('nedb'), db = {}; //new Datastore({filename: 'test2', autoload: true});
 
 db.users = new Datastore({filename: 'data/users.db'});
-db.gameTimesTest = new Datastore({filename: 'data/gameTimesTest.db'})
+db.gameTimes = new Datastore({filename: 'data/gameTimes.db'})
 db.users.loadDatabase();
-db.gameTimesTest.loadDatabase();
+db.gameTimes.loadDatabase();
 
 // var user1 = {
 //     name: 'postman',
@@ -71,8 +71,8 @@ function removeDuplicatesFromGamesDB(db){
 var bt = io.of('/besttimes.html');
 bt.on('connection', function(socket){
     console.log('user queried besttimes.html');
-    removeDuplicatesFromGamesDB(db.gameTimesTest);
-    db.gameTimesTest.find({}).sort({time: 1}).limit(10).exec(function(e, docs){
+    removeDuplicatesFromGamesDB(db.gameTimes);
+    db.gameTimes.find({}).sort({time: 1}).limit(10).exec(function(e, docs){
         console.log(docs);
         socket.emit('games', docs);
     });
@@ -100,10 +100,10 @@ function setUpGames(number){
         return livegameVar(current).superSetGame;
     });
     setGames.forEach(function(game){
-        sf.connectSocket(game, io, db.gameTimesTest, gameStartedTracker);
+        sf.connectSocket(game, io, db.gameTimes, gameStartedTracker);
     });
     superSetGames.forEach(function(game){
-        sf.connectSocket(game, io, db.gameTimesTest, gameStartedTracker);
+        sf.connectSocket(game, io, db.gameTimes, gameStartedTracker);
     })
     getGamesOnly(gameNumbers);
 }

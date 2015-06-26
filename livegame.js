@@ -213,6 +213,7 @@ function dealFunctions(socket){
 }
 
 function addSetsToCount(setsPerPlayerObj){
+    console.log(setsPerPlayerObj);
     forEachIn(setsPerPlayerObj, function(prop, val){
         $('#' + prop + '-count').text(String(val));
 
