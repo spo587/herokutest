@@ -10,7 +10,7 @@ var bt = require('./bestTimesSocket');
 var Datastore = require('nedb'), db = {}; //new Datastore({filename: 'test2', autoload: true});
 
 //db.users = new Datastore({filename: 'data/users.db'});
-db.gameTimes = new Datastore({filename: 'data/gameTimes.db'}, autoload: true);
+db.gameTimes = new Datastore({filename: 'data/gameTimes.db', autoload: true});
 //db.users.loadDatabase();
 db.gameTimes.loadDatabase();
 
