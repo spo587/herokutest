@@ -42,11 +42,6 @@ exports.connectSocket = function(socketVar, io, db, gameStartedTracker){
             var t = data.t;
             var startTime = data.startTime;
             //startTimes.push(startTime);
-            console.log('GAME OVER SOCKET CALLED LINE 42');
-            //socket.broadcast.emit('game over', {setsPerPlayer: setsPerPlayer, t: t});
-            console.log(setsPerPlayer);
-            console.log(t);
-            console.log(startTimes);
             if (startTime != startTimes[startTimes.length - 1]){
                 console.log('ADDING TO DATABASE');
                 var game = makeDatabaseEntry(setsPerPlayer, t, startTime);
@@ -57,7 +52,10 @@ exports.connectSocket = function(socketVar, io, db, gameStartedTracker){
                 console.log('NOT ADDING TO DATABASE');
                 startTimes = [];
             }
-            console.log(startTimes);
+            // db.find({}).sort({time: 1}).limit(10).exec(function(e, docs){
+            //     console.log(docs);
+            //     bt.emit('games', docs);
+            // });
 
         });
 

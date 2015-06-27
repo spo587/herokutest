@@ -9,7 +9,7 @@
 <script src='./helperFunctions.js'></script>
 <script>
 var socket = io('/' + document.URL.split('/')[document.URL.split('/').length - 1]);
-console.log(socket);
+//console.log(socket);
 socket.on('games', function(data){
     console.log(data);
     data.forEach(function(obj){
@@ -34,7 +34,7 @@ socket.on('games', function(data){
         });
         $('#game-list')[0].appendChild(li);
     });
-    $('#game-list')
+    //$('#game-list')
 });
 </script>
 </body>

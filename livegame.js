@@ -56,12 +56,13 @@ function setUpPregame(socket){
         $('#players').text('');
         $('#sets').text('');
         forEachIn(setsPerPlayerObj, function(prop, val){
-            var newp = dom('P', {id: prop}, prop + '\'s set count: ');
-            var span = dom('SPAN', {id: prop + '-count'}, String(val));
+            var formattedProp = prop.split(' ').join('-');
+            var newp = dom('P', {id: formattedProp }, prop + '\'s set count: ');
+            var span = dom('SPAN', {id: formattedProp + '-count'}, String(val));
             newp.appendChild(span);
             $('#players').append(newp);
             var dummy = dom('P', null, prop + '\'s sets: ');
-            var setp = dom('P', {id: prop + '-sets'});
+            var setp = dom('P', {id: formattedProp + '-sets'});
             $('#sets').append(dummy).append(setp);
 
         });
@@ -215,17 +216,19 @@ function dealFunctions(socket){
 function addSetsToCount(setsPerPlayerObj){
     console.log(setsPerPlayerObj);
     forEachIn(setsPerPlayerObj, function(prop, val){
-        $('#' + prop + '-count').text(String(val));
+        var formattedProp = prop.split(' ').join('-');
+        $('#' + formattedProp + '-count').text(String(val));
 
     });
 }
 
 function addToSetsOnScreen(cards, playerName){
+    var formattedName = playerName.split(' ').join('-');
     var newp = dom('P', null);
     var cardImgs = cards.map(function(current){
         return domCard(current);
     });
-    var id = playerName + '-sets';
+    var id = formattedName + '-sets';
     $('#' + id).prepend(newp);
     cardImgs.forEach(function(cardImg){
         newp.appendChild(cardImg);
