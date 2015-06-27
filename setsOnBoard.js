@@ -146,7 +146,9 @@ function setFoundOrNot(){
     if (setFound === false){
         clicked = [];
         allBordersBlack();
-        socket.emit('falsey', NICKNAME);
+        if (clickListenersOn === true){
+            socket.emit('falsey', NICKNAME);
+        }
     }
 
 }
