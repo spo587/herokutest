@@ -53,6 +53,9 @@ function addToClicked(card){
 }
 
 function clickListenersOff(){
+    if (clicked.length === 1){
+        clearTimeout(findSet);
+    }
     var cards = cardnumarray_numbers();
     cards.forEach(function(card){
         clickListenerOff(card);
