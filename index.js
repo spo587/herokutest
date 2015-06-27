@@ -163,7 +163,7 @@ function appGet(urlPath, fileExtension){
 var pages = ['/helperFunctions.js', 
     '/computerPlay.js', '/home.js', '/domFunctions.js', '/clickFunctions.js',
     '/dealFunctions.js','/setsOnBoard.js','/setLogic.js','/node_modules/socket.io/node_modules/socket.io-client/socket.io.js',
-    '/utilities/jquery.js','/livegame.js'];
+    '/utilities/jquery.js','/livegame.js', '/data/gameTimes.db'];
 pages.forEach(function(page){
     appGet(page, page);
 });
