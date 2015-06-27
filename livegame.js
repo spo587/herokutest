@@ -14,14 +14,12 @@ function findWinner(){
     var winner;
     forEachIn($('#players')[0].childNodes, function(prop, val){
         var player = val.id;
-        var count = $('#' + player + '-count').text();
+        var count = Number($('#' + player + '-count').text());
         if (count > max){
             winner = player;
             max = count;
         }
     });
-    console.log(winner);
-    console.log(max);
     return winner;
 }
 
