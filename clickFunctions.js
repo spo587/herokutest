@@ -59,6 +59,7 @@ function clickListenersOff(){
         // //increment by one because it's gonna come down by one after poach
         // $('#' + id + '-count').text(currentCount + 1);
         socket.emit('set found', {playerName: NICKNAME});
+        console.log('extra set correction ?? ?? ??');
     }
     var cards = cardnumarray_numbers();
     cards.forEach(function(card){
