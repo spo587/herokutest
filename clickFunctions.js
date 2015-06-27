@@ -53,9 +53,12 @@ function addToClicked(card){
 }
 
 function clickListenersOff(){
-    if (clicked.length === 1){
-        clearTimeout(findSet);
-        allBordersBlack();
+    if (clicked.length > 0){ //we clicked a card but the server got someone else's click first
+        // var id = NICKNAME.split(' ').join('-');
+        // var currentCount = Number($('#' + id + '-count').text());
+        // //increment by one because it's gonna come down by one after poach
+        // $('#' + id + '-count').text(currentCount + 1);
+        socket.emit('set found', {playerName: NICKNAME});
     }
     var cards = cardnumarray_numbers();
     cards.forEach(function(card){
