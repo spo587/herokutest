@@ -1,7 +1,8 @@
 var CARDCOUNT = 0;
 
 
-function SetBoard(SETLENGTH){
+function SetBoard(SETLENGTH, NICKNAME, orderedDeck){
+    this.orderedDeck = orderedDeck;
     this.cards = [];
     this.div = $('#div1');
     this.SETLENGTH = SETLENGTH;
@@ -10,6 +11,13 @@ function SetBoard(SETLENGTH){
     this.clicked = [];
     this.setFound = null;
     this.findSet = null;
+    this.playerName = NICKNAME;
+    this.firstDeal = function(){
+        this.dealNewCards(this.getFirstCards());
+    }
+    this.getFirstCards = function(){
+        return this.orderedDeck.splice(0, 36 / this.SETLENGTH);
+    }
     this.addCards = function(cards){
         this.cards = this.cards.concat(cards);
     }
@@ -59,6 +67,7 @@ function SetBoard(SETLENGTH){
         }
     }
     this.dealOne = function(card){
+        card.addSetBoard(this);
         var dc = card.domCard();
         var shortestRow = this.getShortestRow();
         shortestRow.appendChild(dc);
@@ -74,7 +83,8 @@ function SetBoard(SETLENGTH){
         this.realign();
     }
     this.takeAwayCard = function(card){
-        var domElem = card.getDomElement()[0];
+        console.log(card);
+        var domElem = card.getDomElement(card.cardNumber)[0];
         takeAway(domElem);
         this.removeCards([card]);
     }
@@ -88,9 +98,10 @@ function SetBoard(SETLENGTH){
 
     this.addClickListeners = function(){
         var cards = this.cards;
-        var setBoardObj = this;
+        //var setBoardObj = this;
         cards.forEach(function(card){
-            setBoardObj.addClickListener(card);
+            card.addClickListener();
+            //setBoardObj.addClickListener(card);
         });
     }
     this.addToClicked = function(card){
@@ -98,47 +109,23 @@ function SetBoard(SETLENGTH){
             this.clicked.push(card);
         }
     }
-    this.addClickListener = function(card){
-        var dc = card.getDomElement();
-        var setBoardObj = this;
-        dc.bind('click', function(click){
-            if (setBoardObj.clicked.length === 0){
-                setBoardObj.setFound = false;
-                socket.emit('firstCardClick', {card: card, clicked: setBoardObj.clicked}); //have to change socket event
 
-                setBoardObj.findSet = setTimeout(function(){
-                    console.log('returning');
-                    console.log(setBoardObj.setFound);
-                    setBoardObj.allBordersBlack();
-                    setBoardObj.clicked = [];
-                    return setBoardObj.setFound === true},
-                700 * SETLENGTH);
-            }
-            if (setBoardObj.clicked.length === 1){
-                socket.emit('secondCardClick', {card: card, clicked: setBoardObj.clicked});
-            }
-            setBoardObj.addToClicked(card);
-            card.changeBorderColor('red');
-            //click.target.style.borderColor = chooseNewBorderColor(click.target.style.borderColor);
-            
-            if (setBoardObj.clicked.length === setBoardObj.SETLENGTH){
-                //allBordersBlack
-                setBoardObj.checkClicks(setBoardObj.clicked);
-                setBoardObj.allBordersBlack();
-                setBoardObj.clicked = [];
-            }
-        });
-    }
     this.checkClicks = function(arr){
-        if (isset(arr)){
+        console.log(arr);
+        var setBoardObj = this;
+        if (isSetEitherType(arr)){
             console.log('set found');
             this.setFound = true;
-            var setBoardObj = this;
             clearTimeout(setBoardObj.findSet);
+            //console.log(arr);
+            socket.emit('set found', {cards: arr, playerName: this.playerName});
         }
         else {
             console.log('not a set');
             this.setFound = false;
+            socket.emit('falsey', this.playerName);
+
+            clearTimeout(setBoardObj.findSet);
         }
     }
     this.allBordersBlack = function(){
@@ -146,14 +133,14 @@ function SetBoard(SETLENGTH){
             card.changeBorderColor('black');
         });
     }
-    this.setFoundOrNot = function(){
+    // this.setFoundOrNot = function(){
 
-        console.log('returning!');
-        console.log(setBoardObj.setFound);
-        setBoardObj.allBordersBlack();
-        setBoardObj.clicked = [];
-        return this.setFound === true;
-    }
+    //     console.log('returning!');
+    //     console.log(setBoardObj.setFound);
+    //     setBoardObj.allBordersBlack();
+    //     setBoardObj.clicked = [];
+    //     return this.setFound === true;
+    // }
 
     this.isThereASet = function(){
         var numCards = this.cards.length;
@@ -178,6 +165,20 @@ function SetBoard(SETLENGTH){
         var cards = [];
         return indices.map(function(ind){})
     }
+
+    this.shuffleBoard = function(){
+
+    }
+    this.checkAndDeal = function(){
+        var toDeal = this.orderedDeck.splice(0, this.SETLENGTH);
+        if (this.cards.length <= this.depletedBoard){
+            this.dealNewCards(toDeal);
+        }
+        else if (this.checkDeadBoard()){
+            this.dealNewCards(toDeal);
+        }
+    }
+
 
 
 }

@@ -28,9 +28,11 @@ exports.connectSocket = function(socketVar, io, db, gameStartedTracker){
         });
         socket.on('start game', function(SETLENGTH){
             var deck = setDeckShuffled();
-            var startTime = new Date().getTime();
+            var startTime = new Date().getTime() + 3000;
             var data = {SETLENGTH: SETLENGTH, deck: deck, startTime: startTime}
-            socketVar.emit('order of deck', data);
+            setTimeout(function(){
+                socketVar.emit('order of deck', data);
+            }, 2500);
             //console.log(socketVar.name);
             //console.log(visitCounter);
             var gameName = socketVar.name.slice(1, socketVar.name.length);
@@ -69,21 +71,18 @@ exports.connectSocket = function(socketVar, io, db, gameStartedTracker){
         });
 
         socket.on('set found', function(data){
-
+            //console.log('set found');
             var cards = data.cards;
             //add to sets object that's keeping track of all players sets
             setsPerPlayer[data.playerName] += 1;
             //send it along
             var transmit = {cards: cards, setsPerPlayer: setsPerPlayer, player: data.playerName};
+            console.log(transmit.cards);
+            console.log(transmit.cards[0].cardNumber);
             socketVar.emit('set found', transmit);
-            //deal more cards, if board is 'depleted'
-            socketVar.emit('dealing more');
+            // //deal more cards, if board is 'depleted'
+            // socketVar.emit('dealing more');
         });
-        //old version
-        // socket.on('cardClick', function(id){
-        //     socket.broadcast.emit('cardClick', id);
-        // });
-
         socket.on('firstCardClick', function(data){
             //one player clicked a card, therefore calling 'set!' send it off to the ohter players so
             //clicks by others won't be registered in the apporpriate time
@@ -112,9 +111,10 @@ exports.connectSocket = function(socketVar, io, db, gameStartedTracker){
         });
 
         socket.on('falsey', function(name){
+            console.log('falsey');
             //set wasn't collected in time. penalty!
             setsPerPlayer[name] = setsPerPlayer[name] - 1;
-            socketVar.emit('false set call', setsPerPlayer);
+            socketVar.emit('falsey', setsPerPlayer);
         });
 
         // socket.on('game data', function(data){

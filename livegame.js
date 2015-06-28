@@ -84,7 +84,7 @@ function startGame(socket){
             alert('game in progress, please go to home page or refresh to start a new game');
         }
         else {
-            console.log(SETLENGTH);
+            //console.log(SETLENGTH);
             socket.emit('start game', SETLENGTH); //$('#paragraph').html());
         }
     });
@@ -149,30 +149,25 @@ function cardClicks(socket){
 }
 
 
-var deck;
 var startTime;
+var SETBOARD
 
 function dealFunctions(socket){
     socket.on('order of deck', function(data){
         //event that fires when start-game button is clicked.
         //server sends all clients the shuffled deck order
-        deck = data.deck.map(function(current){
+        var deck = data.deck.map(function(current){
             return new SetCard(current);
         });
-
         SETLENGTH = data.SETLENGTH;
         var type = SETLENGTH === 4 ? 'superSet' : 'set';
-        $('#intro').text(type + '!');
-        DEPLETEDBOARD = SETLENGTH === 4 ? 5 : 9;
-        //first deal is 9 cards for super, 12 for set
-        var firstCards = deck.splice(0, 36 / SETLENGTH);
-        firstDeal(firstCards, SETLENGTH);
-        //start timer
+        SETBOARD = new SetBoard(SETLENGTH, NICKNAME, deck);
+        SETBOARD.setupBoard();
+        SETBOARD.firstDeal()
+        SETBOARD.addClickListeners();
         startTime = data.startTime;
         timer();
     });
-
-
     socket.on('dealing more', function(){
         var cardsOnBoard = cardnumarray_numbers();
         if (cardsOnBoard.length <= DEPLETEDBOARD){
@@ -182,29 +177,20 @@ function dealFunctions(socket){
         }
 
     });
-    //deprecated
-    // socket.on('force deal next three', function(){
-    //     var cards = deck.splice(0, 3);
-    //     dealMore(cards);
-    // });
     socket.on('set found', function(data){
-        //another player in teh game found a set
+        //another player in thh game found a set
         var cards = data.cards;
+        console.log(cards);
         var setsPerPlayerObj = data.setsPerPlayer;
-        clearTimeout(oppFindSet);
-
+        //clearTimeout(oppFindSet); //???
         //not sure why thsi is here
-        socket.emit('clickBanExpiring');
+        //socket.emit('clickBanExpiring');
         addSetsToCount(setsPerPlayerObj);
-        removeDeal(cards);
-        addToSetsOnScreen(cards, data.player);
+        SETBOARD.takeAwayCards(cards);
+        SETBOARD.checkAndDeal();
+        //addToSetsOnScreen(cards, data.player);
     });
-    //previous version
-    // socket.on('falsey', function(){
-    //     var current = $('#setsFoundOpponent').text();
-    //     $('#setsFoundOpponent').text(String(Number(current) - 1));
-    // });
-    socket.on('false set call', function(setsPerPlayer){
+    socket.on('falsey', function(setsPerPlayer){
         addSetsToCount(setsPerPlayer);
     });
     socket.on('show hintcard', function(){

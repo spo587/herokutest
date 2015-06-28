@@ -2,7 +2,14 @@
 //each entry in the array being 0-3, corresponding to one of the characteristics.
 
 
+Object.prototype.getDomElement = function(num){
+    return $('#' + String(num));
+}
+
+
 function SetCard(cardNum){
+    this.cardNumber = cardNum;
+    this.setBoard = null;
     this.setAttributes = function(){
         att3 = Math.floor(cardNum/27);
         att2 = Math.floor((cardNum - att3 * 27) / 9);
@@ -18,17 +25,52 @@ function SetCard(cardNum){
         //console.log(cardsrc);
         return dom('IMG', {src: cardsrc, id: cardNum, border: 5});
     }
-    this.getDomElement = function(){
-        return $('#' + String(cardNum));
-    }
     this.changeBorderStyle = function(){
-        var cardDom = this.getDomElement()[0];
+        var cardDom = this.getDomElement(this.cardNumber)[0];
         cardDom.style.borderStyle === 'dotted' ? cardDom.style.borderStyle = 'solid' : cardDom.style.borderStyle = 'dotted';
     }
     this.changeBorderColor =  function(color){//, color1, color2){
-        var cardDom = this.getDomElement()[0];
+        var cardDom = this.getDomElement(this.cardNumber)[0];
         cardDom.style.borderColor = color; //== color1 ? (cardDom.style.borderColor = color2) : (cardDom.style.borderColor = color1);
         
+    }
+    this.clickListenerOn = false;
+    this.addSetBoard = function(board){
+        this.setBoard = board;
+    }
+    this.addClickListener = function(){
+        this.clickListenerOn = true;
+        var dc = this.getDomElement(this.cardNumber);
+        var setBoardObj = this.setBoard;
+        var card = this;
+        dc.bind('click', function(click){
+            if (setBoardObj.clicked.length === 0){
+                setBoardObj.setFound = false;
+                socket.emit('firstCardClick', {card: card, clicked: setBoardObj.clicked}); //have to change socket event
+
+                setBoardObj.findSet = setTimeout(function(){
+                    console.log('returning');
+                    console.log(setBoardObj.setFound);
+                    setBoardObj.allBordersBlack();
+                    setBoardObj.clicked = [];
+                    socket.emit('falsey', setBoardObj.playerName);
+                    return setBoardObj.setFound === true;
+                }, 700 * SETLENGTH);
+            }
+            if (setBoardObj.clicked.length === 1){
+                socket.emit('secondCardClick', {card: card, clicked: setBoardObj.clicked});
+            }
+            setBoardObj.addToClicked(card);
+            card.changeBorderColor('red');
+            //click.target.style.borderColor = chooseNewBorderColor(click.target.style.borderColor);
+            
+            if (setBoardObj.clicked.length === setBoardObj.SETLENGTH){
+                //allBordersBlack
+                setBoardObj.checkClicks(setBoardObj.clicked);
+                setBoardObj.allBordersBlack();
+                setBoardObj.clicked = [];
+            }
+        });
     }
 
 }
@@ -47,7 +89,6 @@ function SetCard(cardNum){
 
 function isSetEitherType(cards){
     if (cards.length === 3){
-
         return isset(cards);
     }
     else if (cards.length === 4){
