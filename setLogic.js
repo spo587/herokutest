@@ -19,17 +19,18 @@ function SetCard(cardNum){
         return dom('IMG', {src: cardsrc, id: cardNum, border: 5});
     }
     this.getDomElement = function(){
-        return $('#' + String(cardNum))[0];
+        return $('#' + String(cardNum));
     }
     this.changeBorderStyle = function(){
-        var cardDom = this.getDomElement();
+        var cardDom = this.getDomElement()[0];
         cardDom.style.borderStyle === 'dotted' ? cardDom.style.borderStyle = 'solid' : cardDom.style.borderStyle = 'dotted';
     }
-    this.changeBorderColor =  function(){//, color1, color2){
-        var cardDom = this.getDomElement();
-        cardDom.style.borderColor = 'red'; //== color1 ? (cardDom.style.borderColor = color2) : (cardDom.style.borderColor = color1);
+    this.changeBorderColor =  function(color){//, color1, color2){
+        var cardDom = this.getDomElement()[0];
+        cardDom.style.borderColor = color; //== color1 ? (cardDom.style.borderColor = color2) : (cardDom.style.borderColor = color1);
         
     }
+
 }
 
 
@@ -46,11 +47,8 @@ function SetCard(cardNum){
 
 function isSetEitherType(cards){
     if (cards.length === 3){
-        var cardsSetForm = cards.map(function(card){
-            //return convertCard(card);
-            return card.setAttributes();
-        });
-        return isset(cardsSetForm);
+
+        return isset(cards);
     }
     else if (cards.length === 4){
         return isSuperSet(cards);
@@ -58,6 +56,10 @@ function isSetEitherType(cards){
 }
 
 function isset(cards) {
+    var cards = cards.map(function(card){
+        //return convertCard(card);
+        return card.setAttributes();
+    });
     //cards here are input each in 'setform', that is, as arrays, not integers 0-80
     if (equalArray(cards[0], cards[1])){
         return false;

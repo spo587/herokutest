@@ -1,8 +1,15 @@
 var CARDCOUNT = 0;
 
 
-function SetBoard(){
+function SetBoard(SETLENGTH){
     this.cards = [];
+    this.div = $('#div1');
+    this.SETLENGTH = SETLENGTH;
+    this.depletedBoard = SETLENGTH === 4 ? 5 : 9;
+    this.height = 3;
+    this.clicked = [];
+    this.setFound = null;
+    this.findSet = null;
     this.addCards = function(cards){
         this.cards = this.cards.concat(cards);
     }
@@ -13,8 +20,238 @@ function SetBoard(){
             setBoardObj.cards.splice(ind, 1);
         });
     }
-    this.ShowOnScreen
+    this.setupBoard = function(){
+        for (var j=0; j < this.height; j++) {
+            newp = dom('P', {id: j+100}); //careful with this id hack!!!
+            this.div.append(newp);
+        }
+    }
+    this.getRowLengths = function(){
+        var height = this.height;
+        var lengths = [];
+        for (var i=0; i < height; i++){
+            lengths.push(this.div[0].childNodes[i].childNodes.length);
+        }
+        return lengths;
+    }
+
+    this.getShortestRow = function(){
+        var lengths = this.getRowLengths();
+        var rowInd = lengths.indexOf(Math.min.apply(Math, lengths));
+        return this.div[0].childNodes[rowInd];
+    }
+    this.getLongestRow = function(){
+        var lengths = this.getRowLengths();
+        var rowInd = lengths.indexOf(Math.max.apply(Math, lengths));
+        return this.div[0].childNodes[rowInd]
+    }
+    this.dealNewCards = function(cards){
+        var len = cards.length;
+        // if (CARDCOUNT === 81){
+        //     endGame();
+        //     return false;
+        // }
+        for (var i = 0; i < len; i++) {
+            //console.log(cards);
+            var card = cards.shift();
+            this.dealOne(card);
+
+        }
+    }
+    this.dealOne = function(card){
+        var dc = card.domCard();
+        var shortestRow = this.getShortestRow();
+        shortestRow.appendChild(dc);
+        this.addCards([card]);
+    }
+    this.takeAwayCards = function(cards){
+
+        var setBoardObj = this;
+        cards.forEach(function(card){
+            setBoardObj.takeAwayCard(card);
+        });
+        this.realign();
+        this.realign();
+    }
+    this.takeAwayCard = function(card){
+        var domElem = card.getDomElement()[0];
+        takeAway(domElem);
+        this.removeCards([card]);
+    }
+    this.realign = function(){
+        var shortestRow = this.getShortestRow();
+        var longestRow = this.getLongestRow();
+        var toMove = longestRow.childNodes[longestRow.childNodes.length - 1];
+        takeAway(toMove);
+        shortestRow.appendChild(toMove); 
+    } 
+
+    this.addClickListeners = function(){
+        var cards = this.cards;
+        var setBoardObj = this;
+        cards.forEach(function(card){
+            setBoardObj.addClickListener(card);
+        });
+    }
+    this.addToClicked = function(card){
+        if (this.clicked.indexOf(card) === -1){
+            this.clicked.push(card);
+        }
+    }
+    this.addClickListener = function(card){
+        var dc = card.getDomElement();
+        var setBoardObj = this;
+        dc.bind('click', function(click){
+            if (setBoardObj.clicked.length === 0){
+                setBoardObj.setFound = false;
+                socket.emit('firstCardClick', {card: card, clicked: setBoardObj.clicked}); //have to change socket event
+
+                setBoardObj.findSet = setTimeout(function(){
+                    console.log('returning');
+                    console.log(setBoardObj.setFound);
+                    setBoardObj.allBordersBlack();
+                    setBoardObj.clicked = [];
+                    return setBoardObj.setFound === true},
+                700 * SETLENGTH);
+            }
+            if (setBoardObj.clicked.length === 1){
+                socket.emit('secondCardClick', {card: card, clicked: setBoardObj.clicked});
+            }
+            setBoardObj.addToClicked(card);
+            card.changeBorderColor('red');
+            //click.target.style.borderColor = chooseNewBorderColor(click.target.style.borderColor);
+            
+            if (setBoardObj.clicked.length === setBoardObj.SETLENGTH){
+                //allBordersBlack
+                setBoardObj.checkClicks(setBoardObj.clicked);
+                setBoardObj.allBordersBlack();
+                setBoardObj.clicked = [];
+            }
+        });
+    }
+    this.checkClicks = function(arr){
+        if (isset(arr)){
+            console.log('set found');
+            this.setFound = true;
+            var setBoardObj = this;
+            clearTimeout(setBoardObj.findSet);
+        }
+        else {
+            console.log('not a set');
+            this.setFound = false;
+        }
+    }
+    this.allBordersBlack = function(){
+        this.cards.forEach(function(card){
+            card.changeBorderColor('black');
+        });
+    }
+    this.setFoundOrNot = function(){
+
+        console.log('returning!');
+        console.log(setBoardObj.setFound);
+        setBoardObj.allBordersBlack();
+        setBoardObj.clicked = [];
+        return this.setFound === true;
+    }
+
+    this.isThereASet = function(){
+        var numCards = this.cards.length;
+        var SETLENGTH = this.SETLENGTH;
+        var all_indices = makeIterator(makeSubsets(range(numCards), SETLENGTH));
+        var len = factorial(numCards) / (factorial(numCards - SETLENGTH) * factorial(SETLENGTH)) 
+        var setBoardObj = this;
+        for (var i = 0; i < len; i += 1){
+            var cardBoardIndices = all_indices.next().value;
+            var cards = cardBoardIndices.map(function(index){
+                return setBoardObj.cards[index];
+            });
+            if (isset(cards)){
+                console.log(cardBoardIndices);
+                return cards;
+            }
+
+        }
+        return false;
+    }
+    this.getCardsFromIndices = function(indices){
+        var cards = [];
+        return indices.map(function(ind){})
+    }
+
+
 }
+
+//test
+
+function test(){
+var s = new SetBoard(3);
+
+var deck = shuffleArray(range(81));
+
+var deck = deck.map(function(c){return new SetCard(c)});
+
+var firstCards = deck.splice(0,12);
+s.setupBoard();
+s.dealNewCards(firstCards);
+s.addClickListeners()
+}
+
+
+
+
+function endGame() {
+    console.log('endgame function called');
+    if (CARDCOUNT === 81 && !isthereanyset(SETLENGTH)){
+        var t = $('#time').text();
+        var data = {t:t, startTime: startTime};
+        var winner = findWinner();
+        if (gameNotAlreadyEnded){
+            socket.emit('game over', data);
+            console.log('game over emitted to server');
+            gameNotAlreadyEnded = false;
+            alert('game over! ' + winner + ' won! ' + 'game time : ' + String(t) + ' seconds ');
+        }
+    }
+        
+}
+
+var setsFound = 0;
+var numHints = 0;
+
+
+function displayHint() {
+    //for hint function
+    
+    if (!isthereanyset(SETLENGTH)){
+        console.log('error!!! no set detected but board didnt auto-deal more cards');
+    }
+    else {
+        var hintCardNum = isthereanyset(SETLENGTH)[0]; //choose first card, doesn't matter which
+        var hintCard = domCard(hintCardNum);
+        var secondDiv = $('#hint-card-position')[0];
+        if (secondDiv.children.length > 0){
+            takeAway(secondDiv.children[0]);
+        }
+        secondDiv.appendChild(hintCard);
+            //alert('you fool, it\'s not a deadboard! here\'s your hint!');
+        //$('numHints').innerHTML = 'Number of hints used: ' + numHints;           
+    }
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 function firstDeal(cards, SETLENGTH){
@@ -152,43 +389,4 @@ function removeDeal(cards) {
 }
 
 
-function endGame() {
-    console.log('endgame function called');
-    if (CARDCOUNT === 81 && !isthereanyset(SETLENGTH)){
-        var t = $('#time').text();
-        var data = {t:t, startTime: startTime};
-        var winner = findWinner();
-        if (gameNotAlreadyEnded){
-            socket.emit('game over', data);
-            console.log('game over emitted to server');
-            gameNotAlreadyEnded = false;
-            alert('game over! ' + winner + ' won! ' + 'game time : ' + String(t) + ' seconds ');
-        }
-    }
-        
-}
-
-var setsFound = 0;
-var numHints = 0;
-
-
-function displayHint() {
-    //for hint function
-    
-    if (!isthereanyset(SETLENGTH)){
-        console.log('error!!! no set detected but board didnt auto-deal more cards');
-    }
-    else {
-        var hintCardNum = isthereanyset(SETLENGTH)[0]; //choose first card, doesn't matter which
-        var hintCard = domCard(hintCardNum);
-        var secondDiv = $('#hint-card-position')[0];
-        if (secondDiv.children.length > 0){
-            takeAway(secondDiv.children[0]);
-        }
-        secondDiv.appendChild(hintCard);
-            //alert('you fool, it\'s not a deadboard! here\'s your hint!');
-        //$('numHints').innerHTML = 'Number of hints used: ' + numHints;           
-    }
-
-}
 
