@@ -1,21 +1,54 @@
 //so the cards come in two forms: numbers 0-80 and also in 'setform', meaning an array of four numbers,
 //each entry in the array being 0-3, corresponding to one of the characteristics.
 
-function convertCard(cardNum) {
-    //convert card from integer form to set form, ie, the array of four attributes
-    att3 = Math.floor(cardNum/27);
-    att2 = Math.floor((cardNum - att3 * 27) / 9);
-    att1 = Math.floor((cardNum - 27 * att3 - 9 * att2) / 3);
-    att0 = Math.floor(cardNum - 27 * att3 - 9 * att2 - 3 * att1);
-    return [att0, att1, att2, att3];
-    //return {'att0': att0, 'att1': att1, 'att2': att2, 'att3':att3}
+
+function SetCard(cardNum){
+    this.setAttributes = function(){
+        att3 = Math.floor(cardNum/27);
+        att2 = Math.floor((cardNum - att3 * 27) / 9);
+        att1 = Math.floor((cardNum - 27 * att3 - 9 * att2) / 3);
+        att0 = Math.floor(cardNum - 27 * att3 - 9 * att2 - 3 * att1);
+        return [att0, att1, att2, att3];
+    }
+    this.cardNum = function(){
+        return cardNum;
+    }  
+    this.domCard = function(){
+        var cardsrc = './cards/' + String(cardNum) + '.JPG';
+        //console.log(cardsrc);
+        return dom('IMG', {src: cardsrc, id: cardNum, border: 5});
+    }
+    this.getDomElement = function(){
+        return $('#' + String(cardNum))[0];
+    }
+    this.changeBorderStyle = function(){
+        var cardDom = this.getDomElement();
+        cardDom.style.borderStyle === 'dotted' ? cardDom.style.borderStyle = 'solid' : cardDom.style.borderStyle = 'dotted';
+    }
+    this.changeBorderColor =  function(){//, color1, color2){
+        var cardDom = this.getDomElement();
+        cardDom.style.borderColor = 'red'; //== color1 ? (cardDom.style.borderColor = color2) : (cardDom.style.borderColor = color1);
+        
+    }
 }
+
+
+// function convertCard(cardNum) {
+//     //convert card from integer form to set form, ie, the array of four attributes
+//     att3 = Math.floor(cardNum/27);
+//     att2 = Math.floor((cardNum - att3 * 27) / 9);
+//     att1 = Math.floor((cardNum - 27 * att3 - 9 * att2) / 3);
+//     att0 = Math.floor(cardNum - 27 * att3 - 9 * att2 - 3 * att1);
+//     return [att0, att1, att2, att3];
+//     //return {'att0': att0, 'att1': att1, 'att2': att2, 'att3':att3}
+// }
 
 
 function isSetEitherType(cards){
     if (cards.length === 3){
         var cardsSetForm = cards.map(function(card){
-            return convertCard(card);
+            //return convertCard(card);
+            return card.setAttributes();
         });
         return isset(cardsSetForm);
     }
@@ -35,8 +68,6 @@ function isset(cards) {
         forEach(cards, function(card) {
             testarray.push(card[j])
         });
-        //console.log(testarray)
-        //console.log(testarray)
         if (reduce(function(a,b){
             return a + b
         }, 0, testarray) % 3 === 0){
@@ -52,7 +83,7 @@ function completeSet(twoCards){
     //of the third card that makes them into a set
     //console.log(twoCards);
     var cardsSetForm = twoCards.map(function(card){
-        return convertCard(card);
+        return card.setAttributes();
     });
     var thirdCard = [];
     var thirdAttribute;
@@ -62,7 +93,7 @@ function completeSet(twoCards){
         thirdCard.push(thirdAttribute);
 
     }
-    return convertCardBack(thirdCard);
+    return thirdCard.cardNum();
 
 }
 
@@ -84,13 +115,13 @@ function isSuperSet(cardsCopy){
 }
 
 
-function convertCardBack(cardArray) {
-    //convert from set form to integer form
-    if (cardArray === undefined) {
-        return undefined;
-    }
-    return cardArray[0]*1 + cardArray[1]*3 + cardArray[2]*9 + cardArray[3]*27
-}
+// function convertCardBack(cardArray) {
+//     //convert from set form to integer form
+//     if (cardArray === undefined) {
+//         return undefined;
+//     }
+//     return cardArray[0]*1 + cardArray[1]*3 + cardArray[2]*9 + cardArray[3]*27
+// }
 
 
 

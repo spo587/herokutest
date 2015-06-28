@@ -156,7 +156,9 @@ function dealFunctions(socket){
     socket.on('order of deck', function(data){
         //event that fires when start-game button is clicked.
         //server sends all clients the shuffled deck order
-        deck = data.deck;
+        deck = data.deck.map(function(current){
+            return new SetCard(current);
+        });
 
         SETLENGTH = data.SETLENGTH;
         var type = SETLENGTH === 4 ? 'superSet' : 'set';

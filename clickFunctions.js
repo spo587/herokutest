@@ -7,10 +7,9 @@ function addEventListeners(cards, SETLENGTH) {
         SETLENGTH = 3;
     }
     if (cards === undefined){ 
-        var cards = cardnumarray_numbers();
-    }
-
-    else {
+        var cards = cards.map(function(card){
+            return card.cardNum();
+        });    //cardnumarray_numbers();
     }
     cards.forEach(function(current, index, array){
         clickListener(current, SETLENGTH);
@@ -37,7 +36,7 @@ function clickListener(card, SETLENGTH){
         if (clickTarget === undefined){
             console.log('clickListener function call, card undefined');
         }
-        changeBorderColor(card, 'red', 'black');
+        card.changeBorderColor();
         //click.target.style.borderColor = chooseNewBorderColor(click.target.style.borderColor);
         
         if (clicked.length === SETLENGTH){

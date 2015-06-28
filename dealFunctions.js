@@ -1,6 +1,22 @@
 var CARDCOUNT = 0;
 
 
+function SetBoard(){
+    this.cards = [];
+    this.addCards = function(cards){
+        this.cards = this.cards.concat(cards);
+    }
+    this.removeCards = function(cards){
+        var setBoardObj = this;
+        cards.forEach(function(card){
+            var ind = setBoardObj.cards.indexOf(card);
+            setBoardObj.cards.splice(ind, 1);
+        });
+    }
+    this.ShowOnScreen
+}
+
+
 function firstDeal(cards, SETLENGTH){
     CARDCOUNT += cards.length;
     dealCards(cards, 3, 12 / SETLENGTH);
@@ -8,7 +24,7 @@ function firstDeal(cards, SETLENGTH){
 }
 
 function dealCards(cards, height, width){
-    console.log(width);
+    //console.log(width);
     if (height*width !== cards.length){
         console.log(height*width);
         console.log(cards.length);
@@ -20,9 +36,9 @@ function dealCards(cards, height, width){
         firstDiv.append(newp);
         for (var i=0; i<width; i++) {
             
-            var randNum = cards.shift();
-            var card = domCard(randNum);
-            newp.appendChild(card);
+            var card = cards.shift();
+            //var card = domCard(randNum);
+            newp.appendChild(card.domCard());
         }
     }
     clickListenersOff()

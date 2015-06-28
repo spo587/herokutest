@@ -9,28 +9,28 @@ function timer() {
 
 
 //this function creates a dom element for each card
-function domCard(cardnum) {
-    var cardsrc = './cards/' + String(cardnum) + '.JPG';
-    //console.log(cardsrc);
-    return dom('IMG', {src: cardsrc, id: cardnum, border: 5}) //click: printnum()}) //adding click to the properties just executes the function without click...wtf?
-}
+// function domCard(cardnum) {
+//     var cardsrc = './cards/' + String(cardnum) + '.JPG';
+//     //console.log(cardsrc);
+//     return dom('IMG', {src: cardsrc, id: cardnum, border: 5}); //click: printnum()}) //adding click to the properties just executes the function without click...wtf?
+// }
 
 
-function getDomElement(cardNumber){
-    return $('#' + String(cardNumber))[0];
-}
+// function getDomElement(cardNumber){
+//     return $('#' + String(cardNumber))[0];
+// }
 
 
-function changeBorderStyle(card){
-    var cardDom = getDomElement(card);
-    cardDom.style.borderStyle === 'dotted' ? cardDom.style.borderStyle = 'solid' : cardDom.style.borderStyle = 'dotted';
-}
+// function changeBorderStyle(card){
+//     var cardDom = getDomElement(card);
+//     cardDom.style.borderStyle === 'dotted' ? cardDom.style.borderStyle = 'solid' : cardDom.style.borderStyle = 'dotted';
+// }
 
-function changeBorderColor(card){//, color1, color2){
-    var cardDom = getDomElement(card);
-    cardDom.style.borderColor = 'red'; //== color1 ? (cardDom.style.borderColor = color2) : (cardDom.style.borderColor = color1);
+// function changeBorderColor(card){//, color1, color2){
+//     var cardDom = getDomElement(card);
+//     cardDom.style.borderColor = 'red'; //== color1 ? (cardDom.style.borderColor = color2) : (cardDom.style.borderColor = color1);
     
-}
+// }
 
 function allBordersBlack(){
     var imgs = $('IMG');
