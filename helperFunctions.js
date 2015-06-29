@@ -98,3 +98,17 @@ function dom(name, attributes) {
   }
   return node;
 }
+
+function arraysSameElements(arr1, arr2){
+    var answers = [];
+    arr1.forEach(function(c){
+        if (arr2.indexOf(c) != -1){ //arr2 also contains c
+            answers.push(true);
+        }
+        else {
+            answers.push(false);
+            console.log(c);
+        }
+    });
+    return answers.indexOf(false) === -1;
+}

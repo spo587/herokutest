@@ -6,6 +6,7 @@ var socket = io('/');
 
 //when the server sends a player join event
 socket.on('player joined game', function(data){
+    console.log('event fired');
     //data is an object with two properties: gameStartedTracker and visitCounter
 
     //visitCounter is an object that keeps track of how many visitors are at each url

@@ -1,69 +1,73 @@
-var setFound;
-var findSet;
 
+function isSetEitherType(cards){
+    if (cards.length === 3){
+        return isset(cards);
+    }
+    else if (cards.length === 4){
+        return isSuperSet(cards);
+    }
+}
 
-
-
-function isthereanyset(SETLENGTH) {
-
-    var numCards = cardnumarray_numbers().length;
-        //use iterator here? does that save any time / memory?
-    var all_indices = makeIterator(makeSubsets(range(numCards), SETLENGTH));
-    var len = factorial(numCards) / (factorial(numCards - SETLENGTH) * factorial(SETLENGTH)) 
-
-    for (var i = 0; i < len; i += 1){
-        var cardBoardIndices = all_indices.next().value;
-
-        var cards = convertToCards(cardBoardIndices);
-
-        if (isSetEitherType(cards)){
-            console.log(cardBoardIndices);
-            return cards;
+function isset(cards) {
+    var cards = cards.map(function(card){
+        //return convertCard(card);
+        return card.setAttributes();
+    });
+    //cards here are input each in 'setform', that is, as arrays, not integers 0-80
+    if (equalArray(cards[0], cards[1])){
+        return false;
+    }
+    var ans = 0;
+    for (var j = 0; j < 4; j++) {
+        var testarray = [];
+        forEach(cards, function(card) {
+            testarray.push(card[j])
+        });
+        if (reduce(function(a,b){
+            return a + b
+        }, 0, testarray) % 3 === 0){
+            ans += 1;
         }
     }
-
-    return false;
+    //console.log(cards)
+    return ans === 4;    
 }
 
+function completeSet(twoCards){
+    //for superset....takes two integer cards as input and returns the integer
+    //of the third card that makes them into a set
+    //console.log(twoCards);
+    var cardsSetForm = twoCards.map(function(card){
+        return card.setAttributes();
+    });
+    var thirdCard = [];
+    var thirdAttribute;
+    for (var i = 0; i < 4; i += 1){
+        thirdAttribute = cardsSetForm[0][i] === cardsSetForm[1][i] ? cardsSetForm[0][i] : 
+        3 - (cardsSetForm[0][i] + cardsSetForm[1][i]);
+        thirdCard.push(thirdAttribute);
 
-function cardnumarray_numbers() {
-    //gives the card numbers for the cards currently on the board.
-    var div = $('#div1')[0];
-    var elements = div.getElementsByTagName('IMG');
-    var cardnums = [];
-    for (var i=0; i<elements.length; i++){
-        cardnums.push(Number(elements[i].id));
     }
-    return cardnums;
+    return thirdCard.cardNum();
+
 }
 
-function convertToCards(cardBoardIndices){
-
-    var cardsOnBoard = cardnumarray_numbers();
-    //console.log(cardsOnBoard);
-    var arr = [];
-    for (var i = 0; i<cardBoardIndices.length; i+=1){
-        if (cardBoardIndices[i] === undefined){
-            console.log('wtf');
+function isSuperSet(cardsCopy){
+    //was having problems with the array being modified, so making a copy instead
+    var cards = cardsCopy.map(function(card){
+        return card;
+    });
+    var twoCardSplits = generateTwoCardPairs(cards);
+    var superSet = false;
+    twoCardSplits.forEach(function(twoCardSplit){
+        //console.log(twoCardSplit);
+        if (completeSet(twoCardSplit[0]) === completeSet(twoCardSplit[1])){
+            //console.log('superSet');
+            superSet = true;
         }
-        arr.push(cardsOnBoard[cardBoardIndices[i]]);
-    }
-    return arr;
+    });
+    return superSet;
 }
-
-
-//currently deprecated....need to rewrite
-// function allSets(){
-//     var numCards = cardnumarray_numbers().length;
-//     var all_indices = INDICESSTORE[numCards];
-//     var all = [];
-//     all_indices.forEach(function(current){
-//         if (three_cards_a_set(current)){
-//             all.push(current);
-//         }
-//     });
-//     return all;
-// }
 
 
 function makeIterator(array){
@@ -77,7 +81,6 @@ function makeIterator(array){
        }
     }
 }
-
 
 var FACT = [];
 function factorial (n) {
@@ -126,4 +129,19 @@ function generateTwoCardPairs(fourCards){
     return allPairs;
 }
 
+
+
+
+//currently deprecated....need to rewrite
+// function allSets(){
+//     var numCards = cardnumarray_numbers().length;
+//     var all_indices = INDICESSTORE[numCards];
+//     var all = [];
+//     all_indices.forEach(function(current){
+//         if (three_cards_a_set(current)){
+//             all.push(current);
+//         }
+//     });
+//     return all;
+// }
 

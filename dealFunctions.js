@@ -1,7 +1,8 @@
-var CARDCOUNT = 0;
 
-
-function SetBoard(SETLENGTH, NICKNAME, orderedDeck){
+function SetBoard(SETLENGTH, NICKNAME, orderedDeck, startTime, setsPerPlayer){
+    this.setsPerPlayer = setsPerPlayer;
+    console.log(this.setsPerPlayer);
+    this.startTime = startTime;
     this.orderedDeck = orderedDeck;
     this.cards = [];
     this.div = $('#div1');
@@ -173,12 +174,6 @@ function SetBoard(SETLENGTH, NICKNAME, orderedDeck){
             card.setBorderStyle('solid');
         });
     }
-
-    // this.allBorders = function(callback, arg){
-    //     this.cards.forEach(function(card){
-    //         card.callback(arg);
-    //     });
-    // }
     this.clickListenersOff = function(){
         var setBoardObj = this;
         setBoardObj.cards.forEach(function(card){
@@ -218,6 +213,9 @@ function SetBoard(SETLENGTH, NICKNAME, orderedDeck){
     }
     this.checkAndDeal = function(){
         var toDeal = this.orderedDeck.splice(0, this.SETLENGTH);
+        if (toDeal.length === 0){ // no cards left in deck
+            this.checkEnd();
+        }
         if (this.cards.length <= this.depletedBoard){
             this.dealNewCards(toDeal);
         }
@@ -225,57 +223,50 @@ function SetBoard(SETLENGTH, NICKNAME, orderedDeck){
             this.dealNewCards(toDeal);
         }
     }
-
-}
-
-//test
-
-function test(){
-var s = new SetBoard(3);
-
-var deck = shuffleArray(range(81));
-
-var deck = deck.map(function(c){return new SetCard(c)});
-
-var firstCards = deck.splice(0,12);
-s.setupBoard();
-s.dealNewCards(firstCards);
-s.addClickListeners()
-}
-
-
-
-
-function endGame() {
-    console.log('endgame function called');
-    if (CARDCOUNT === 81 && !isthereanyset(SETLENGTH)){
-        var t = $('#time').text();
-        var data = {t:t, startTime: startTime};
-        var winner = findWinner();
-        if (gameNotAlreadyEnded){
+    this.checkEnd = function(){
+        if (this.checkDeadBoard()){
+            //var t = $('#time').text();
+            var t = (new Date().getTime() - this.startTime) / 1000;
+            var winner = this.setsPerPlayer.findMaxProp();
+            var data = {t:t, startTime: this.startTime, winner: winner};
             socket.emit('game over', data);
-            console.log('game over emitted to server');
-            gameNotAlreadyEnded = false;
-            alert('game over! ' + winner + ' won! ' + 'game time : ' + String(t) + ' seconds ');
         }
-    }
-        
+    }        
 }
 
-
-var setsFound = 0;
-var numHints = 0;
-
+Object.prototype.findMaxProp = function(){
+    var max = 0;
+    var winner;
+    var tie = false;
+    var obj = this;
+    forEachIn(obj, function(prop, val){
+            var count = val;
+            if (count > max){
+                tie = false;
+                winner = prop;
+                max = count;
+            }
+            else if (count === max){
+                tie = true;
+                winner = winner + ' and ' + prop;
+                max = count;
+            }
+        });
+    if (tie){
+        return 'it\'s a tie: ' + winner;
+    }
+    else {
+        return winner;
+    }
+}
 
 function displayHint() {
-    //for hint function
-    
-    if (!isthereanyset(SETLENGTH)){
+    if (!SETBOARD.isThereASet()){
         console.log('error!!! no set detected but board didnt auto-deal more cards');
     }
     else {
-        var hintCardNum = isthereanyset(SETLENGTH)[0]; //choose first card, doesn't matter which
-        var hintCard = domCard(hintCardNum);
+        var set = SETBOARD.isThereASet();
+        var hintCard = set[0].domCard(); //choose first card, doesn't matter which
         var secondDiv = $('#hint-card-position')[0];
         if (secondDiv.children.length > 0){
             takeAway(secondDiv.children[0]);
@@ -284,7 +275,12 @@ function displayHint() {
             //alert('you fool, it\'s not a deadboard! here\'s your hint!');
         //$('numHints').innerHTML = 'Number of hints used: ' + numHints;           
     }
-
+    //why doesnt this work??
+    // this.allBorders = function(callback, arg){
+    //     this.cards.forEach(function(card){
+    //         card.callback(arg);
+    //     });
+    // }
 }
 
 function takeAway(elem){

@@ -3,12 +3,25 @@ exports.connectSocket = function(socketVar, io, db, gameStartedTracker){
     var firstClick = false;
     var setsPerPlayer = {};
     var startTimes = [];
+    var gameInProgress = false;
     //socketVar is the socket connection communicating between players in whatever page
     // the function is being called for
     socketVar.on('connection', function(socket){
         console.log('CONNECTION');
         //can i / should i split up this massive function ?
         socket.on('join', function(name){
+            //console.log('game started??');
+            //check if the game is already in progress
+            console.log(gameStartedTracker);
+            var route = socket.client.request.headers.referer;
+            //console.log(route);
+            var page = route.split('/')[route.split('/').length - 1];
+            //console.log(page);
+
+            if (gameStartedTracker[page] === true){
+                console.log('page refreshed, emitting')
+                socketVar.emit('page refresh');
+            }
             socket.NICKNAME = name;
             console.log(name + 'joined the game');
             setsPerPlayer[name] = 0;
@@ -17,6 +30,9 @@ exports.connectSocket = function(socketVar, io, db, gameStartedTracker){
             socketVar.emit('allPlayers', setsPerPlayer);
             //and also to the homepage
             io.emit('allPlayers', setsPerPlayer);
+        });
+        socket.on('current-board', function(data){
+            socket.broadcast.emit('game-in-progress', data);
         });
         socket.on('disconnect', function(){
             var departed = socket.NICKNAME;
@@ -29,9 +45,10 @@ exports.connectSocket = function(socketVar, io, db, gameStartedTracker){
         socket.on('start game', function(SETLENGTH){
             var deck = setDeckShuffled();
             var startTime = new Date().getTime() + 3000;
-            var data = {SETLENGTH: SETLENGTH, deck: deck, startTime: startTime}
+            var data = {SETLENGTH: SETLENGTH, deck: deck, startTime: startTime, setsPerPlayer: setsPerPlayer};
             setTimeout(function(){
                 socketVar.emit('order of deck', data);
+                gameInProgress = true;
             }, 2500);
             //console.log(socketVar.name);
             //console.log(visitCounter);
@@ -41,12 +58,13 @@ exports.connectSocket = function(socketVar, io, db, gameStartedTracker){
 
         });
         socket.on('game over', function(data){
+            gameInProgress = false;
             var t = data.t;
             var startTime = data.startTime;
-            //startTimes.push(startTime);
+            var winner = data.winner;
             if (startTime != startTimes[startTimes.length - 1]){
                 console.log('ADDING TO DATABASE');
-                var game = makeDatabaseEntry(setsPerPlayer, t, startTime);
+                var game = makeDatabaseEntry(setsPerPlayer, t, startTime, winner);
                 db.insert(game);
                 startTimes.push(startTime);
             }
@@ -119,26 +137,26 @@ function forEachIn(object, func) {
     }
 }
 
-function makeDatabaseEntry(setsPerPlayer, time, startTime){
+function makeDatabaseEntry(setsPerPlayer, time, startTime, winner){
     var players = [];
     forEachIn(setsPerPlayer, function(prop, val){
         players.push(prop);
     });
-    var winner = findWinningPlayer(setsPerPlayer);
+    // var winner = findWinningPlayer(setsPerPlayer);
     return {players: players, time: Number(time), startTime: startTime, winner: winner};
 }
 
-function findWinningPlayer(setsPerPlayer){
-    var max = 0;
-    var winner;
-    forEachIn(setsPerPlayer, function(prop, val){
-        if (val > max){
-            max = val;
-            winner = prop;
-        }
-    });
-    return winner;
-}
+// function findWinningPlayer(setsPerPlayer){
+//     var max = 0;
+//     var winner;
+//     forEachIn(setsPerPlayer, function(prop, val){
+//         if (val > max){
+//             max = val;
+//             winner = prop;
+//         }
+//     });
+//     return winner;
+// }
 
 range = function(end) {
     var arr = [];
