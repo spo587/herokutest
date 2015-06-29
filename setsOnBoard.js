@@ -46,10 +46,11 @@ function completeSet(twoCards){
         thirdAttribute = cardsSetForm[0][i] === cardsSetForm[1][i] ? cardsSetForm[0][i] : 
         3 - (cardsSetForm[0][i] + cardsSetForm[1][i]);
         thirdCard.push(thirdAttribute);
-
     }
-    return thirdCard.cardNum();
-
+    //console.log(thirdCard);
+    return new SetCard(thirdCard[0]*1 + thirdCard[1]*3 + thirdCard[2]*9 + thirdCard[3]*27);
+    //console.log(ret.cardNumber);
+    //return ret;
 }
 
 function isSuperSet(cardsCopy){
@@ -57,7 +58,9 @@ function isSuperSet(cardsCopy){
     var cards = cardsCopy.map(function(card){
         return card;
     });
+    console.log(cards);
     var twoCardSplits = generateTwoCardPairs(cards);
+    console.log(twoCardSplits);
     var superSet = false;
     twoCardSplits.forEach(function(twoCardSplit){
         //console.log(twoCardSplit);

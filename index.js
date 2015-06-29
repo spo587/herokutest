@@ -13,28 +13,7 @@ var Datastore = require('nedb'), db = {}; //new Datastore({filename: 'test2', au
 db.gameTimes = new Datastore({filename: 'data/gameTimes.db', autoload: true});
 //db.users.loadDatabase();
 
-
 db.gameTimes.loadDatabase();
-
-// var user1 = {
-//     name: 'postman',
-//     bestTime: 12
-// };
-
-// var game1 = {
-//     players: ['postman', 'brett'],
-//     time: 150
-// }
-
-// db.users.insert(user1);
-// db.games.insert(game1);
-
-function forEachIn(object, func) {
-    for (var property in object) {
-        if (object.hasOwnProperty(property))
-            func(property, object[property]);
-    }
-}
 
 function removeDuplicatesFromGamesDB(db){
     db.find({}, function(e, docs){
@@ -55,20 +34,6 @@ function removeDuplicatesFromGamesDB(db){
     
 }
 
-// removeDuplicatesFromGamesDB(db.games2);
-
-// var test = [];
-// db.games2.find({}, function(e, docs){
-//     console.log(docs);
-// });
-//     docs.forEach(function(doc){
-//         //console.log(typeof(doc));
-//         test.push(doc);
-//         console.log(test);
-//     });
-// });
-//console.log(test);
-
 
 var bt = io.of('/besttimes.html');
 bt.on('connection', function(socket){
@@ -78,20 +43,13 @@ bt.on('connection', function(socket){
         console.log(docs);
         socket.emit('games', docs);
     });
-
 });
+
 
 
 var visitCounter = {};
 var gameStartedTracker = {};
-//var players = {};
-
-//make socket for communicating with home page
-io.on('connection', function(socket){
-    //console.log('HOMESOCKETCONNCETED');
-    hs.connectHomeSocket(io, visitCounter, gameStartedTracker);
-    //bt.connectSocket(io);
-});
+hs.connectHomeSocket(io, visitCounter, gameStartedTracker);
 
 function setUpGames(number){
     var gameNumbers = sf.range(number); //create array of game numbers
@@ -111,14 +69,11 @@ function setUpGames(number){
 }
 
 
-
-
 function livegameVar(num){
     var setGame = io.of('/set' + String(num));
     var superSetGame = io.of('/superSet' + String(num));
     return {setGame: setGame, superSetGame: superSetGame};
 }
-
 
 
 function getGamesOnly(gameNumbers){
@@ -134,20 +89,6 @@ function getGamesOnly(gameNumbers){
 
 setUpGames(10);
 
-
-// oneplayer.on('connection', function(socket){
-//     console.log('player connected to one player game');
-//     socket.on('timed game over', function(data){
-//         console.log(data);
-//         if (data.t < bestTime){
-//             bestTime = data.t;
-//             bestPlayer = data.playerName;
-//         }
-        
-//         //client.set('best time', t);
-
-//     });
-// });
 
 function appGet(urlPath, fileExtension){
     app.get(urlPath, function(req, res){
@@ -168,35 +109,27 @@ pages.forEach(function(page){
     appGet(page, page);
 });
 
-//appGet('/oneplayer', '/oneplayer.html');
 appGet('/','/index.html');
 
 appGet('/besttimes.html', '/besttimes.html');
 
-// app.get('/node_modules/socket.io/node_modules/socket.io-client/socket.io.js', function(req, res){
-//     res.header("Access-Control-Allow-Origin", "*");
-//     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-//     res.sendFile(__dirname + '/node_modules/socket.io/node_modules/socket.io-client/socket.io.js');
-// });
 
 for (var i=0; i < 81; i += 1){
     appGet('/cards/' + String(i) + '.JPG', '/cards/' + String(i) + '.JPG');
 }
 
-// app.get('/besttime', function(req, res){
-//     res.writeHead(200);
-//     res.write(String('best time so far is ' + bestTimeTwoPlayer + ' seconds by ' + bestPlayers[0] + ' and ' + bestPlayers[1]));
-//     res.end();
-// });
-
 var port = process.env.PORT || 8080;
-
-//server.listen(8080);
 
 server.listen(port, function() {
     console.log('Our app is running on http://localhost:' + port);
 });
 
+function forEachIn(object, func) {
+    for (var property in object) {
+        if (object.hasOwnProperty(property))
+            func(property, object[property]);
+    }
+}
 
 
 

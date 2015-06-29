@@ -4,6 +4,7 @@ $('#intro').text(gameType.slice(0, gameType.length - 1) + '!!!');
 
 var SETBOARD;
 var NICKNAME;
+var TIME;
 
 //okay, now for the real stuff, setting up the socket that communicates with the server
 
@@ -18,6 +19,7 @@ function fullSetUp(socket){
 function setUpPregame(socket){
     socket.on('connect', function(data){
         NICKNAME = prompt("Your name, please", 'anonymous' + String(Math.round(1000*Math.random())));
+        NICKNAME = NICKNAME.split(' ').join('-');
         socket.emit('join', NICKNAME);
 
     });
@@ -127,7 +129,7 @@ function dealFunctions(socket){
         SETBOARD.setupBoard();
         SETBOARD.firstDeal()
         SETBOARD.addClickListeners();
-        timer();
+        TIME = timer();
     });
     socket.on('set-found', function(data){
         console.log('set found emitted back to page');
@@ -155,15 +157,25 @@ function dealFunctions(socket){
 
     socket.on('page refresh', function(){
         if ($('IMG').length > 0){ //game started already
-            var data = {setlength: SETBOARD.SETLENGTH, orderedDeck: SETBOARD.orderedDeck, cardNumbers: SETBOARD.getCardNumbers()};
+            var deckCardNumbers = SETBOARD.orderedDeck.map(function(c){
+                return c.cardNumber;
+            });
+            console.log(deckCardNumbers);
+            var data = {setlength: SETBOARD.SETLENGTH, orderedDeckNumbers: deckCardNumbers, cardNumbers: SETBOARD.getCardNumbers(), startTime: SETBOARD.startTime};
             console.log('emitting board back to server');
             socket.emit('current-board', data);
+            setTimeout(resetSetsPerPlayer, 1000);
         }
     });
     socket.on('game-in-progress', function(data){
         console.log('receiving data from server');
-        
-        SETBOARD = new SetBoard(data.setlength, NICKNAME, data.orderedDeck); 
+        console.log(data.orderedDeckNumbers);
+        var orderedDeck = data.orderedDeckNumbers.map(function(c){
+            return new SetCard(c);
+        });
+        SETBOARD = new SetBoard(data.setlength, NICKNAME, orderedDeck);
+        SETBOARD.startTime = data.startTime;
+        TIME = timer();
         //cards on the board right now
         var cardNumbers = data.cardNumbers;
         var cards = cardNumbers.map(function(num){
@@ -171,6 +183,9 @@ function dealFunctions(socket){
         });
         SETBOARD.setupBoard();
         SETBOARD.dealNewCards(cards);
+        SETBOARD.addClickListeners();
+        //reset SETBOARD.setsPerPlayer;
+        SETBOARD.setsPerPlayer = resetSetsPerPlayer();
     });
 }
 
@@ -180,6 +195,20 @@ function addSetsToCount(setsPerPlayerObj){
         var formattedProp = prop.split(' ').join('-');
         $('#' + formattedProp + '-count').text(String(val));
     });
+}
+
+function resetSetsPerPlayer(){
+    var players = [];
+    forEachIn($('#players')[0].childNodes, function(prop, val){
+        if (prop != 'length'){
+            players.push(val.id);
+        }
+    });
+    SETBOARD.setsPerPlayer = {};
+    var counts = players.forEach(function(player){
+        SETBOARD.setsPerPlayer[player] = Number($('#player-count').text());
+    });
+    console.log(SETBOARD.setsPerPlayer);
 }
 
 function addToSetsOnScreen(cards, playerName){

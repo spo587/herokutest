@@ -1,9 +1,12 @@
 
+var GAMEOVER = false;
+
 function SetBoard(SETLENGTH, NICKNAME, orderedDeck, startTime, setsPerPlayer){
     this.setsPerPlayer = setsPerPlayer;
     console.log(this.setsPerPlayer);
     this.startTime = startTime;
     this.orderedDeck = orderedDeck;
+    console.log(this.orderedDeck.length);
     this.cards = [];
     this.div = $('#div1');
     this.SETLENGTH = SETLENGTH;
@@ -25,7 +28,9 @@ function SetBoard(SETLENGTH, NICKNAME, orderedDeck, startTime, setsPerPlayer){
         this.dealNewCards(this.getFirstCards());
     }
     this.getFirstCards = function(){
-        return this.orderedDeck.splice(0, 36 / this.SETLENGTH);
+        var ret = this.orderedDeck.splice(0, 36 / this.SETLENGTH);
+        console.log(ret.length);
+        return ret;
     }
     this.addCards = function(cards){
         this.cards = this.cards.concat(cards);
@@ -60,6 +65,7 @@ function SetBoard(SETLENGTH, NICKNAME, orderedDeck, startTime, setsPerPlayer){
         cards.forEach(function(card){
             setBoardObj.dealOne(card);
         });
+        setBoardObj.checkAndDeal();
     }
     this.dealOne = function(card){
         card.addSetBoard(this);
@@ -67,6 +73,7 @@ function SetBoard(SETLENGTH, NICKNAME, orderedDeck, startTime, setsPerPlayer){
         var shortestRow = this.getShortestRow();
         shortestRow.appendChild(dc);
         this.addCards([card]);
+        //console.log(this.orderedDeck.length);
     }
     this.takeAwayCards = function(cards){
         var setBoardObj = this;
@@ -182,23 +189,26 @@ function SetBoard(SETLENGTH, NICKNAME, orderedDeck, startTime, setsPerPlayer){
     }
 
     this.isThereASet = function(){
+        //console.log('calling isthereaset');
         var numCards = this.cards.length;
         var SETLENGTH = this.SETLENGTH;
         var all_indices = makeIterator(makeSubsets(range(numCards), SETLENGTH));
-        var len = factorial(numCards) / (factorial(numCards - SETLENGTH) * factorial(SETLENGTH)) 
+        var len = factorial(numCards) / (factorial(numCards - SETLENGTH) * factorial(SETLENGTH));
         var setBoardObj = this;
         for (var i = 0; i < len; i += 1){
             var cardBoardIndices = all_indices.next().value;
+            //console.log(cardBoardIndices);
             var cards = cardBoardIndices.map(function(index){
                 return setBoardObj.cards[index];
             });
-            if (isset(cards)){
+            //console.log(cards);
+            //console.log(cards.length);
+            if (isSetEitherType(cards)){
                 cards.forEach(function(card){
                     console.log(card.cardNumber);
                 });
                 return cards;
             }
-
         }
         return false;
     }
@@ -212,26 +222,48 @@ function SetBoard(SETLENGTH, NICKNAME, orderedDeck, startTime, setsPerPlayer){
 
     }
     this.checkAndDeal = function(){
-        var toDeal = this.orderedDeck.splice(0, this.SETLENGTH);
-        if (toDeal.length === 0){ // no cards left in deck
-            this.checkEnd();
-        }
-        if (this.cards.length <= this.depletedBoard){
-            this.dealNewCards(toDeal);
-        }
-        else if (this.checkDeadBoard()){
-            this.dealNewCards(toDeal);
+        if (!GAMEOVER){
+            var toDeal = this.orderedDeck.slice(0, this.SETLENGTH);
+            if (toDeal.length === 0){ // no cards left in deck
+                if (!GAMEOVER) {
+                    if (!this.checkEnd()){
+                        return false;
+                    }
+                }
+            }
+            if (this.cards.length <= this.depletedBoard){
+                toDeal = this.orderedDeck.splice(0, this.SETLENGTH);
+                this.dealNewCards(toDeal);
+            }
+            else if (this.checkDeadBoard()){
+                toDeal = this.orderedDeck.splice(0, this.SETLENGTH);
+                this.dealNewCards(toDeal);
+            }
         }
     }
     this.checkEnd = function(){
+        console.log('checking end');
         if (this.checkDeadBoard()){
             //var t = $('#time').text();
-            var t = (new Date().getTime() - this.startTime) / 1000;
+            var t = Math.round((new Date().getTime() - this.startTime) / 1000);
             var winner = this.setsPerPlayer.findMaxProp();
             var data = {t:t, startTime: this.startTime, winner: winner};
-            socket.emit('game over', data);
+            if (!GAMEOVER){
+                alert('game over!!!!' + winner + ' won, game time: ' + t + ' seconds');
+                socket.emit('game over', data);
+                GAMEOVER = true;
+                TIME.endTimer();
+            }
+            return true;
         }
-    }        
+        return false;
+    } 
+    this.checkDeadBoard = function(){
+        if (!this.isThereASet()){
+            return true;
+        }
+        return false;
+    }       
 }
 
 Object.prototype.findMaxProp = function(){
@@ -289,13 +321,20 @@ function takeAway(elem){
 }
 
 function timer() {
-    var t = new Date().getTime();
-    var myVar = setInterval(function(){
+    var t = SETBOARD.startTime;
+    var time = setInterval(function(){
         var toShow = String(Math.floor((new Date().getTime() - t)/1000));
         $('#time').text(toShow);
     }, 1000);
-    return Math.floor((new Date().getTime() - t)/1000);
+    //return Math.floor((new Date().getTime() - t)/1000);
+    return {
+        endTimer: function(){
+            clearInterval(time);
+        }
+    }
 }
+
+
 
 
 

@@ -1,47 +1,27 @@
 //i may need to rewrite some of these as well
 
-function clearSet(clickDelay){
-    var setCards = isthereanyset(SETLENGTH);
-    // var setCards = set.map(function(current){
-    //     return cardnumarray_numbers()[current];
-    // });
-    // setCards.forEach(function(current){
-    //     clicked.push(current);
-    //     socket.emit('cardClick', {card: current, clicked: clicked})
-    // });
-    clicked = [];
-    
-    setCardsDom = setCards.map(function(current){
-        return $('#' + String(current))[0];
+function clearSet(){
+    var set = SETBOARD.isThereASet();
+    set.forEach(function(card){
+        SETBOARD.registerClick(card);
     });
-    
-    for (var i=0; i < 3; i += 1){
-        setTimeout(function(){
-            setCardsDom.shift().click();
-        }, clickDelay * i);
-    }
+    // for (var i = 0; i < set.length; i++){
+    //     setTimeout(function(){
+    //         SETBOARD.registerClick(set[i]);
+    //     }, delay * i);
+    // }
 }
 
-function playGameArtificial(setDelay, clearDelay){
+function playGameArtificial(clearDelay){
     //if (CARDCOUNT < 81){
-    var set = isthereanyset(SETLENGTH);
-    if (!set){
-        checkDeadboardAndDeal();
-    }
-    else {
-        setTimeout(function(){
-            clearSet(clearDelay);
-        }, setDelay);
-        
-    }
-    //}
+    setTimeout(clearSet, clearDelay);
 }
 
-function compPlays(setDelay, clearDelay){
+function compPlays(clearDelay){
     for (var i=0; i < 27; i += 1){
         var k = setTimeout(function(){
-            playGameArtificial(setDelay, clearDelay);
-        }, (setDelay + clearDelay * 3) * i + 1000);
+            playGameArtificial(clearDelay);
+        }, clearDelay * i + 1000);
     }
 }
 
