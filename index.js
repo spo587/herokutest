@@ -101,18 +101,19 @@ function appGet(urlPath, fileExtension){
 }
 
 //put all scripts on the dickin server
-var pages = ['/helperFunctions.js', 
-    '/computerPlay.js', '/home.js', '/domFunctions.js', '/clickFunctions.js',
-    '/dealFunctions.js','/setsOnBoard.js','/setLogic.js','/node_modules/socket.io/node_modules/socket.io-client/socket.io.js',
-    '/utilities/jquery.js','/livegame.js', '/data/gameTimes.db'];
+var clientScripts = ['/helperFunctions.js', '/dealFunctions.js', '/setCardObject.js','/setLogicFunctions.js', '/computerPlay.js'];
+var pages = ['/home.js','/node_modules/socket.io/node_modules/socket.io-client/socket.io.js',
+    '/utilities/jquery.js','/livegame.js', '/data/gameTimes.db', '/besttimes.html'];
+
 pages.forEach(function(page){
     appGet(page, page);
 });
 
+clientScripts.forEach(function(page){
+    appGet('/clientScripts' + page, '/clientScripts' + page);
+});
+
 appGet('/','/index.html');
-
-appGet('/besttimes.html', '/besttimes.html');
-
 
 for (var i=0; i < 81; i += 1){
     appGet('/cards/' + String(i) + '.JPG', '/cards/' + String(i) + '.JPG');
