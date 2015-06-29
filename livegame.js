@@ -2,11 +2,27 @@
 //get game type and set intro text
 $('#intro').text(gameType.slice(0, gameType.length - 1) + '!!!');
 
-//debug later....for when clicking stops working (not sure why that's happening)
-function clickReset(){
-    var cards = cardnumarray_numbers();
-    clickListenersOff();
-    addEventListeners(cards, SETLENGTH);
+function getCardsOnBoard(){
+    var ret = [];
+    forEachIn($('IMG'), function(prop, val){
+        ret.push(Number(val.id));
+    });
+    ret.splice(ret.length - 4, ret.length);
+    return ret
+}
+
+function arraysSameElements(arr1, arr2){
+    var answers = [];
+    arr1.forEach(function(c){
+        if (arr2.indexOf(c) != -1){ //arr2 also contains c
+            answers.push(true);
+        }
+        else {
+            answers.push(false);
+            console.log(c);
+        }
+    });
+    return answers.indexOf(false) === -1;
 }
 
 function findWinner(){
@@ -45,7 +61,6 @@ function setUpPregame(socket){
         socket.emit('join', NICKNAME);
 
     });
-
     socket.on('allPlayers', function(setsPerPlayerObj){
         //an event that fires when a new player joins game. setsPerPlayerObj is an object that keeps
         //track not only of who's in the game but how many sets hesh has.
@@ -84,7 +99,6 @@ function startGame(socket){
             alert('game in progress, please go to home page or refresh to start a new game');
         }
         else {
-            //console.log(SETLENGTH);
             socket.emit('start game', SETLENGTH); //$('#paragraph').html());
         }
     });
@@ -128,29 +142,26 @@ var oppFindSet;
 
 //function deals with receiving click event from other players
 function cardClicks(socket){
-    socket.on('noClicksUntil', function(data){
-        var card = data.card;
-        changeBorderStyle(card);
-        //dont allow clicks in the meantime
-        clickListenersOff();
-        //check if opponent found set
-        oppFindSet = setTimeout(function(){
-            var cards = cardnumarray_numbers();
-            clickListenersOff();
-            allBordersSolid();
-            addEventListeners(cards, SETLENGTH);
-            socket.emit('clickBanExpiring');
-
-        }, 600 * SETLENGTH);
+    socket.on('turnClickListenersOff', function(card){
+        if (SETBOARD.clicked.length > 0){
+            console.log('server received click from other player first?');
+            SETBOARD.endTimeout();
+            SETBOARD.allBordersBlack();
+            SETBOARD.clicked = [];
+        }
+        console.log(card);
+        card.changeBorderStyle();
+        //dont allow clicks in meantime
+        SETBOARD.clickListenersOff();
     });
     socket.on('secondCardClick', function(card){
-        changeBorderStyle(card);
+        card.changeBorderStyle();
     });
 }
 
 
 var startTime;
-var SETBOARD
+var SETBOARD;
 
 function dealFunctions(socket){
     socket.on('order of deck', function(data){
@@ -168,26 +179,16 @@ function dealFunctions(socket){
         startTime = data.startTime;
         timer();
     });
-    socket.on('dealing more', function(){
-        var cardsOnBoard = cardnumarray_numbers();
-        if (cardsOnBoard.length <= DEPLETEDBOARD){
-            //deal
-            var cards = deck.splice(0, SETLENGTH);
-            dealMore(cards);
-        }
-
-    });
-    socket.on('set found', function(data){
+    socket.on('set-found', function(data){
+        console.log('set found emitted back to page');
         //another player in thh game found a set
         var cards = data.cards;
         console.log(cards);
         var setsPerPlayerObj = data.setsPerPlayer;
-        //clearTimeout(oppFindSet); //???
-        //not sure why thsi is here
-        //socket.emit('clickBanExpiring');
         addSetsToCount(setsPerPlayerObj);
         SETBOARD.takeAwayCards(cards);
         SETBOARD.checkAndDeal();
+        SETBOARD.addClickListeners();
         //addToSetsOnScreen(cards, data.player);
     });
     socket.on('falsey', function(setsPerPlayer){
@@ -196,7 +197,10 @@ function dealFunctions(socket){
     socket.on('show hintcard', function(){
         displayHint();
     });
-
+    socket.on('clickListenersBackOn', function(){
+        SETBOARD.allBordersSolid();
+        SETBOARD.addClickListeners();
+    });
 }
 
 function addSetsToCount(setsPerPlayerObj){
@@ -204,7 +208,6 @@ function addSetsToCount(setsPerPlayerObj){
     forEachIn(setsPerPlayerObj, function(prop, val){
         var formattedProp = prop.split(' ').join('-');
         $('#' + formattedProp + '-count').text(String(val));
-
     });
 }
 

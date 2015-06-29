@@ -108,21 +108,6 @@ function makeSubsets(input, size){
 }
 
 
-
-function checkDeadboardAndDeal() {
-    console.log('heres the board input to deadboard');
-    console.log(cardnumarray_numbers());
-    if (!isthereanyset(SETLENGTH)){
-        endGame();
-        console.log('deadboard');
-        //checkDeadboardAndDeal()
-        dealMore(deck.splice(0,3));
-        //socket.emit('dealt three more');
-        //socket.emit('deadboard');
-    }
-
-}
-
 //for supersets
 function generateTwoCardPairs(fourCards){
     //ugly, oh well
@@ -139,18 +124,6 @@ function generateTwoCardPairs(fourCards){
         fourCards = fourCards.concat(fourCards.splice(1,1))
     }
     return allPairs;
-}
-
-
-function setFoundOrNot(){
-    if (setFound === false){
-        clicked = [];
-        allBordersBlack();
-        if (clickListenersOn === true){
-            socket.emit('falsey', NICKNAME);
-        }
-    }
-
 }
 
 

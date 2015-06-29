@@ -6,6 +6,16 @@ Object.prototype.getDomElement = function(num){
     return $('#' + String(num));
 }
 
+Object.prototype.changeBorderStyle = function(){
+    var cardDom = this.getDomElement(this.cardNumber)[0];
+    cardDom.style.borderStyle === 'dotted' ? cardDom.style.borderStyle = 'solid' : cardDom.style.borderStyle = 'dotted';
+}
+
+Object.prototype.setBorderStyle  = function(style){
+    var cardDom = this.getDomElement(this.cardNumber)[0];
+    console.log(cardDom);
+    cardDom.style.borderStyle = style;
+}
 
 function SetCard(cardNum){
     this.cardNumber = cardNum;
@@ -25,10 +35,6 @@ function SetCard(cardNum){
         //console.log(cardsrc);
         return dom('IMG', {src: cardsrc, id: cardNum, border: 5});
     }
-    this.changeBorderStyle = function(){
-        var cardDom = this.getDomElement(this.cardNumber)[0];
-        cardDom.style.borderStyle === 'dotted' ? cardDom.style.borderStyle = 'solid' : cardDom.style.borderStyle = 'dotted';
-    }
     this.changeBorderColor =  function(color){//, color1, color2){
         var cardDom = this.getDomElement(this.cardNumber)[0];
         cardDom.style.borderColor = color; //== color1 ? (cardDom.style.borderColor = color2) : (cardDom.style.borderColor = color1);
@@ -39,52 +45,27 @@ function SetCard(cardNum){
         this.setBoard = board;
     }
     this.addClickListener = function(){
-        this.clickListenerOn = true;
+        if (this.clickListenerOn === true){
+            console.log('card already activated');
+            return false;
+        }
+        else if (this.clickListenerOn === false) {
+            this.clickListenerOn = true;
+            var dc = this.getDomElement(this.cardNumber);
+            var setBoardObj = this.setBoard;
+            var card = this;
+            dc.bind('click', function(click){
+                setBoardObj.registerClick(card);
+            });
+        }
+    }
+    this.clickListenerOff = function(){
         var dc = this.getDomElement(this.cardNumber);
-        var setBoardObj = this.setBoard;
-        var card = this;
-        dc.bind('click', function(click){
-            if (setBoardObj.clicked.length === 0){
-                setBoardObj.setFound = false;
-                socket.emit('firstCardClick', {card: card, clicked: setBoardObj.clicked}); //have to change socket event
-
-                setBoardObj.findSet = setTimeout(function(){
-                    console.log('returning');
-                    console.log(setBoardObj.setFound);
-                    setBoardObj.allBordersBlack();
-                    setBoardObj.clicked = [];
-                    socket.emit('falsey', setBoardObj.playerName);
-                    return setBoardObj.setFound === true;
-                }, 700 * SETLENGTH);
-            }
-            if (setBoardObj.clicked.length === 1){
-                socket.emit('secondCardClick', {card: card, clicked: setBoardObj.clicked});
-            }
-            setBoardObj.addToClicked(card);
-            card.changeBorderColor('red');
-            //click.target.style.borderColor = chooseNewBorderColor(click.target.style.borderColor);
-            
-            if (setBoardObj.clicked.length === setBoardObj.SETLENGTH){
-                //allBordersBlack
-                setBoardObj.checkClicks(setBoardObj.clicked);
-                setBoardObj.allBordersBlack();
-                setBoardObj.clicked = [];
-            }
-        });
+        dc.unbind('click');
+        this.clickListenerOn = false;
     }
 
 }
-
-
-// function convertCard(cardNum) {
-//     //convert card from integer form to set form, ie, the array of four attributes
-//     att3 = Math.floor(cardNum/27);
-//     att2 = Math.floor((cardNum - att3 * 27) / 9);
-//     att1 = Math.floor((cardNum - 27 * att3 - 9 * att2) / 3);
-//     att0 = Math.floor(cardNum - 27 * att3 - 9 * att2 - 3 * att1);
-//     return [att0, att1, att2, att3];
-//     //return {'att0': att0, 'att1': att1, 'att2': att2, 'att3':att3}
-// }
 
 
 function isSetEitherType(cards){
@@ -156,37 +137,4 @@ function isSuperSet(cardsCopy){
     });
     return superSet;
 }
-
-
-// function convertCardBack(cardArray) {
-//     //convert from set form to integer form
-//     if (cardArray === undefined) {
-//         return undefined;
-//     }
-//     return cardArray[0]*1 + cardArray[1]*3 + cardArray[2]*9 + cardArray[3]*27
-// }
-
-
-
-//rewrite
-// function three_cards_a_set(three_indices) {
-//     //three_indices is an array of BOARD indices
-//     var cards = cardnumarray_numbers();
-//     var testarr = [];
-//     for (var i = 0; i<3; i++){
-//         //console.log(three_indices[i]);
-//         //try {
-//         testarr.push(convertCard(cards[three_indices[i]]));
-//         //}
-//         // finally {
-//         //     console.log(three_indices);
-//         //     console.log(three_indices[i]);
-//         //     console.log(i);
-//         //     console.log(testarr);
-//         //     console.log(convertCard(cards[three_indices[i]]));
-//         // }
-//     }
-//     return isset(testarr);
-// }
-
 

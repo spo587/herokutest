@@ -12,6 +12,14 @@ function SetBoard(SETLENGTH, NICKNAME, orderedDeck){
     this.setFound = null;
     this.findSet = null;
     this.playerName = NICKNAME;
+    this.getCardNumbers = function(){
+        return this.cards.map(function(c){
+            return c.cardNumber;
+        });
+    }
+    this.checkClickListeners = function(){
+        this.cards.forEach(function(c){console.log(c.clickListenerOn)});
+    }
     this.firstDeal = function(){
         this.dealNewCards(this.getFirstCards());
     }
@@ -20,13 +28,6 @@ function SetBoard(SETLENGTH, NICKNAME, orderedDeck){
     }
     this.addCards = function(cards){
         this.cards = this.cards.concat(cards);
-    }
-    this.removeCards = function(cards){
-        var setBoardObj = this;
-        cards.forEach(function(card){
-            var ind = setBoardObj.cards.indexOf(card);
-            setBoardObj.cards.splice(ind, 1);
-        });
     }
     this.setupBoard = function(){
         for (var j=0; j < this.height; j++) {
@@ -54,17 +55,10 @@ function SetBoard(SETLENGTH, NICKNAME, orderedDeck){
         return this.div[0].childNodes[rowInd]
     }
     this.dealNewCards = function(cards){
-        var len = cards.length;
-        // if (CARDCOUNT === 81){
-        //     endGame();
-        //     return false;
-        // }
-        for (var i = 0; i < len; i++) {
-            //console.log(cards);
-            var card = cards.shift();
-            this.dealOne(card);
-
-        }
+        var setBoardObj = this;
+        cards.forEach(function(card){
+            setBoardObj.dealOne(card);
+        });
     }
     this.dealOne = function(card){
         card.addSetBoard(this);
@@ -74,19 +68,26 @@ function SetBoard(SETLENGTH, NICKNAME, orderedDeck){
         this.addCards([card]);
     }
     this.takeAwayCards = function(cards){
-
         var setBoardObj = this;
         cards.forEach(function(card){
-            setBoardObj.takeAwayCard(card);
+            setBoardObj.removeDomElem(card);
+            setBoardObj.removeFromList(card);
         });
         this.realign();
         this.realign();
     }
-    this.takeAwayCard = function(card){
-        console.log(card);
+    this.removeFromList = function(card){
+        var numbers = this.cards.map(function(card){
+            return card.cardNumber;
+        });
+        var index = numbers.indexOf(card.cardNumber);
+        this.cards.splice(index, 1);
+
+    }
+    this.removeDomElem = function(card){
+        //find card with that cardNumber FIRST
         var domElem = card.getDomElement(card.cardNumber)[0];
         takeAway(domElem);
-        this.removeCards([card]);
     }
     this.realign = function(){
         var shortestRow = this.getShortestRow();
@@ -104,27 +105,60 @@ function SetBoard(SETLENGTH, NICKNAME, orderedDeck){
             //setBoardObj.addClickListener(card);
         });
     }
-    this.addToClicked = function(card){
+    this.registerClick = function(card){
         if (this.clicked.indexOf(card) === -1){
-            this.clicked.push(card);
+            this.addToClicked(card);
         }
+        if (this.clicked.length === 1){
+            //socket.emit('firstCardClick', this.playerName)
+            this.setFound = false;
+            socket.emit('firstCardClick', {cardNumber: card.cardNumber}); //have to change socket event
+            var setBoardObj = this;
+            setBoardObj.findSet = setTimeout(function(){
+                console.log('returning');
+                console.log(setBoardObj.setFound);
+                setBoardObj.allBordersBlack();
+                setBoardObj.clicked = [];
+                socket.emit('falsey', setBoardObj.playerName);
+                return setBoardObj.setFound === true;
+            }, 700 * setBoardObj.SETLENGTH);
+        }
+        else if (this.clicked.length === 2){
+            console.log('second card clicked');
+            socket.emit('secondCardClick', {cardNumber: card.cardNumber});
+        }
+        else if (this.clicked.length === this.SETLENGTH){
+            this.checkClicks(this.clicked);
+            this.allBordersBlack();
+            this.clicked = [];
+        }
+    }
+    this.addToClicked = function(card){
+        this.clicked.push(card);
+        card.changeBorderColor('red');
+    }
+
+    this.endTimeout = function(){
+        var setBoardObj = this;
+        clearTimeout(setBoardObj.findSet);
     }
 
     this.checkClicks = function(arr){
-        console.log(arr);
         var setBoardObj = this;
         if (isSetEitherType(arr)){
             console.log('set found');
             this.setFound = true;
-            clearTimeout(setBoardObj.findSet);
-            //console.log(arr);
-            socket.emit('set found', {cards: arr, playerName: this.playerName});
+            // doesnt work to transmit the cards for some reason? transmitting instead just their numbers
+            var cards = arr.map(function(c){
+                console.log(c.cardNumber);
+                return {cardNumber: c.cardNumber};
+            });
+            socket.emit('set found', {cards: cards, playerName: this.playerName});
+            clearTimeout(setBoardObj.findSet);    
         }
         else {
-            console.log('not a set');
             this.setFound = false;
             socket.emit('falsey', this.playerName);
-
             clearTimeout(setBoardObj.findSet);
         }
     }
@@ -133,14 +167,24 @@ function SetBoard(SETLENGTH, NICKNAME, orderedDeck){
             card.changeBorderColor('black');
         });
     }
-    // this.setFoundOrNot = function(){
 
-    //     console.log('returning!');
-    //     console.log(setBoardObj.setFound);
-    //     setBoardObj.allBordersBlack();
-    //     setBoardObj.clicked = [];
-    //     return this.setFound === true;
+    this.allBordersSolid = function(){
+        this.cards.forEach(function(card){
+            card.setBorderStyle('solid');
+        });
+    }
+
+    // this.allBorders = function(callback, arg){
+    //     this.cards.forEach(function(card){
+    //         card.callback(arg);
+    //     });
     // }
+    this.clickListenersOff = function(){
+        var setBoardObj = this;
+        setBoardObj.cards.forEach(function(card){
+            card.clickListenerOff();
+        });
+    }
 
     this.isThereASet = function(){
         var numCards = this.cards.length;
@@ -154,13 +198,16 @@ function SetBoard(SETLENGTH, NICKNAME, orderedDeck){
                 return setBoardObj.cards[index];
             });
             if (isset(cards)){
-                console.log(cardBoardIndices);
+                cards.forEach(function(card){
+                    console.log(card.cardNumber);
+                });
                 return cards;
             }
 
         }
         return false;
     }
+
     this.getCardsFromIndices = function(indices){
         var cards = [];
         return indices.map(function(ind){})
@@ -178,8 +225,6 @@ function SetBoard(SETLENGTH, NICKNAME, orderedDeck){
             this.dealNewCards(toDeal);
         }
     }
-
-
 
 }
 
@@ -217,6 +262,7 @@ function endGame() {
         
 }
 
+
 var setsFound = 0;
 var numHints = 0;
 
@@ -241,152 +287,18 @@ function displayHint() {
 
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-function firstDeal(cards, SETLENGTH){
-    CARDCOUNT += cards.length;
-    dealCards(cards, 3, 12 / SETLENGTH);
-    checkDeadboardAndDeal();
-}
-
-function dealCards(cards, height, width){
-    //console.log(width);
-    if (height*width !== cards.length){
-        console.log(height*width);
-        console.log(cards.length);
-        throw('cards called dont match length of board')
-    }
-    for (var j=0; j<height; j++) {
-        newp = dom('P',null);
-        var firstDiv = $('#div1');
-        firstDiv.append(newp);
-        for (var i=0; i<width; i++) {
-            
-            var card = cards.shift();
-            //var card = domCard(randNum);
-            newp.appendChild(card.domCard());
-        }
-    }
-    clickListenersOff()
-    addEventListeners(cardnumarray_numbers(), SETLENGTH);
-}
-
-
-function dealMore(cards) {
-    var len = cards.length;
-    if (CARDCOUNT === 81){
-        endGame();
-        return false;
-    }
-    for (var i = 0; i < len; i++) {
-        //console.log(cards);
-        var card = cards.shift();
-        dealOne(card);
-    }
-    clickListenersOff();
-    addEventListeners(cardnumarray_numbers(), SETLENGTH);
-    //realign();
-    //realign();
-    CARDCOUNT += 3;
-    checkDeadboardAndDeal();  
-}
-
-
-
-function dealOne(card){
-    var cardDom = domCard(card);
-    var firstDiv = $('#div1')[0];
-    var rowLengths = getRowLengths(firstDiv);
-    
-    var shortestRow;
-    var shortestLength = 100;
-    forEachIn(rowLengths, function(row, length){
-        if (length < shortestLength){
-            shortestRow = row;
-            shortestLength = length;
-        }
-    });
-    firstDiv.childNodes[shortestRow].appendChild(cardDom);
-}
-
-    
-function getRowLengths(div){
-    var firstRow = div.childNodes[0].childNodes.length;
-    var secondRow = div.childNodes[1].childNodes.length;
-    var thirdRow = div.childNodes[2].childNodes.length;
-    return {0: firstRow, 1: secondRow, 2: thirdRow};
-}
-
-
-
-function removeElement(node) {
-  if (node.parentNode)
-    node.parentNode.removeChild(node);
-}
-
-
-function realign() {
-    //this is ugly i can rewrite this much prettier on the to-do list
-    //should be easy with the getRowLengths function, above
-    //but for now, it works
-    var firstDiv = $('#div1')[0];
-    var lines = firstDiv.getElementsByTagName('P');
-    var arr = [];
-    forEach(lines,function(a){arr.push(a.childNodes.length)});
-    var longLine = arr.indexOf(Math.max(arr[0],arr[1],arr[2]));
-    var shortLine = arr.indexOf(Math.min(arr[0],arr[1],arr[2]));
-    if (longLine != shortLine) {
-        var cardToMove = lines[longLine].lastChild;
-        lines[shortLine].appendChild(cardToMove);
-    }
-
-
-}
-
-function findAndRemoveCard(cardnum){
-    var str = '#' + String(cardnum);
-    var elem = $(str)[0];
-    takeAway(elem);
-}
-
 function takeAway(elem){
     var par = elem.parentNode;
     par.removeChild(elem);
 }
 
-function removeDeal(cards) {
-    console.log('remove deal function called');
-    console.log(cards);
-    for (var i = 0; i < cards.length; i += 1){
-        findAndRemoveCard(cards[i]);
-        var cardSetForm = convertCard(cards[i]);
-        clicked.forEach(function(current){
-            var ind = clicked.indexOf(current);
-            if (equalArray(current, cardSetForm)){
-                console.log('removing from clicked');
-                clicked.splice(ind, 1);
-                console.log(clicked);
-            }
-        });
-    }
-    realign();
-    realign();
-    if (cardnumarray_numbers().length >= 12){
-        console.log('12 or more cards on board');
-        checkDeadboardAndDeal();
-    }
+function timer() {
+    var t = new Date().getTime();
+    var myVar = setInterval(function(){
+        var toShow = String(Math.floor((new Date().getTime() - t)/1000));
+        $('#time').text(toShow);
+    }, 1000);
+    return Math.floor((new Date().getTime() - t)/1000);
 }
 
 

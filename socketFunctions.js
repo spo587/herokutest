@@ -54,11 +54,6 @@ exports.connectSocket = function(socketVar, io, db, gameStartedTracker){
                 console.log('NOT ADDING TO DATABASE');
                 startTimes = [];
             }
-            // db.find({}).sort({time: 1}).limit(10).exec(function(e, docs){
-            //     console.log(docs);
-            //     bt.emit('games', docs);
-            // });
-
         });
 
         socket.on('chat message', function(data){
@@ -71,19 +66,16 @@ exports.connectSocket = function(socketVar, io, db, gameStartedTracker){
         });
 
         socket.on('set found', function(data){
-            //console.log('set found');
+            console.log('set found');
             var cards = data.cards;
             //add to sets object that's keeping track of all players sets
             setsPerPlayer[data.playerName] += 1;
-            //send it along
             var transmit = {cards: cards, setsPerPlayer: setsPerPlayer, player: data.playerName};
-            console.log(transmit.cards);
-            console.log(transmit.cards[0].cardNumber);
-            socketVar.emit('set found', transmit);
-            // //deal more cards, if board is 'depleted'
-            // socketVar.emit('dealing more');
+            socketVar.emit('set-found', transmit);
+            firstClick = false;
         });
-        socket.on('firstCardClick', function(data){
+        socket.on('firstCardClick', function(card){
+            console.log('first click received');
             //one player clicked a card, therefore calling 'set!' send it off to the ohter players so
             //clicks by others won't be registered in the apporpriate time
 
@@ -95,28 +87,20 @@ exports.connectSocket = function(socketVar, io, db, gameStartedTracker){
                 return false;
             }
             firstClick = true;
-            socket.broadcast.emit('noClicksUntil', data);
+            socket.broadcast.emit('turnClickListenersOff', card);
         });
 
-        socket.on('secondCardClick', function(data){
-            var card = data.card;
-            var clicked = data.clicked;
+        socket.on('secondCardClick', function(card){
             socket.broadcast.emit('secondCardClick', card);
         });
-
-        socket.on('clickBanExpiring', function(){
-            //time to find the set is up
-            console.log('click ban expiring, resetting first click');
-            firstClick = false;
-        });
-
         socket.on('falsey', function(name){
             console.log('falsey');
             //set wasn't collected in time. penalty!
             setsPerPlayer[name] = setsPerPlayer[name] - 1;
             socketVar.emit('falsey', setsPerPlayer);
+            socket.broadcast.emit('clickListenersBackOn');
+            firstClick = false;
         });
-
         // socket.on('game data', function(data){
         //     console.log('game data socket line 106!!!')
         //     console.log(data);
@@ -125,10 +109,8 @@ exports.connectSocket = function(socketVar, io, db, gameStartedTracker){
         //     //     bestPlayers = [data.player1, data.player2];
         //     // }
         // });
-
     });
 }
-
 
 function forEachIn(object, func) {
     for (var property in object) {
