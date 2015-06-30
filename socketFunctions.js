@@ -7,23 +7,23 @@ exports.connectSocket = function(socketVar, io, db, gameStartedTracker){
     //socketVar is the socket connection communicating between players in whatever page
     // the function is being called for
     socketVar.on('connection', function(socket){
-        console.log('CONNECTION');
+        //console.log('CONNECTION');
         //can i / should i split up this massive function ?
         socket.on('join', function(name){
-            //console.log('game started??');
+            ////console.log('game started??');
             //check if the game is already in progress
-            console.log(gameStartedTracker);
+            //console.log(gameStartedTracker);
             var route = socket.client.request.headers.referer;
-            //console.log(route);
+            ////console.log(route);
             var page = route.split('/')[route.split('/').length - 1];
-            //console.log(page);
+            ////console.log(page);
 
             if (gameStartedTracker[page] === true){
-                console.log('page refreshed, emitting')
+                //console.log('page refreshed, emitting')
                 socketVar.emit('page refresh');
             }
             socket.NICKNAME = name;
-            console.log(name + 'joined the game');
+            //console.log(name + 'joined the game');
             setsPerPlayer[name] = 0;
             socket.broadcast.emit('new player', name);
             //emit to the other players in the game
@@ -37,7 +37,7 @@ exports.connectSocket = function(socketVar, io, db, gameStartedTracker){
         socket.on('disconnect', function(){
             var departed = socket.NICKNAME;
             delete setsPerPlayer[socket.NICKNAME];
-            console.log(setsPerPlayer);
+            //console.log(setsPerPlayer);
             socket.broadcast.emit('player has departed', departed);
             //take that hater off the player's list     
             socket.broadcast.emit('allPlayers', setsPerPlayer);
@@ -50,8 +50,8 @@ exports.connectSocket = function(socketVar, io, db, gameStartedTracker){
                 socketVar.emit('order of deck', data);
                 gameInProgress = true;
             }, 1500);
-            //console.log(socketVar.name);
-            //console.log(visitCounter);
+            ////console.log(socketVar.name);
+            ////console.log(visitCounter);
             var gameName = socketVar.name.slice(1, socketVar.name.length);
             gameStartedTracker[gameName] = true;
             io.emit('game no longer open', gameStartedTracker);
@@ -63,13 +63,13 @@ exports.connectSocket = function(socketVar, io, db, gameStartedTracker){
             var startTime = data.startTime;
             var winner = data.winner;
             if (startTime != startTimes[startTimes.length - 1]){
-                console.log('ADDING TO DATABASE');
+                //console.log('ADDING TO DATABASE');
                 var game = makeDatabaseEntry(setsPerPlayer, t, startTime, winner);
                 db.insert(game);
                 startTimes.push(startTime);
             }
             else {
-                console.log('NOT ADDING TO DATABASE');
+                //console.log('NOT ADDING TO DATABASE');
                 startTimes = [];
             }
         });
@@ -84,7 +84,7 @@ exports.connectSocket = function(socketVar, io, db, gameStartedTracker){
         });
 
         socket.on('set found', function(data){
-            console.log('set found');
+            //console.log('set found');
             var cards = data.cards;
             //add to sets object that's keeping track of all players sets
             setsPerPlayer[data.playerName] += 1;
@@ -93,14 +93,14 @@ exports.connectSocket = function(socketVar, io, db, gameStartedTracker){
             firstClick = false;
         });
         socket.on('firstCardClick', function(card){
-            console.log('first click received');
+            //console.log('first click received');
             //one player clicked a card, therefore calling 'set!' send it off to the ohter players so
             //clicks by others won't be registered in the apporpriate time
 
             //but first, check if an earlier 'firstclick' event already came in sooner,
             //but hasnt yet been communicated to the client that fired this click
             if (firstClick === true){
-                console.log('already received click');
+                //console.log('already received click');
                 //emit something letting them know??
                 return false;
             }
@@ -112,7 +112,7 @@ exports.connectSocket = function(socketVar, io, db, gameStartedTracker){
             socket.broadcast.emit('secondCardClick', card);
         });
         socket.on('falsey', function(name){
-            console.log('falsey');
+            //console.log('falsey');
             //set wasn't collected in time. penalty!
             setsPerPlayer[name] = setsPerPlayer[name] - 1;
             socketVar.emit('falsey', setsPerPlayer);
@@ -120,8 +120,8 @@ exports.connectSocket = function(socketVar, io, db, gameStartedTracker){
             firstClick = false;
         });
         // socket.on('game data', function(data){
-        //     console.log('game data socket line 106!!!')
-        //     console.log(data);
+        //     //console.log('game data socket line 106!!!')
+        //     //console.log(data);
         //     // if (data.t < bestTimeTwoPlayer){
         //     //     bestTimeTwoPlayer = data.t;
         //     //     bestPlayers = [data.player1, data.player2];

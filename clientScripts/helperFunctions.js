@@ -89,7 +89,7 @@ function dom(name, attributes) {
     });
   }
   for (var i = 2; i < arguments.length; i++) {
-    //console.log(child);
+    ////console.log(child);
     var child = arguments[i];
     if (typeof child === "string"){
       child = document.createTextNode(child);
@@ -107,7 +107,7 @@ function arraysSameElements(arr1, arr2){
         }
         else {
             answers.push(false);
-            console.log(c);
+            //console.log(c);
         }
     });
     return answers.indexOf(false) === -1;

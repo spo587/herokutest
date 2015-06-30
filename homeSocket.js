@@ -1,6 +1,6 @@
 exports.connectHomeSocket = function(io, visitCounter, gameStartedTracker){
     io.on('connection', function(socket){
-        console.log('homesocket event fired');  
+        //console.log('homesocket event fired');  
         //socket.join('home room');
         //url the ping came from
         var route = socket.client.request.headers.referer;

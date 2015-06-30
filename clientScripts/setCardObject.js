@@ -13,7 +13,7 @@ Object.prototype.changeBorderStyle = function(){
 
 Object.prototype.setBorderStyle  = function(style){
     var cardDom = this.getDomElement(this.cardNumber)[0];
-    console.log(cardDom);
+    //console.log(cardDom);
     cardDom.style.borderStyle = style;
 }
 
@@ -32,7 +32,7 @@ function SetCard(cardNum){
     }  
     this.domCard = function(){
         var cardsrc = './cards/' + String(cardNum) + '.JPG';
-        //console.log(cardsrc);
+        ////console.log(cardsrc);
         return dom('IMG', {src: cardsrc, id: cardNum, border: 5});
     }
     this.changeBorderColor =  function(color){//, color1, color2){
@@ -46,7 +46,7 @@ function SetCard(cardNum){
     }
     this.addClickListener = function(){
         if (this.clickListenerOn === true){
-            console.log('card already activated');
+            //console.log('card already activated');
             return false;
         }
         else if (this.clickListenerOn === false) {
@@ -69,7 +69,7 @@ function SetCard(cardNum){
     }
     this.getBoardPosition = function(){
         if (this.setBoard === null){
-            console.log('card doesnt have a board');
+            //console.log('card doesnt have a board');
         }
         var setBoard = this.setBoard;
         return setBoard.getCardIndex(this);

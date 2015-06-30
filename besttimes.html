@@ -10,9 +10,9 @@
 <script src='./clientScripts/helperFunctions.js'></script>
 <script>
 var socket = io('/' + document.URL.split('/')[document.URL.split('/').length - 1]);
-//console.log(socket);
+////console.log(socket);
 socket.on('games', function(data){
-    console.log(data);
+    //console.log(data);
     data.forEach(function(obj){
         var li;
         forEachIn(obj, function(prop, val){

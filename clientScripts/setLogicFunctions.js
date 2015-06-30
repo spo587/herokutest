@@ -29,14 +29,14 @@ function isset(cards) {
             ans += 1;
         }
     }
-    //console.log(cards)
+    ////console.log(cards)
     return ans === 4;    
 }
 
 function completeSet(twoCards){
     //for superset....takes two integer cards as input and returns the integer
     //of the third card that makes them into a set
-    //console.log(twoCards);
+    ////console.log(twoCards);
     var cardsSetForm = twoCards.map(function(card){
         return card.setAttributes();
     });
@@ -47,9 +47,9 @@ function completeSet(twoCards){
         3 - (cardsSetForm[0][i] + cardsSetForm[1][i]);
         thirdCard.push(thirdAttribute);
     }
-    //console.log(thirdCard);
+    ////console.log(thirdCard);
     return new SetCard(thirdCard[0]*1 + thirdCard[1]*3 + thirdCard[2]*9 + thirdCard[3]*27);
-    //console.log(ret.cardNumber);
+    ////console.log(ret.cardNumber);
     //return ret;
 }
 
@@ -59,15 +59,15 @@ function isSuperSet(cardsCopy){
         return card;
     });
     var superSet = false;
-    //console.log(cards);
+    ////console.log(cards);
     var twoCardSplits = generateTwoCardPairs(cards);
 
     twoCardSplits.forEach(function(twoCardSplit){
-        //console.log(twoCardSplit);
+        ////console.log(twoCardSplit);
         if (completeSet(twoCardSplit[0]).equals(completeSet(twoCardSplit[1]))){
-            //console.log('superSet');
+            ////console.log('superSet');
             superSet = cardsCopy;
-            console.log(completeSet(twoCardSplit[0]));
+            //console.log(completeSet(twoCardSplit[0]));
         }
     });
     return superSet;

@@ -37,10 +37,10 @@ function removeDuplicatesFromGamesDB(db){
 
 var bt = io.of('/besttimes.html');
 bt.on('connection', function(socket){
-    console.log('user queried besttimes.html');
+    //console.log('user queried besttimes.html');
     removeDuplicatesFromGamesDB(db.gameTimes);
     db.gameTimes.find({}).sort({time: 1}).limit(10).exec(function(e, docs){
-        console.log(docs);
+        //console.log(docs);
         socket.emit('games', docs);
     });
 });
@@ -122,7 +122,7 @@ for (var i=0; i < 81; i += 1){
 var port = process.env.PORT || 8080;
 
 server.listen(port, function() {
-    console.log('Our app is running on http://localhost:' + port);
+    //console.log('Our app is running on http://localhost:' + port);
 });
 
 function forEachIn(object, func) {
@@ -142,7 +142,7 @@ function forEachIn(object, func) {
 
 // redisClient.set('bestTimes', 10000);
 // redisClient.get('bestTime', function(err, reply){
-//     console.log(reply);
+//     //console.log(reply);
 // });
 
 // function deleteAllKeys(client){
@@ -150,47 +150,47 @@ function forEachIn(object, func) {
 // }
 
 // redisClient.zadd('nameOfSet', '400', 'bey', function(err, val){
-//     console.log(err);
-//     console.log(val);
+//     //console.log(err);
+//     //console.log(val);
 // });
 
 // redisClient.zadd('nameOfSet', '500', 'zoom', function(err, val){
-//     console.log(err);
-//     console.log(val);
+//     //console.log(err);
+//     //console.log(val);
 // });
 // var sortedSet = redisClient.zrange('nameOfSet', 0, -1, function(err, reply){
-//     console.log(err);
-//     console.log(reply);
+//     //console.log(err);
+//     //console.log(reply);
 // });
-// console.log(sortedSet);
+// //console.log(sortedSet);
 
 // var obj = {'a':4, 'b':5};
 
-// console.log(obj);
+// //console.log(obj);
 // redisClient.lpush('foo', 'brett', '20', function(err, val){
-//     console.log(val);
+//     //console.log(val);
 //     //list = val;
 // });
 
 // var myVar;
 
 // var test2 = redisClient.lrange('foo', 0, 10, function(err, vals){
-//     //console.log(err);
+//     ////console.log(err);
 //     //list = val;
-//     //console.log(val);
+//     ////console.log(val);
 //     var test = vals;
 //     myVar = vals;
-//     console.log('logging var');
-//     //console.log(myVar);
+//     //console.log('logging var');
+//     ////console.log(myVar);
 //     test.forEach(function(cur){
-//         console.log(cur);
+//         //console.log(cur);
 //     });
 //     return vals;
-//     //console.log(list);
+//     ////console.log(list);
 // });
 
 
-// console.log('hello');
+// //console.log('hello');
 // setTimeout(function(){
-//     console.log(myVar);
+//     //console.log(myVar);
 // },2000);

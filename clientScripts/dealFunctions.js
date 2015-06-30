@@ -3,10 +3,10 @@ var GAMEOVER = false;
 
 function SetBoard(SETLENGTH, NICKNAME, orderedDeck, startTime, setsPerPlayer){
     this.setsPerPlayer = setsPerPlayer;
-    console.log(this.setsPerPlayer);
+    //console.log(this.setsPerPlayer);
     this.startTime = startTime;
     this.orderedDeck = orderedDeck;
-    console.log(this.orderedDeck.length);
+    //console.log(this.orderedDeck.length);
     this.cards = [];
     this.div = $('#div1');
     this.SETLENGTH = SETLENGTH;
@@ -29,7 +29,7 @@ function SetBoard(SETLENGTH, NICKNAME, orderedDeck, startTime, setsPerPlayer){
     }
     this.getFirstCards = function(){
         var ret = this.orderedDeck.splice(0, 36 / this.SETLENGTH);
-        console.log(ret.length);
+        //console.log(ret.length);
         return ret;
     }
     this.addCards = function(cards){
@@ -124,8 +124,8 @@ function SetBoard(SETLENGTH, NICKNAME, orderedDeck, startTime, setsPerPlayer){
                 socket.emit('firstCardClick', {cardNumber: card.cardNumber}); //have to change socket event
                 var setBoardObj = this;
                 setBoardObj.findSet = setTimeout(function(){
-                    console.log('returning');
-                    console.log(setBoardObj.setFound);
+                    //console.log('returning');
+                    //console.log(setBoardObj.setFound);
                     setBoardObj.allBordersBlack();
                     setBoardObj.clicked = [];
                     socket.emit('falsey', setBoardObj.playerName);
@@ -133,7 +133,7 @@ function SetBoard(SETLENGTH, NICKNAME, orderedDeck, startTime, setsPerPlayer){
                 }, 700 * setBoardObj.SETLENGTH);
             }
             else if (this.clicked.length === 2){
-                console.log('second card clicked');
+                //console.log('second card clicked');
                 socket.emit('secondCardClick', {cardNumber: card.cardNumber});
             }
             else if (this.clicked.length === this.SETLENGTH){
@@ -156,11 +156,11 @@ function SetBoard(SETLENGTH, NICKNAME, orderedDeck, startTime, setsPerPlayer){
     this.checkClicks = function(arr){
         var setBoardObj = this;
         if (isSetEitherType(arr)){
-            console.log('set found');
+            //console.log('set found');
             this.setFound = true;
             // doesnt work to transmit the cards for some reason? transmitting instead just their numbers
             var cards = arr.map(function(c){
-                console.log(c.cardNumber);
+                //console.log(c.cardNumber);
                 return {cardNumber: c.cardNumber};
             });
             socket.emit('set found', {cards: cards, playerName: this.playerName});
@@ -203,12 +203,10 @@ function SetBoard(SETLENGTH, NICKNAME, orderedDeck, startTime, setsPerPlayer){
             var cards = cardBoardIndices.map(function(index){
                 return setBoardObj.cards[index];
             });
-            console.log(cards);
-            console.log(cards.length);
             if (isSetEitherType(cards)){
-                cards.forEach(function(card){
-                    console.log(card.cardNumber);
-                });
+                // cards.forEach(function(card){
+                //     console.log(card.cardNumber);
+                // });
                 //var set = cards;
                 return cards;
             }
@@ -245,7 +243,7 @@ function SetBoard(SETLENGTH, NICKNAME, orderedDeck, startTime, setsPerPlayer){
         }
     }
     this.checkEnd = function(){
-        console.log('checking end');
+        //console.log('checking end');
         if (this.checkDeadBoard()){
             //var t = $('#time').text();
             var t = Math.round((new Date().getTime() - this.startTime) / 1000);

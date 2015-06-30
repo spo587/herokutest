@@ -6,7 +6,7 @@ var socket = io('/');
 
 //when the server sends a player join event
 socket.on('player joined game', function(data){
-    console.log('event fired');
+    //console.log('event fired');
     //data is an object with two properties: gameStartedTracker and visitCounter
 
     //visitCounter is an object that keeps track of how many visitors are at each url
@@ -29,7 +29,7 @@ socket.on('player joined game', function(data){
 
     //check this later, not sure why it was here
     // if (gameCounter > 0){
-    //     //console.log(visitCounter);
+    //     ////console.log(visitCounter);
     //     changeLinkForNewGame(visitCounter, gameCounter, 'set');
     //     changeLinkForNewGame(visitCounter, gameCounter, 'superSet');
     // }
@@ -39,7 +39,7 @@ socket.on('player joined game', function(data){
         onJoinOrDeparture(data, gameCounter);
     });
     socket.on('game no longer open', function(gameStartedTracker){
-        console.log('GAME JUST CLOSED');
+        //console.log('GAME JUST CLOSED');
         setLinksToWaitingGames(gameStartedTracker, visitCounter);
     }); 
 
@@ -76,7 +76,7 @@ function changeLinkForNewGame(visitCounter, gameCounter, gameType){
 }
 
 function findLowestOpenGameNumber(visitCounter, gameCounter, gameType){
-    console.log(visitCounter);
+    //console.log(visitCounter);
     // find the number for the lowest game
     //this function's fracked. gotta be an easier way
     var lowestOpenGame;
@@ -86,11 +86,11 @@ function findLowestOpenGameNumber(visitCounter, gameCounter, gameType){
                 
                 var gameNumber = Number(prop[prop.length - 1]);
                 if (!lowestOpenGame){
-                    console.log('assigning lowestopengame not with min to next one');
+                    //console.log('assigning lowestopengame not with min to next one');
                     lowestOpenGame = gameNumber; 
                 }
                 else {
-                    console.log('assigning with min');
+                    //console.log('assigning with min');
                     lowestOpenGame = Math.min((gameNumber), lowestOpenGame);
                 }
             }
@@ -102,7 +102,7 @@ function findLowestOpenGameNumber(visitCounter, gameCounter, gameType){
     }
     //append the gametype to the beginning, and make a string
     lowestOpenGame = gameType + lowestOpenGame;
-    //console.log(lowestOpenGame);
+    ////console.log(lowestOpenGame);
     return lowestOpenGame;
 }
 

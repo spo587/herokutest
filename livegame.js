@@ -89,7 +89,7 @@ function cardClicks(socket){
             SETBOARD.allBordersBlack();
             SETBOARD.clicked = [];
         }
-        console.log(card);
+        //console.log(card);
         card.changeBorderStyle();
         //dont allow clicks in meantime
         SETBOARD.clickListenersOff();
@@ -114,10 +114,10 @@ function dealFunctions(socket){
         TIME = timer();
     });
     socket.on('set-found', function(data){
-        console.log('set found emitted back to page');
+        //console.log('set found emitted back to page');
         //another player in thh game found a set
         var cards = data.cards;
-        console.log(cards);
+        //console.log(cards);
         var setsPerPlayerObj = data.setsPerPlayer;
         addSetsToCount(setsPerPlayerObj);
         SETBOARD.setsPerPlayer = setsPerPlayerObj;
@@ -142,16 +142,16 @@ function dealFunctions(socket){
             var deckCardNumbers = SETBOARD.orderedDeck.map(function(c){
                 return c.cardNumber;
             });
-            console.log(deckCardNumbers);
+            //console.log(deckCardNumbers);
             var data = {setlength: SETBOARD.SETLENGTH, orderedDeckNumbers: deckCardNumbers, cardNumbers: SETBOARD.getCardNumbers(), startTime: SETBOARD.startTime};
-            console.log('emitting board back to server');
+            //console.log('emitting board back to server');
             socket.emit('current-board', data);
             setTimeout(resetSetsPerPlayer, 1000);
         }
     });
     socket.on('game-in-progress', function(data){
-        console.log('receiving data from server');
-        console.log(data.orderedDeckNumbers);
+        //console.log('receiving data from server');
+        //console.log(data.orderedDeckNumbers);
         var orderedDeck = data.orderedDeckNumbers.map(function(c){
             return new SetCard(c);
         });
@@ -172,7 +172,7 @@ function dealFunctions(socket){
 }
 
 function addSetsToCount(setsPerPlayerObj){
-    console.log(setsPerPlayerObj);
+    //console.log(setsPerPlayerObj);
     forEachIn(setsPerPlayerObj, function(prop, val){
         var formattedProp = prop.split(' ').join('-');
         $('#' + formattedProp + '-count').text(String(val));
@@ -190,7 +190,7 @@ function resetSetsPerPlayer(){
     var counts = players.forEach(function(player){
         SETBOARD.setsPerPlayer[player] = Number($('#player-count').text());
     });
-    console.log(SETBOARD.setsPerPlayer);
+    //console.log(SETBOARD.setsPerPlayer);
 }
 
 function addToSetsOnScreen(cards, playerName){
