@@ -64,24 +64,6 @@ function startGame(socket){
             socket.emit('start game', SETLENGTH); //$('#paragraph').html());
         }
     });
-    //for the end
-    socket.on('game over', function(data){
-        console.log('game over socket emitted back to page');
-        var t = data.t; //game time
-        var setsPerPlayerObj = data.setsPerPlayer;
-        var max = 0;
-        var winner;
-        forEachIn(setsPerPlayerObj, function(prop, val){
-            if (val > max){
-                winner = prop;
-                max = val;
-            }
-        });
-        if (gameNotAlreadyEnded = true){
-            alert('game over! ' + winner + ' won! ' + 'game time : ' + String(t) + ' seconds ');
-            gameNotAlreadyEnded = false;
-        }
-    });
 }
 
 function chatForm(socket){

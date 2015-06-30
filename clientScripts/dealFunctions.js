@@ -247,6 +247,7 @@ function SetBoard(SETLENGTH, NICKNAME, orderedDeck, startTime, setsPerPlayer){
             //var t = $('#time').text();
             var t = Math.round((new Date().getTime() - this.startTime) / 1000);
             var winner = this.setsPerPlayer.findMaxProp();
+            winner = winner.replace('-', ' ');
             var data = {t:t, startTime: this.startTime, winner: winner};
             if (!GAMEOVER){
                 alert('game over!!!!' + winner + ' won, game time: ' + t + ' seconds');
@@ -333,6 +334,8 @@ function timer() {
         }
     }
 }
+
+
 
 
 
