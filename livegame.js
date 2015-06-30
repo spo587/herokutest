@@ -26,6 +26,9 @@ function fullSetUp(socket){
 function setUpPregame(socket){
     socket.on('connect', function(data){
         NICKNAME = prompt("Your name, please", 'anonymous' + String(Math.round(1000*Math.random())));
+        if (NICKNAME === null){
+            NICKNAME = 'nameless';
+        }
         NICKNAME = NICKNAME.split(' ').join('-');
         socket.emit('join', NICKNAME);
 
