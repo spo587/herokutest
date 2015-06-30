@@ -2,9 +2,16 @@
 //get game type and set intro text
 $('#intro').text(gameType.slice(0, gameType.length - 1) + '!!!');
 
+
+
 var SETBOARD;
 var NICKNAME;
 var TIME;
+
+var clickReset = function(){
+    SETBOARD.clickListenersOff();
+    SETBOARD.addClickListeners();
+}
 
 //okay, now for the real stuff, setting up the socket that communicates with the server
 
