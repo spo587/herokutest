@@ -60,7 +60,7 @@ function setLinksToWaitingGames(gameStartedTracker, visitCounter){
             var gameNumber = Number(prop[prop.length - 1]); //the number at the end of the url
             var route = '/' + prop; //the url
             var gameType = prop.slice(0, prop.length - 1); //set or superSet
-            var newLink = dom('A', {gameNumber: gameNumber, href: route}, 'click to join game ' + String(gameNumber) + ', ' + gameType + ', player(s) waiting!');
+            var newLink = dom('A', {gameNumber: gameNumber, href: route}, 'Click to join game ' + String(gameNumber) + ', ' + gameType + ', player(s) waiting!');
             $('#games-in-progress').append(newLink).append('<br>');
         }
     });
@@ -70,7 +70,7 @@ function changeLinkForNewGame(visitCounter, gameCounter, gameType){
     $('#start-game-' + gameType).html('');
     //debugger;
     var gameNumber = findLowestOpenGameNumber(visitCounter, gameCounter, gameType);
-    var newLink = dom('A', {gameNumber: gameNumber, href: '/' + String(gameNumber)}, 'click to start new ' + gameType + ' game');
+    var newLink = dom('A', {gameNumber: gameNumber, href: '/' + String(gameNumber)}, 'Click to start new ' + gameType + ' game');
     $('#start-game-' + gameType).append(newLink).append('<br>');
     
 }
