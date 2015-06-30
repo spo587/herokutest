@@ -20,6 +20,7 @@ Object.prototype.setBorderStyle  = function(style){
 function SetCard(cardNum){
     this.cardNumber = cardNum;
     this.setBoard = null;
+    this.clickListenerOn = false;
     this.setAttributes = function(){
         att3 = Math.floor(cardNum/27);
         att2 = Math.floor((cardNum - att3 * 27) / 9);
@@ -40,7 +41,7 @@ function SetCard(cardNum){
         cardDom.style.borderColor = color; //== color1 ? (cardDom.style.borderColor = color2) : (cardDom.style.borderColor = color1);
         
     }
-    this.clickListenerOn = false;
+
     this.addSetBoard = function(board){
         this.setBoard = board;
     }
@@ -50,6 +51,16 @@ function SetCard(cardNum){
             return false;
         }
         else if (this.clickListenerOn === false) {
+            this.clickListenerOn = true;
+            var dc = this.getDomElement(this.cardNumber);
+            var setBoardObj = this.setBoard;
+            var card = this;
+            dc.bind('click', function(click){
+                setBoardObj.registerClick(card);
+            });
+        }
+        else {
+            console.log('clicklistener not set??');
             this.clickListenerOn = true;
             var dc = this.getDomElement(this.cardNumber);
             var setBoardObj = this.setBoard;
