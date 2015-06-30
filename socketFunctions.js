@@ -44,12 +44,12 @@ exports.connectSocket = function(socketVar, io, db, gameStartedTracker){
         });
         socket.on('start game', function(SETLENGTH){
             var deck = setDeckShuffled();
-            var startTime = new Date().getTime() + 3000;
+            var startTime = new Date().getTime() + 1500;
             var data = {SETLENGTH: SETLENGTH, deck: deck, startTime: startTime, setsPerPlayer: setsPerPlayer};
             setTimeout(function(){
                 socketVar.emit('order of deck', data);
                 gameInProgress = true;
-            }, 2500);
+            }, 1500);
             //console.log(socketVar.name);
             //console.log(visitCounter);
             var gameName = socketVar.name.slice(1, socketVar.name.length);

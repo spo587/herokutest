@@ -203,12 +203,13 @@ function SetBoard(SETLENGTH, NICKNAME, orderedDeck, startTime, setsPerPlayer){
             var cards = cardBoardIndices.map(function(index){
                 return setBoardObj.cards[index];
             });
-            //console.log(cards);
-            //console.log(cards.length);
+            console.log(cards);
+            console.log(cards.length);
             if (isSetEitherType(cards)){
                 cards.forEach(function(card){
                     console.log(card.cardNumber);
                 });
+                //var set = cards;
                 return cards;
             }
         }
@@ -266,8 +267,27 @@ function SetBoard(SETLENGTH, NICKNAME, orderedDeck, startTime, setsPerPlayer){
             return true;
         }
         return false;
-    }       
+    }    
+    this.getCardIndex = function(card){
+        var domElement = $('#' + card.cardNumber)[0];
+        return this.findBoardIndex(domElement);
+    }
+    this.findBoardIndex = function (domElement){
+        var parent = domElement.parentNode;
+        var parentId = Number(parent.id);
+        var rowIndex = parentId - 100;
+        var siblings = parent.childNodes;
+        var colIndex = null;
+        for (var i=0; i<siblings.length; i++){
+            if (siblings[i] === domElement){
+                colIndex = i;
+            }
+        }
+        return rowIndex * 3 + colIndex;
+    }  
 }
+
+
 
 Object.prototype.findMaxProp = function(){
     var max = 0;

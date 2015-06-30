@@ -64,6 +64,16 @@ function SetCard(cardNum){
         dc.unbind('click');
         this.clickListenerOn = false;
     }
+    this.equals = function(otherCard){
+        return this.cardNumber === otherCard.cardNumber;
+    }
+    this.getBoardPosition = function(){
+        if (this.setBoard === null){
+            console.log('card doesnt have a board');
+        }
+        var setBoard = this.setBoard;
+        return setBoard.getCardIndex(this);
+    }
 
 }
 

@@ -2,7 +2,7 @@
 
 function clearSet(delay){
     var set = SETBOARD.isThereASet();
-    for (var i = 0; i < 3; i++){
+    for (var i = 0; i < SETBOARD.SETLENGTH; i++){
         //SETBOARD.registerClick(set[i])
         setTimeout(
             (function(s){
@@ -22,11 +22,11 @@ function clearSet(delay){
 }
 
 
-function compPlays(delay){
+function compPlays(delay1, delay2){
 
     setInterval(function(){
-        clearSet(delay)
-    }, 4000);
+        clearSet(delay1)
+    }, delay2);
 }
 
 

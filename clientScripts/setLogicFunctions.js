@@ -58,15 +58,16 @@ function isSuperSet(cardsCopy){
     var cards = cardsCopy.map(function(card){
         return card;
     });
-    console.log(cards);
-    var twoCardSplits = generateTwoCardPairs(cards);
-    console.log(twoCardSplits);
     var superSet = false;
+    //console.log(cards);
+    var twoCardSplits = generateTwoCardPairs(cards);
+
     twoCardSplits.forEach(function(twoCardSplit){
         //console.log(twoCardSplit);
-        if (completeSet(twoCardSplit[0]) === completeSet(twoCardSplit[1])){
+        if (completeSet(twoCardSplit[0]).equals(completeSet(twoCardSplit[1]))){
             //console.log('superSet');
-            superSet = true;
+            superSet = cardsCopy;
+            console.log(completeSet(twoCardSplit[0]));
         }
     });
     return superSet;
