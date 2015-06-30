@@ -1,10 +1,19 @@
-//i may need to rewrite some of these as well
 
-function clearSet(){
+
+function clearSet(delay){
     var set = SETBOARD.isThereASet();
-    set.forEach(function(card){
-        SETBOARD.registerClick(card);
-    });
+    for (var i = 0; i < 3; i++){
+        //SETBOARD.registerClick(set[i])
+        setTimeout(
+            (function(s){
+                return function(){
+                    SETBOARD.registerClick(s);
+                }
+            })(set[i]), delay);
+        delay += delay;
+
+    }
+        
     // for (var i = 0; i < set.length; i++){
     //     setTimeout(function(){
     //         SETBOARD.registerClick(set[i]);
@@ -12,17 +21,13 @@ function clearSet(){
     // }
 }
 
-function playGameArtificial(clearDelay){
-    //if (CARDCOUNT < 81){
-    setTimeout(clearSet, clearDelay);
+
+function compPlays(delay){
+
+    setInterval(function(){
+        clearSet(delay)
+    }, 4000);
 }
 
-function compPlays(clearDelay){
-    for (var i=0; i < 27; i += 1){
-        var k = setTimeout(function(){
-            playGameArtificial(clearDelay);
-        }, clearDelay * i + 1000);
-    }
-}
 
 

@@ -114,31 +114,33 @@ function SetBoard(SETLENGTH, NICKNAME, orderedDeck, startTime, setsPerPlayer){
         });
     }
     this.registerClick = function(card){
-        if (this.clicked.indexOf(card) === -1){
-            this.addToClicked(card);
-        }
-        if (this.clicked.length === 1){
-            //socket.emit('firstCardClick', this.playerName)
-            this.setFound = false;
-            socket.emit('firstCardClick', {cardNumber: card.cardNumber}); //have to change socket event
-            var setBoardObj = this;
-            setBoardObj.findSet = setTimeout(function(){
-                console.log('returning');
-                console.log(setBoardObj.setFound);
-                setBoardObj.allBordersBlack();
-                setBoardObj.clicked = [];
-                socket.emit('falsey', setBoardObj.playerName);
-                return setBoardObj.setFound === true;
-            }, 700 * setBoardObj.SETLENGTH);
-        }
-        else if (this.clicked.length === 2){
-            console.log('second card clicked');
-            socket.emit('secondCardClick', {cardNumber: card.cardNumber});
-        }
-        else if (this.clicked.length === this.SETLENGTH){
-            this.checkClicks(this.clicked);
-            this.allBordersBlack();
-            this.clicked = [];
+        if (card.clickListenerOn){
+            if (this.clicked.indexOf(card) === -1){
+                this.addToClicked(card);
+            }
+            if (this.clicked.length === 1){
+                //socket.emit('firstCardClick', this.playerName)
+                this.setFound = false;
+                socket.emit('firstCardClick', {cardNumber: card.cardNumber}); //have to change socket event
+                var setBoardObj = this;
+                setBoardObj.findSet = setTimeout(function(){
+                    console.log('returning');
+                    console.log(setBoardObj.setFound);
+                    setBoardObj.allBordersBlack();
+                    setBoardObj.clicked = [];
+                    socket.emit('falsey', setBoardObj.playerName);
+                    return setBoardObj.setFound === true;
+                }, 700 * setBoardObj.SETLENGTH);
+            }
+            else if (this.clicked.length === 2){
+                console.log('second card clicked');
+                socket.emit('secondCardClick', {cardNumber: card.cardNumber});
+            }
+            else if (this.clicked.length === this.SETLENGTH){
+                this.checkClicks(this.clicked);
+                this.allBordersBlack();
+                this.clicked = [];
+            }
         }
     }
     this.addToClicked = function(card){
